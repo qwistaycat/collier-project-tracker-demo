@@ -252,7 +252,7 @@ export default function ProposalDetailContent() {
                         background: "white",
                       }}
                     >
-                      <ExternalLinkIcon size={15} /> Link to Meeting
+                      <ExternalLinkIcon size={15} /> Link to Meeting Notes
                     </a>
                   </div>
                 </div>
@@ -277,8 +277,8 @@ export default function ProposalDetailContent() {
                     i === 0
                       ? "0 2rem 0 0"
                       : i === p.metadata.length - 1
-                      ? "0 0 0 2rem"
-                      : "0 2rem";
+                        ? "0 0 0 2rem"
+                        : "0 2rem";
 
                   return (
                     <div

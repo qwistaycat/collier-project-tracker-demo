@@ -181,7 +181,7 @@ export const dashboardSections: DashboardSection[] = [
   },
   {
     title: "Newest",
-    cards: ["nevilewood-traffic", "mixed-use-dev", "sidewalk-safety"].map(
+    cards: ["hilltop-park", "nevilewood-traffic", "mixed-use-dev", "sidewalk-safety"].map(
       (id) => proposalRegistry[id]
     ),
   },
