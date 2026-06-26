@@ -77,10 +77,10 @@ function tlLineStyle(isSolid: boolean): React.CSSProperties {
   return isSolid
     ? { width: 2, background: "#0d2240" }
     : {
-        width: 2,
-        background:
-          "repeating-linear-gradient(to bottom,#94a3b8 0px,#94a3b8 5px,transparent 5px,transparent 10px)",
-      };
+      width: 2,
+      background:
+        "repeating-linear-gradient(to bottom,#94a3b8 0px,#94a3b8 5px,transparent 5px,transparent 10px)",
+    };
 }
 
 export default function Timeline({ stages }: TimelineProps) {
@@ -89,8 +89,11 @@ export default function Timeline({ stages }: TimelineProps) {
     stages.findIndex((s) => s.status === "current")
   );
   const [activeIdx, setActiveIdx] = useState(initialIdx);
+  const [selectedIdx, setSelectedIdx] = useState(initialIdx);
+  const [selectedInView, setSelectedInView] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isScrollingRef = useRef(false);
 
   // Scroll to current stage on mount
   useEffect(() => {
@@ -103,9 +106,11 @@ export default function Timeline({ stages }: TimelineProps) {
 
   // Scroll handler — update sidebar highlight based on scroll position
   const handleScroll = useCallback(() => {
+    if (isScrollingRef.current) return;
     const container = contentRef.current;
     if (!container) return;
     const top = container.getBoundingClientRect().top;
+    const bottom = container.getBoundingClientRect().bottom;
     let closest = activeIdx;
     let minDist = Infinity;
     stages.forEach((_, i) => {
@@ -118,14 +123,29 @@ export default function Timeline({ stages }: TimelineProps) {
       }
     });
     setActiveIdx(closest);
-  }, [stages, activeIdx]);
+
+    // Check if the selected card is still visible in the scroll container
+    const selectedCard = cardRefs.current[selectedIdx];
+    if (selectedCard) {
+      const cardRect = selectedCard.getBoundingClientRect();
+      const isVisible = cardRect.bottom > top + 20 && cardRect.top < bottom - 20;
+      setSelectedInView(isVisible);
+    }
+  }, [stages, activeIdx, selectedIdx]);
 
   const selectStage = (idx: number) => {
     setActiveIdx(idx);
+    setSelectedIdx(idx);
+    setSelectedInView(true);
     const card = cardRefs.current[idx];
     const container = contentRef.current;
     if (card && container) {
+      isScrollingRef.current = true;
       container.scrollTo({ top: card.offsetTop - 20, behavior: "smooth" });
+      // Re-enable scroll handler after animation completes
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 500);
     }
   };
 
@@ -178,8 +198,8 @@ export default function Timeline({ stages }: TimelineProps) {
             const nameColor = isActive
               ? "white"
               : stage.status === "future"
-              ? "#94a3b8"
-              : "#1e293b";
+                ? "#94a3b8"
+                : "#1e293b";
             const dateColor = isActive ? "#93c5fd" : "#94a3b8";
 
             return (
@@ -276,7 +296,7 @@ export default function Timeline({ stages }: TimelineProps) {
         ref={contentRef}
         onScroll={handleScroll}
         className="timeline-content"
-        style={{ flex: 1, overflowY: "scroll", padding: "20px 24px" }}
+        style={{ flex: 1, overflowY: "scroll", padding: "20px 24px", position: "relative" }}
       >
         {stages.map((stage, i) => {
           const isCurrent = stage.status === "current";
@@ -287,25 +307,52 @@ export default function Timeline({ stages }: TimelineProps) {
                 cardRefs.current[i] = el;
               }}
               style={{
-                border: isCurrent
-                  ? "2px solid #0d2240"
+                border: i === selectedIdx
+                  ? `2px solid rgba(13, 34, 64, ${selectedInView ? 1 : 0.2})`
                   : "1px solid #e2e8f0",
                 background: "white",
                 borderRadius: 10,
-                padding: "20px 24px",
+                padding: i === selectedIdx ? "20px 24px" : "21px 25px",
                 marginBottom: 16,
+                transition: "border 0.3s ease",
               }}
             >
-              <h4
+              <div
                 style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "#0d2240",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                   margin: "0 0 4px 0",
                 }}
               >
-                {stage.label}
-              </h4>
+                <h4
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#0d2240",
+                    margin: 0,
+                  }}
+                >
+                  {stage.label}
+                </h4>
+                {isCurrent && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "white",
+                      background: "#2563eb",
+                      padding: "2px 8px",
+                      borderRadius: 9999,
+                      lineHeight: "18px",
+                      letterSpacing: "0.02em",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Current
+                  </span>
+                )}
+              </div>
               <p
                 style={{
                   fontSize: 12,
