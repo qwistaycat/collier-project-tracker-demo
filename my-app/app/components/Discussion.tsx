@@ -1,0 +1,681 @@
+"use client";
+
+import { useState, useRef } from "react";
+import type { DiscussionData, Comment, Reply } from "@/app/data/proposals";
+import { EyeIcon } from "./icons";
+
+// ── Avatar ──────────────────────────────────────────────────────
+
+function Avatar({ initial, color }: { initial: string; color: string }) {
+  return (
+    <div
+      style={{
+        width: 32,
+        height: 32,
+        borderRadius: "50%",
+        flexShrink: 0,
+        background: color,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 12,
+        fontWeight: 700,
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
+// ── Reply Form ──────────────────────────────────────────────────
+
+function ReplyForm({
+  threadIdx,
+  onSend,
+  onCancel,
+  initialValue,
+}: {
+  threadIdx: string;
+  onSend: (threadIdx: string, message: string) => void;
+  onCancel: () => void;
+  initialValue: string;
+}) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <textarea
+        ref={inputRef}
+        placeholder="Write a reply..."
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
+        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+        style={{
+          width: "100%",
+          height: 76,
+          border: "1px solid #e5e7eb",
+          borderRadius: 8,
+          padding: "10px 14px",
+          fontSize: 13,
+          color: "#374151",
+          resize: "none",
+          fontFamily: "inherit",
+          boxSizing: "border-box",
+          outline: "none",
+          transition: "border-color 0.15s",
+        }}
+      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 8,
+          marginTop: 6,
+        }}
+      >
+        <button
+          onClick={onCancel}
+          style={{
+            padding: "7px 16px",
+            background: "white",
+            color: "#6b7280",
+            fontSize: 12,
+            fontWeight: 500,
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            if (value.trim()) onSend(threadIdx, value.trim());
+          }}
+          style={{
+            padding: "7px 18px",
+            background: "#0d2240",
+            color: "white",
+            fontSize: 12,
+            fontWeight: 600,
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Send Reply
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Reply Item ──────────────────────────────────────────────────
+
+function ReplyItem({
+  reply,
+  onReply,
+}: {
+  reply: Reply;
+  onReply: (user: string) => void;
+}) {
+  const nameStyle: React.CSSProperties = reply.isOfficial
+    ? { fontWeight: 700, color: "#2563eb", fontSize: 13 }
+    : { fontWeight: 600, fontSize: 13, color: "#111827" };
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 5,
+        }}
+      >
+        <Avatar
+          initial={reply.user.charAt(0).toUpperCase()}
+          color={reply.avatarColor}
+        />
+        <span style={nameStyle}>{reply.user}</span>
+        {reply.isOfficial && (
+          <span
+            style={{
+              fontSize: 10,
+              background: "#dbeafe",
+              color: "#1d4ed8",
+              padding: "1px 7px",
+              borderRadius: 999,
+              fontWeight: 600,
+            }}
+          >
+            Official
+          </span>
+        )}
+        <span style={{ fontSize: 12, color: "#9ca3af" }}>{reply.timeAgo}</span>
+      </div>
+      <div style={{ marginLeft: 40 }}>
+        <div
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+            padding: "10px 14px",
+            fontSize: 13,
+            color: "#374151",
+            lineHeight: 1.6,
+          }}
+        >
+          {reply.replyTo && (
+            <span style={{ color: "#2563eb", fontWeight: 600 }}>
+              @{reply.replyTo}{" "}
+            </span>
+          )}
+          {reply.message}
+        </div>
+        <span
+          onClick={() => onReply(reply.user)}
+          style={{
+            display: "inline-block",
+            marginTop: 5,
+            fontSize: 12,
+            color: "#6b7280",
+            cursor: "pointer",
+          }}
+        >
+          ↩ Reply
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Comment Thread ──────────────────────────────────────────────
+
+function CommentThread({
+  comment,
+  threadIdx,
+  onSendReply,
+}: {
+  comment: Comment;
+  threadIdx: string;
+  onSendReply: (threadIdx: string, message: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [replyFormOpen, setReplyFormOpen] = useState(false);
+  const [replyInitial, setReplyInitial] = useState("");
+
+  const allReplies = comment.replies || [];
+  const officialReplies = allReplies.filter((r) => r.isOfficial);
+  const normalReplies = allReplies.filter((r) => !r.isOfficial);
+  const shouldCollapse = normalReplies.length > 2;
+
+  const nameStyle: React.CSSProperties = comment.isOfficial
+    ? { fontWeight: 700, color: "#2563eb", fontSize: 13 }
+    : { fontWeight: 600, fontSize: 13, color: "#111827" };
+
+  const openReply = (user: string | null) => {
+    setReplyInitial(user ? `@${user} ` : "");
+    setReplyFormOpen(true);
+  };
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      {/* Top-level comment */}
+      <div style={{ marginBottom: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 6,
+          }}
+        >
+          <Avatar
+            initial={comment.user.charAt(0).toUpperCase()}
+            color={comment.avatarColor}
+          />
+          <span style={nameStyle}>{comment.user}</span>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>
+            {comment.timeAgo}
+          </span>
+        </div>
+        <div style={{ marginLeft: 40 }}>
+          <div
+            style={{
+              border: "1px solid #e5e7eb",
+              borderRadius: 6,
+              padding: "10px 14px",
+              fontSize: 13,
+              color: "#374151",
+              lineHeight: 1.6,
+            }}
+          >
+            {comment.message}
+          </div>
+          <span
+            onClick={() => openReply(null)}
+            style={{
+              display: "inline-block",
+              marginTop: 5,
+              fontSize: 12,
+              color: "#6b7280",
+              cursor: "pointer",
+            }}
+          >
+            ↩ Reply
+          </span>
+        </div>
+      </div>
+
+      {/* Replies area */}
+      <div style={{ marginLeft: 40, marginTop: 2 }}>
+        {/* Official replies (always visible) */}
+        {officialReplies.map((r, i) => (
+          <ReplyItem key={`off-${i}`} reply={r} onReply={(u) => openReply(u)} />
+        ))}
+
+        {/* Normal replies */}
+        {(!shouldCollapse || expanded) &&
+          normalReplies.map((r, i) => (
+            <ReplyItem
+              key={`norm-${i}`}
+              reply={r}
+              onReply={(u) => openReply(u)}
+            />
+          ))}
+
+        {/* Collapse/expand controls */}
+        {shouldCollapse && !expanded && (
+          <div
+            onClick={() => setExpanded(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              marginTop: 6,
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex" }}>
+              {normalReplies.slice(0, 3).map((r, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    background: r.avatarColor,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: 8,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    border: "1.5px solid white",
+                    marginLeft: i > 0 ? -5 : 0,
+                  }}
+                >
+                  {r.user.charAt(0).toUpperCase()}
+                </div>
+              ))}
+            </div>
+            <span
+              style={{ fontSize: 12, color: "#2563eb", fontWeight: 500 }}
+            >
+              View {normalReplies.length} replies ›
+            </span>
+          </div>
+        )}
+
+        {shouldCollapse && expanded && (
+          <div style={{ marginTop: 4 }}>
+            <span
+              onClick={() => setExpanded(false)}
+              style={{ fontSize: 12, color: "#6b7280", cursor: "pointer" }}
+            >
+              ∧ Hide replies
+            </span>
+          </div>
+        )}
+
+        {/* Reply form */}
+        {replyFormOpen && (
+          <ReplyForm
+            threadIdx={threadIdx}
+            initialValue={replyInitial}
+            onCancel={() => setReplyFormOpen(false)}
+            onSend={(tid, msg) => {
+              onSendReply(tid, msg);
+              setReplyFormOpen(false);
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Past Feedback ───────────────────────────────────────────────
+
+function PastFeedbackItem({
+  time,
+  message,
+}: {
+  time: string;
+  message: string;
+}) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 6,
+        }}
+      >
+        <Avatar initial="Y" color="#22c55e" />
+        <span style={{ fontWeight: 600, fontSize: 13, color: "#111827" }}>
+          You
+        </span>
+        <span style={{ fontSize: 12, color: "#9ca3af" }}>{time}</span>
+      </div>
+      <div
+        style={{
+          marginLeft: 42,
+          border: "1px solid #e5e7eb",
+          borderRadius: 6,
+          padding: "10px 14px",
+          fontSize: 13,
+          color: "#374151",
+          lineHeight: 1.6,
+        }}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
+// ── Main Discussion Component ───────────────────────────────────
+
+interface DiscussionProps {
+  data: DiscussionData;
+}
+
+export default function Discussion({ data }: DiscussionProps) {
+  const [activeTab, setActiveTab] = useState<"private" | "public">("private");
+  const [privateFeedback, setPrivateFeedback] = useState(
+    data.private.pastFeedback
+  );
+  const [publicComments, setPublicComments] = useState(data.public.comments);
+  const privateInputRef = useRef<HTMLTextAreaElement>(null);
+  const publicInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const submitPrivateMessage = () => {
+    const input = privateInputRef.current;
+    if (!input || !input.value.trim()) return;
+    const now = new Date();
+    const timeStr =
+      now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) +
+      " " +
+      now.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    setPrivateFeedback((prev) => [
+      { time: timeStr, message: input.value.trim() },
+      ...prev,
+    ]);
+    input.value = "";
+  };
+
+  const submitPublicMessage = () => {
+    const input = publicInputRef.current;
+    if (!input || !input.value.trim()) return;
+    const newComment: Comment = {
+      user: "You",
+      avatarColor: "#22c55e",
+      timeAgo: "just now",
+      message: input.value.trim(),
+      replies: [],
+    };
+    setPublicComments((prev) => [newComment, ...prev]);
+    input.value = "";
+  };
+
+  const handleSendReply = (_threadIdx: string, _message: string) => {
+    // In a real app this would update the comment tree
+    // For the prototype, the reply form just closes
+  };
+
+  const activeStyle: React.CSSProperties = {
+    flex: 1,
+    padding: 14,
+    border: "none",
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 600,
+    background: "#0d2240",
+    color: "white",
+    borderRadius: 0,
+  };
+
+  const inactiveStyle: React.CSSProperties = {
+    flex: 1,
+    padding: 14,
+    border: "none",
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 600,
+    background: "white",
+    color: "#374151",
+    borderLeft: "1px solid #e5e7eb",
+    borderRadius: 0,
+  };
+
+  return (
+    <div
+      style={{
+        border: "1px solid #e5e7eb",
+        borderRadius: 8,
+        overflow: "hidden",
+      }}
+    >
+      {/* Tab buttons */}
+      <div style={{ display: "flex" }}>
+        <button
+          onClick={() => setActiveTab("private")}
+          style={activeTab === "private" ? activeStyle : inactiveStyle}
+        >
+          Private Message to Township
+        </button>
+        <button
+          onClick={() => setActiveTab("public")}
+          style={activeTab === "public" ? activeStyle : inactiveStyle}
+        >
+          Community Feedback Forum
+        </button>
+      </div>
+
+      {/* Tab content */}
+      <div style={{ padding: "20px 24px" }}>
+        {/* Private tab */}
+        {activeTab === "private" && (
+          <div>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#374151",
+                lineHeight: 1.6,
+                margin: "0 0 4px 0",
+              }}
+            >
+              {data.private.descriptions[0]}
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#374151",
+                margin: "0 0 14px 0",
+              }}
+            >
+              {data.private.descriptions[1]}
+            </p>
+            <textarea
+              ref={privateInputRef}
+              placeholder={data.private.placeholder}
+              style={{
+                width: "100%",
+                height: 90,
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                padding: "10px 14px",
+                fontSize: 13,
+                color: "#374151",
+                resize: "vertical",
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
+            />
+            <button
+              onClick={submitPrivateMessage}
+              style={{
+                width: "100%",
+                marginTop: 8,
+                padding: 12,
+                background: "#0d2240",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {data.private.buttonLabel}
+            </button>
+            <div style={{ marginTop: 24 }}>
+              <h3
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "#2563eb",
+                  margin: "0 0 16px 0",
+                }}
+              >
+                Your Past Feedback
+              </h3>
+              {privateFeedback.map((item, i) => (
+                <PastFeedbackItem
+                  key={i}
+                  time={item.time}
+                  message={item.message}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Public tab */}
+        {activeTab === "public" && (
+          <div>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#374151",
+                lineHeight: 1.6,
+                margin: "0 0 4px 0",
+              }}
+            >
+              {data.public.descriptions[0]}
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#374151",
+                margin: "0 0 14px 0",
+              }}
+            >
+              {data.public.descriptions[1]}
+            </p>
+            <textarea
+              ref={publicInputRef}
+              placeholder={data.public.placeholder}
+              style={{
+                width: "100%",
+                height: 90,
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                padding: "10px 14px",
+                fontSize: 13,
+                color: "#374151",
+                resize: "vertical",
+                fontFamily: "inherit",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
+            />
+            <button
+              onClick={submitPublicMessage}
+              style={{
+                width: "100%",
+                marginTop: 8,
+                padding: 12,
+                background: "#0d2240",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {data.public.buttonLabel}
+            </button>
+            <div style={{ marginTop: 24 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#2563eb",
+                    margin: 0,
+                  }}
+                >
+                  Public Feedback
+                </h3>
+                <EyeIcon />
+                <span style={{ fontSize: 13, color: "#6b7280" }}>
+                  {data.public.viewCount}
+                </span>
+              </div>
+              {publicComments.map((comment, i) => (
+                <CommentThread
+                  key={i}
+                  comment={comment}
+                  threadIdx={`pub-${i}`}
+                  onSendReply={handleSendReply}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
