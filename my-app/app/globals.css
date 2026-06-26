@@ -30,13 +30,16 @@ body {
 .card:hover .card-img {
   filter: brightness(0.62);
 }
+
 .card:hover .card-title {
   color: #2563eb;
 }
+
 /* Not-followed button: only show on card hover */
 .card:hover .card-follow-btn:not(.is-following) {
   opacity: 1 !important;
 }
+
 /* Following badge: always visible */
 .card-follow-btn.is-following {
   opacity: 1 !important;
@@ -60,6 +63,7 @@ select {
 .tl-item {
   transition: background 0.15s ease;
 }
+
 .tl-item:hover:not(.tl-active) {
   background: rgba(13, 34, 64, 0.07) !important;
 }
@@ -67,16 +71,20 @@ select {
 .timeline-content::-webkit-scrollbar {
   width: 4px;
 }
+
 .timeline-content::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .timeline-content::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 2px;
 }
+
 .timeline-content::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
 .timeline-content {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
@@ -87,10 +95,12 @@ select {
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }
 }
+
 .vote-banner-visible {
   animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

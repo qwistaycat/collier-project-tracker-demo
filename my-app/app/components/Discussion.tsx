@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { DiscussionData, Comment, Reply } from "@/app/data/proposals";
 import { EyeIcon } from "./icons";
 
@@ -25,6 +25,84 @@ function Avatar({ initial, color }: { initial: string; color: string }) {
     >
       {initial}
     </div>
+  );
+}
+
+// ── Animated Counter ────────────────────────────────────────────
+
+function AnimatedCounter({ value }: { value: number }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+  const [animating, setAnimating] = useState(false);
+  const [direction, setDirection] = useState<"up" | "down">("up");
+
+  useEffect(() => {
+    if (value !== prevValue) {
+      setDirection(value > prevValue ? "up" : "down");
+      setAnimating(true);
+      const timer = setTimeout(() => {
+        setDisplayValue(value);
+        setAnimating(false);
+      }, 250);
+      setPrevValue(value);
+      return () => clearTimeout(timer);
+    }
+  }, [value, prevValue]);
+
+  const slideOut = animating
+    ? direction === "up"
+      ? "translateY(-100%)"
+      : "translateY(100%)"
+    : "translateY(0)";
+  const slideIn = animating
+    ? "translateY(0)"
+    : direction === "up"
+      ? "translateY(100%)"
+      : "translateY(-100%)";
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        overflow: "hidden",
+        height: "1.2em",
+        position: "relative",
+        minWidth: 16,
+        verticalAlign: "middle",
+      }}
+    >
+      {/* Outgoing number */}
+      <span
+        style={{
+          display: "block",
+          transition: animating ? "transform 0.25s ease-in-out, opacity 0.25s" : "none",
+          transform: slideOut,
+          opacity: animating ? 0 : 1,
+          fontSize: 13,
+          color: "#6b7280",
+        }}
+      >
+        {animating ? displayValue : value}
+      </span>
+      {/* Incoming number */}
+      {animating && (
+        <span
+          style={{
+            display: "block",
+            position: "absolute",
+            left: 0,
+            top: 0,
+            transition: "transform 0.25s ease-in-out, opacity 0.25s",
+            transform: slideIn,
+            opacity: animating ? 1 : 0,
+            fontSize: 13,
+            color: "#6b7280",
+          }}
+        >
+          {value}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -415,6 +493,18 @@ export default function Discussion({ data }: DiscussionProps) {
   const [publicComments, setPublicComments] = useState(data.public.comments);
   const privateInputRef = useRef<HTMLTextAreaElement>(null);
   const publicInputRef = useRef<HTMLTextAreaElement>(null);
+  const [liveViewers, setLiveViewers] = useState(data.public.viewCount);
+
+  // Randomly fluctuate live viewer count
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveViewers((prev) => {
+        const delta = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        return Math.max(1, prev + delta);
+      });
+    }, 3000 + Math.random() * 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const submitPrivateMessage = () => {
     const input = privateInputRef.current;
@@ -449,15 +539,45 @@ export default function Discussion({ data }: DiscussionProps) {
     input.value = "";
   };
 
-  const handleSendReply = (_threadIdx: string, _message: string) => {
-    // In a real app this would update the comment tree
-    // For the prototype, the reply form just closes
+  const handleSendReply = (threadIdx: string, message: string) => {
+    // threadIdx is like "pub-0", "pub-1", etc.
+    const parts = threadIdx.split("-");
+    const idx = parseInt(parts[1], 10);
+    if (isNaN(idx)) return;
+
+    // Parse @username mention from the start of the message
+    let replyTo: string | undefined;
+    let cleanMessage = message;
+    const mentionMatch = message.match(/^@(\S+)\s*/);
+    if (mentionMatch) {
+      replyTo = mentionMatch[1];
+      cleanMessage = message.slice(mentionMatch[0].length);
+    }
+
+    const newReply: Reply = {
+      user: "You",
+      avatarColor: "#22c55e",
+      timeAgo: "just now",
+      replyTo,
+      message: cleanMessage,
+    };
+
+    setPublicComments((prev) =>
+      prev.map((comment, i) =>
+        i === idx
+          ? { ...comment, replies: [...comment.replies, newReply] }
+          : comment
+      )
+    );
   };
 
   const activeStyle: React.CSSProperties = {
     flex: 1,
     padding: 14,
-    border: "none",
+    borderTop: "none",
+    borderRight: "none",
+    borderBottom: "none",
+    borderLeft: "none",
     cursor: "pointer",
     fontSize: 13,
     fontWeight: 600,
@@ -469,13 +589,15 @@ export default function Discussion({ data }: DiscussionProps) {
   const inactiveStyle: React.CSSProperties = {
     flex: 1,
     padding: 14,
-    border: "none",
+    borderTop: "none",
+    borderRight: "none",
+    borderBottom: "none",
+    borderLeft: "1px solid #e5e7eb",
     cursor: "pointer",
     fontSize: 13,
     fontWeight: 600,
     background: "white",
     color: "#374151",
-    borderLeft: "1px solid #e5e7eb",
     borderRadius: 0,
   };
 
@@ -659,10 +781,18 @@ export default function Discussion({ data }: DiscussionProps) {
                 >
                   Public Feedback
                 </h3>
-                <EyeIcon />
-                <span style={{ fontSize: 13, color: "#6b7280" }}>
-                  {data.public.viewCount}
-                </span>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    cursor: "default",
+                  }}
+                  title="Live viewers on this forum"
+                >
+                  <EyeIcon />
+                  <AnimatedCounter value={liveViewers} />
+                </div>
               </div>
               {publicComments.map((comment, i) => (
                 <CommentThread

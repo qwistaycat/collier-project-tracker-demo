@@ -358,7 +358,7 @@ export const discussionData: DiscussionData = {
           "Finally! We've been asking about permanent restrooms for years. My kids play here every weekend and having to drive home or go to a gas station is ridiculous. Fully support this.",
         replies: [
           {
-            user: "Township Official",
+            user: "Township Staff",
             isOfficial: true,
             avatarColor: "#0d2240",
             timeAgo: "3 days ago",
