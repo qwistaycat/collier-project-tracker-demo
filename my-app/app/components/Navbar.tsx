@@ -19,38 +19,17 @@ export default function Navbar() {
       <Link
         href="/"
         style={{
+          color: "white",
+          textDecoration: "none",
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          textDecoration: "none",
         }}
       >
-        <BuildingIcon size={24} className="text-white" />
-        <span
-          style={{
-            color: "white",
-            fontSize: 15,
-            fontWeight: 600,
-            letterSpacing: "0.01em",
-          }}
-        >
-          Collier Township Project
-        </span>
+        <HomeIcon />
       </Link>
 
-      {/* Right: home icon + bell + avatar */}
+      {/* Right: bell + avatar */}
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <Link
-          href="/"
-          style={{
-            color: "white",
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <HomeIcon />
-        </Link>
 
         <button
           style={{
