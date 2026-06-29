@@ -90,10 +90,10 @@ export default function VoteBanner({
       color: string;
       label: string;
     }[] = [
-      { key: "neutral", color: "#a8d8ea", label: "Neutral / Unsure" },
-      { key: "disagree", color: "#f97316", label: "Disagree" },
-      { key: "agree", color: "#22c55e", label: "Agree" },
-    ];
+        { key: "neutral", color: "#a8d8ea", label: "Neutral / Unsure" },
+        { key: "disagree", color: "#f97316", label: "Disagree" },
+        { key: "agree", color: "#22c55e", label: "Agree" },
+      ];
 
     const toXY = (angleDeg: number, radius: number) => {
       const rad = ((angleDeg - 90) * Math.PI) / 180;
@@ -194,7 +194,7 @@ export default function VoteBanner({
             whiteSpace: "nowrap",
           }}
         >
-          See vote results
+          See poll results
         </span>
       </div>
     );
