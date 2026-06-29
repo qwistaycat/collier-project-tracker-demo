@@ -401,6 +401,22 @@ export const discussionData: DiscussionData = {
         replies: [],
       },
       {
+        user: "Resident_hiiiii",
+        avatarColor: "#78783e",
+        timeAgo: "1 day ago",
+        message:
+          "I'm supportive ! This looks great. I'm excited to see this soon.",
+        replies: [],
+      },
+      {
+        user: "Ressi",
+        avatarColor: "#904de",
+        timeAgo: "1 day ago",
+        message:
+          "Wow I'm excited!",
+        replies: [],
+      },
+      {
         user: "NWood_HomeOwner",
         avatarColor: "#67e8f9",
         timeAgo: "2 days ago",
