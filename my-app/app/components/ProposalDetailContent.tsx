@@ -100,49 +100,54 @@ export default function ProposalDetailContent() {
                   flexWrap: "wrap",
                 }}
               >
-                <button
-                  onClick={toggleFollow}
-                  onMouseEnter={() => setHovering(true)}
-                  onMouseLeave={() => setHovering(false)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 7,
-                    borderRadius: 9999,
-                    padding: "10px 22px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "background 0.15s, color 0.15s",
-                    background: following
-                      ? hovering
-                        ? "#dc2626"
-                        : "#0d2240"
-                      : "white",
-                    color: following ? "white" : "#2563eb",
-                    border: following ? "none" : "2px solid #2563eb",
-                    boxShadow:
-                      following && !hovering
-                        ? "0 1px 4px rgba(0,0,0,0.18)"
-                        : "none",
-                  }}
-                >
-                  {following ? (
-                    hovering ? (
-                      <>
-                        <CloseIcon size={14} /> Unfollow
-                      </>
+                <div className="follow-tooltip-wrap" style={{ position: "relative" }}>
+                  <button
+                    onClick={toggleFollow}
+                    onMouseEnter={() => setHovering(true)}
+                    onMouseLeave={() => setHovering(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 7,
+                      borderRadius: 9999,
+                      padding: "10px 22px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "background 0.15s, color 0.15s",
+                      background: following
+                        ? hovering
+                          ? "#dc2626"
+                          : "#0d2240"
+                        : "white",
+                      color: following ? "white" : "#2563eb",
+                      border: following ? "none" : "2px solid #2563eb",
+                      boxShadow:
+                        following && !hovering
+                          ? "0 1px 4px rgba(0,0,0,0.18)"
+                          : "none",
+                    }}
+                  >
+                    {following ? (
+                      hovering ? (
+                        <>
+                          <CloseIcon size={14} /> Unfollow
+                        </>
+                      ) : (
+                        <>
+                          <CheckIcon size={14} /> Following
+                        </>
+                      )
                     ) : (
                       <>
-                        <CheckIcon size={14} /> Following
+                        <PlusIcon size={14} /> Follow Project
                       </>
-                    )
-                  ) : (
-                    <>
-                      <PlusIcon size={14} /> Follow Project
-                    </>
-                  )}
-                </button>
+                    )}
+                  </button>
+                  <span className="follow-tooltip-text">
+                    Get notifications and saves to Your Following Projects in home page
+                  </span>
+                </div>
                 <span
                   style={{
                     fontSize: 13,
