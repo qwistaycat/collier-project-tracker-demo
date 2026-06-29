@@ -250,7 +250,7 @@ export default function VoteBanner({
               margin: "0 0 8px 0",
             }}
           >
-            Voting
+            Poll Voting
           </h2>
           <p
             style={{
@@ -340,7 +340,7 @@ export default function VoteBanner({
               paddingRight: 24,
             }}
           >
-            Voting Results
+            Poll Results
           </h2>
 
           {/* Pie + legend */}
