@@ -1,8 +1,8 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
 import { useState } from "react";
-import { dashboardSections, type DashboardSection } from "@/data/proposals";
-import ProposalCard from "@/components/ProposalCard";
-import Filters from "@/components/Filters";
+import { dashboardSections, type DashboardSection, type ProposalCard as ProposalCardType } from "../../data/proposals";
+import ProposalCard from "../../components/ProposalCard";
+import Filters from "../../components/Filters";
 
 export default function DashboardScreen() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +70,7 @@ export default function DashboardScreen() {
   });
 
   const renderSection = (section: DashboardSection, idx: number) => {
-    const cards = section.cards || [];
+    const cards: ProposalCardType[] = section.cards || [];
     if (cards.length === 0) return null;
 
     return (

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Switch,
 } from "react-native";
-import { CATEGORIES, NEIGHBORHOODS } from "@/data/proposals";
+import { CATEGORIES, NEIGHBORHOODS } from "../data/proposals";
 
 interface FiltersProps {
   selectedCategory: string | null;

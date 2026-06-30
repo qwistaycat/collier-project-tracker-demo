@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import type { ProposalCard as ProposalCardType } from "@/data/proposals";
+import type { ProposalCard as ProposalCardType } from "../data/proposals";
 
 interface Props {
   card: ProposalCardType;
