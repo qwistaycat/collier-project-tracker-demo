@@ -75,9 +75,9 @@ export default function VoteBanner({
     setPanel("chip");
   }, []);
 
-  const reopenResults = useCallback(() => {
-    setPanel("results");
-  }, []);
+  const reopenBanner = useCallback(() => {
+    setPanel(voteState.userVote ? "results" : "voting");
+  }, [voteState.userVote]);
 
   // ── Pie chart SVG ──
 
@@ -165,7 +165,7 @@ export default function VoteBanner({
     return (
       <div
         ref={bannerRef}
-        onClick={reopenResults}
+        onClick={reopenBanner}
         style={{
           position: "fixed",
           bottom: 28,
@@ -194,7 +194,7 @@ export default function VoteBanner({
             whiteSpace: "nowrap",
           }}
         >
-          See poll results
+          {voteState.userVote ? "See poll results" : "Vote in poll"}
         </span>
       </div>
     );
@@ -218,26 +218,25 @@ export default function VoteBanner({
         overflow: "hidden",
       }}
     >
-      {/* Close button — only visible after voting */}
-      {panel === "results" && (
-        <button
-          onClick={closeBanner}
-          style={{
-            position: "absolute",
-            top: 14,
-            right: 16,
-            background: "none",
-            border: "none",
-            color: "rgba(255,255,255,0.55)",
-            fontSize: 18,
-            cursor: "pointer",
-            lineHeight: 1,
-            padding: 4,
-          }}
-        >
-          ✕
-        </button>
-      )}
+      {/* Close button — always visible on voting and results panels */}
+      <button
+        onClick={closeBanner}
+        style={{
+          position: "absolute",
+          top: 14,
+          right: 16,
+          background: "none",
+          border: "none",
+          color: "rgba(255,255,255,0.55)",
+          fontSize: 18,
+          cursor: "pointer",
+          lineHeight: 1,
+          padding: 4,
+          zIndex: 10,
+        }}
+      >
+        ✕
+      </button>
 
       {/* Panel A: Vote prompt */}
       {panel === "voting" && (
