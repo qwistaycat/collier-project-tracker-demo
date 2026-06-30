@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import HeaderRight from "../../components/HeaderRight";
 
 export default function ResidentLayout() {
   return (
@@ -10,6 +11,7 @@ export default function ResidentLayout() {
           fontFamily: "Poppins_600SemiBold",
           fontSize: 16,
         },
+        headerRight: () => <HeaderRight />,
       }}
     >
       <Stack.Screen
