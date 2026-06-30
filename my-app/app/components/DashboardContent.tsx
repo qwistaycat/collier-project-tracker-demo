@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect } from "react";
 import {
   proposalRegistry,
   dashboardSections,
+  FUNCTIONAL_CATEGORIES,
+  DEPARTMENTS,
   type ProposalCard as ProposalCardType,
   type DashboardSection,
 } from "@/app/data/proposals";
@@ -22,6 +24,9 @@ function getFollowedIds(): string[] {
 export default function DashboardContent() {
   const [followedIds, setFollowedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -40,11 +45,27 @@ export default function DashboardContent() {
 
   const renderSection = (section: DashboardSection, idx: number) => {
     // Dynamic: build followed cards from state
-    const cards: ProposalCardType[] = section.dynamic
-      ? followedIds
-          .map((id) => proposalRegistry[id])
-          .filter(Boolean)
+    let cards: ProposalCardType[] = section.dynamic
+      ? followedIds.map((id) => proposalRegistry[id]).filter(Boolean)
       : section.cards || [];
+
+    // Apply search + filters (skip for the followed section so it always shows what you follow)
+    if (!section.dynamic) {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        cards = cards.filter(
+          (c) =>
+            c.title.toLowerCase().includes(q) ||
+            c.description.toLowerCase().includes(q)
+        );
+      }
+      if (filterCategory) {
+        cards = cards.filter((c) => c.functionalCategory === filterCategory);
+      }
+      if (filterDepartment) {
+        cards = cards.filter((c) => c.department === filterDepartment);
+      }
+    }
 
     // Empty-state for followed section
     if (cards.length === 0) {
@@ -111,28 +132,42 @@ export default function DashboardContent() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-10 flex-wrap">
-        <select className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Sort By</option>
-          <option>Newest First</option>
-          <option>Deadline Approaching</option>
-          <option>Most Discussed</option>
-          <option>Most Viewed</option>
+          <option value="newest">Newest First</option>
+          <option value="deadline">Deadline Approaching</option>
+          <option value="discussed">Most Discussed</option>
+          <option value="viewed">Most Viewed</option>
         </select>
-        <select className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">Filter Category</option>
-          <option>Parks &amp; Recreation</option>
-          <option>Traffic and Safety</option>
-          <option>Zoning</option>
-          <option>Infrastructure</option>
-          <option>Public Safety</option>
+
+        {/* Tag 1: Functional Category */}
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Categories</option>
+          {FUNCTIONAL_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
-        <select className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">Filter by Neighborhood</option>
-          <option>Nevilewood</option>
-          <option>Beechmont</option>
-          <option>Kirwan Heights</option>
-          <option>Rennerdale</option>
+
+        {/* Tag 2: Department */}
+        <select
+          value={filterDepartment}
+          onChange={(e) => setFilterDepartment(e.target.value)}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Departments</option>
+          {DEPARTMENTS.map((dept) => (
+            <option key={dept} value={dept}>{dept}</option>
+          ))}
         </select>
+
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
           <input
             type="checkbox"
