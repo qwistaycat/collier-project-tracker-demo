@@ -1,6 +1,6 @@
 // ================================================================
 //  DATA LAYER — single source of truth for all proposals and content.
-//  Ported from the vanilla JS inline data.
+//  Shared between web and mobile apps.
 // ================================================================
 
 // ── Types ────────────────────────────────────────────────────────
@@ -9,10 +9,16 @@ export interface ProposalCard {
   id: string;
   title: string;
   category: string;
+  neighborhood: string;
   updated: string;
   description: string;
   image: string;
   link: string;
+  isArchived: boolean;
+  createdDate: string; // ISO format: YYYY-MM-DD for sorting
+  daysUntilDeadline?: number; // Days until deadline for sorting
+  commentsCount: number;
+  viewsCount: number;
 }
 
 export interface DashboardSection {
@@ -97,6 +103,23 @@ export interface DiscussionData {
   public: PublicDiscussion;
 }
 
+// ── Shared Filter Options ──────────────────────────────────────────
+
+export const CATEGORIES = [
+  "Parks & Recreation",
+  "Traffic and Safety",
+  "Zoning",
+  "Infrastructure",
+  "Public Safety",
+];
+
+export const NEIGHBORHOODS = [
+  "Nevilewood",
+  "Beechmont",
+  "Kirwan Heights",
+  "Rennerdale",
+];
+
 // ── Proposal Registry ────────────────────────────────────────────
 
 export const proposalRegistry: Record<string, ProposalCard> = {
@@ -104,71 +127,120 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     id: "hilltop-park",
     title: "Hilltop Park Expansion",
     category: "Parks & Recreation",
+    neighborhood: "Rennerdale",
     updated: "2 days ago",
     description:
       "Expanding Hilltop Park by adding new courts, a more accessible playground, extra parking, trail lighting, and permanent restrooms.",
     image: "https://picsum.photos/seed/hilltoppark/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-28",
+    commentsCount: 24,
+    viewsCount: 342,
   },
   "nevilewood-traffic": {
     id: "nevilewood-traffic",
     title: "Nevilewood Traffic Management Plan",
     category: "Traffic and Safety",
+    neighborhood: "Nevilewood",
     updated: "2 hours ago",
-    description:
-      "Improving traffic on Nevilewood's main entrance road.",
+    description: "Improving traffic on Nevilewood's main entrance road.",
     image: "https://picsum.photos/seed/roundabout/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-30",
+    commentsCount: 42,
+    viewsCount: 512,
   },
   "mixed-use-dev": {
     id: "mixed-use-dev",
     title: "Small-Scale Mixed-Use Development",
     category: "Zoning",
+    neighborhood: "Beechmont",
     updated: "3 days ago",
     description:
       "Updating the zoning rules in Beechmont to allow shops, cafes, and small businesses on ground floors of residential buildings.",
     image: "https://picsum.photos/seed/cafeinterior/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-27",
+    commentsCount: 15,
+    viewsCount: 189,
   },
   "sidewalk-safety": {
     id: "sidewalk-safety",
     title: "Sidewalk and Pedestrian Safety Improvement",
     category: "Infrastructure",
+    neighborhood: "Beechmont",
     updated: "1 day ago",
-    description:
-      "Making walking safer in Beechmont by fixing their sidewalks.",
+    description: "Making walking safer in Beechmont by fixing their sidewalks.",
     image: "https://picsum.photos/seed/suburbhouse/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-29",
+    commentsCount: 8,
+    viewsCount: 120,
   },
   "conservation-easement": {
     id: "conservation-easement",
     title: "Conservation Easement on Undeveloped Green Space",
-    category: "Parks and Rec",
+    category: "Parks & Recreation",
+    neighborhood: "Rennerdale",
     updated: "2 hours ago",
     description:
       "Protecting 14.3 acres of undeveloped land in Rennerdale by placing a conservation easement on it.",
     image: "https://picsum.photos/seed/greenforest/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-30",
+    daysUntilDeadline: 3,
+    commentsCount: 31,
+    viewsCount: 275,
   },
   "stormwater-upgrade": {
     id: "stormwater-upgrade",
     title: "Stormwater Drainage System Upgrade",
     category: "Infrastructure",
+    neighborhood: "Kirwan Heights",
     updated: "1 hour ago",
     description:
       "Replacing pines and fixing road drainage to prevent stormwater flooding in Kirwan Heights.",
     image: "https://picsum.photos/seed/floodroad/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-30",
+    commentsCount: 19,
+    viewsCount: 210,
   },
   "fire-dept-renovation": {
     id: "fire-dept-renovation",
     title: "Fire Department Facility Renovation",
     category: "Public Safety",
+    neighborhood: "Kirwan Heights",
     updated: "3 weeks ago",
     description:
       "Adding a new HVAC system, diesel exhaust system, and structural wall repairs at Kirwan Heights' fire station.",
     image: "https://picsum.photos/seed/firestation42/600/340",
     link: "/proposal",
+    isArchived: false,
+    createdDate: "2026-06-09",
+    commentsCount: 5,
+    viewsCount: 95,
+  },
+  "street-sweeping-2025": {
+    id: "street-sweeping-2025",
+    title: "2025 Fall Street Sweeping Schedule",
+    category: "Infrastructure",
+    neighborhood: "Nevilewood",
+    updated: "6 months ago",
+    description:
+      "Routine street sweeping schedule and parking restrictions for the fall season.",
+    image: "https://picsum.photos/seed/sweeper/600/340",
+    link: "/proposal",
+    isArchived: true,
+    createdDate: "2025-10-15",
+    commentsCount: 2,
+    viewsCount: 45,
   },
 };
 

@@ -1,10 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
-import { useRouter } from "expo-router";
+import { View, Text, StyleSheet, Linking } from "react-native";
+import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ChooseDemoScreen() {
-  const router = useRouter();
-
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.container}>
@@ -17,17 +15,18 @@ export default function ChooseDemoScreen() {
 
         <View style={styles.cards}>
           {/* Resident Card */}
-          <TouchableOpacity
+          <Link
+            href="/(resident)/dashboard"
             style={[styles.card, styles.cardActive]}
-            activeOpacity={0.85}
-            onPress={() => router.push("/(resident)/dashboard")}
           >
-            <Text style={styles.cardHeading}>Log in as Resident</Text>
-            <Text style={styles.cardText}>
-              This view shows how information layout is shown to the public and
-              how residents can interact.
-            </Text>
-          </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardHeading}>Log in as Resident</Text>
+              <Text style={styles.cardText}>
+                This view shows how information layout is shown to the public and
+                how residents can interact.
+              </Text>
+            </View>
+          </Link>
 
           {/* Township Card — disabled */}
           <View style={[styles.card, styles.cardDisabled]}>
