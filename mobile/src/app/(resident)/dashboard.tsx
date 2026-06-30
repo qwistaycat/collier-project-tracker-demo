@@ -85,7 +85,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <Text style={styles.pageTitle}>Policy Tracking</Text>
+      <Text style={styles.pageTitle}>Project Tracking</Text>
 
       {/* Search */}
       <View style={styles.searchContainer}>
