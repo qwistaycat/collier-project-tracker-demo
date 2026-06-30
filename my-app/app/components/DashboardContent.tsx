@@ -4,8 +4,8 @@ import { useState, useCallback, useEffect } from "react";
 import {
   proposalRegistry,
   dashboardSections,
-  CATEGORIES,
-  NEIGHBORHOODS,
+  FUNCTIONAL_CATEGORIES,
+  DEPARTMENTS,
   type ProposalCard as ProposalCardType,
   type DashboardSection,
 } from "@/app/data/proposals";
@@ -24,10 +24,9 @@ function getFollowedIds(): string[] {
 export default function DashboardContent() {
   const [followedIds, setFollowedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
   const [sortBy, setSortBy] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState("");
-  const [includeArchived, setIncludeArchived] = useState(false);
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -47,53 +46,27 @@ export default function DashboardContent() {
   const renderSection = (section: DashboardSection, idx: number) => {
     // Dynamic: build followed cards from state
     let cards: ProposalCardType[] = section.dynamic
-      ? followedIds
-        .map((id) => proposalRegistry[id])
-        .filter(Boolean)
+      ? followedIds.map((id) => proposalRegistry[id]).filter(Boolean)
       : section.cards || [];
 
-    // Filter cards
-    cards = cards.filter((card) => {
-      // 1. Search Query
-      const matchesSearch =
-        searchQuery === "" ||
-        card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        card.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        card.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // 2. Category Filter
-      const matchesCategory =
-        selectedCategory === "" || card.category === selectedCategory;
-
-      // 3. Neighborhood Filter
-      const matchesNeighborhood =
-        selectedNeighborhood === "" || card.neighborhood === selectedNeighborhood;
-
-      // 4. Archive Filter
-      const matchesArchived = includeArchived ? true : !card.isArchived;
-
-      return matchesSearch && matchesCategory && matchesNeighborhood && matchesArchived;
-    });
-
-    // Sort cards
-    if (sortBy !== "") {
-      cards = [...cards].sort((a, b) => {
-        if (sortBy === "Newest First") {
-          return b.createdDate.localeCompare(a.createdDate);
-        }
-        if (sortBy === "Deadline Approaching") {
-          const aDeadline = a.daysUntilDeadline ?? 9999;
-          const bDeadline = b.daysUntilDeadline ?? 9999;
-          return aDeadline - bDeadline;
-        }
-        if (sortBy === "Most Discussed") {
-          return (b.commentsCount ?? 0) - (a.commentsCount ?? 0);
-        }
-        if (sortBy === "Most Viewed") {
-          return (b.viewsCount ?? 0) - (a.viewsCount ?? 0);
-        }
-        return 0;
-      });
+    // Apply search + filters (skip for the followed section so it always shows what you follow)
+    if (!section.dynamic) {
+      // Category filter: sections ARE categories — hide entire section if title doesn't match
+      if (filterCategory && section.title !== filterCategory) {
+        return null;
+      }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        cards = cards.filter(
+          (c) =>
+            c.title.toLowerCase().includes(q) ||
+            c.description.toLowerCase().includes(q)
+        );
+      }
+      // Department filter: filter cards within the section
+      if (filterDepartment) {
+        cards = cards.filter((c) => c.department === filterDepartment);
+      }
     }
 
     // Empty-state for followed section
@@ -136,7 +109,7 @@ export default function DashboardContent() {
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-8 py-10">
       <h1 className="text-2xl font-bold text-gray-900 mb-7">
-        Project Tracking
+        Policy Tracking
       </h1>
 
       {/* Search */}
@@ -151,14 +124,12 @@ export default function DashboardContent() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="absolute inset-y-0 right-2.5 flex items-center text-gray-400 hover:text-gray-600"
-          >
-            <CloseIcon size={14} />
-          </button>
-        )}
+        <button
+          onClick={() => setSearchQuery("")}
+          className="absolute inset-y-0 right-2.5 flex items-center text-gray-400 hover:text-gray-600"
+        >
+          <CloseIcon size={14} />
+        </button>
       </div>
 
       {/* Filters */}
@@ -169,40 +140,39 @@ export default function DashboardContent() {
           className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Sort By</option>
-          <option value="Newest First">Newest First</option>
-          <option value="Deadline Approaching">Deadline Approaching</option>
-          <option value="Most Discussed">Most Discussed</option>
-          <option value="Most Viewed">Most Viewed</option>
+          <option value="newest">Newest First</option>
+          <option value="deadline">Deadline Approaching</option>
+          <option value="discussed">Most Discussed</option>
+          <option value="viewed">Most Viewed</option>
         </select>
+
+        {/* Tag 1: Functional Category */}
         <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
           className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Filter Category</option>
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
+          <option value="">All Categories</option>
+          {FUNCTIONAL_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
+
+        {/* Tag 2: Department */}
         <select
-          value={selectedNeighborhood}
-          onChange={(e) => setSelectedNeighborhood(e.target.value)}
+          value={filterDepartment}
+          onChange={(e) => setFilterDepartment(e.target.value)}
           className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Filter by Neighborhood</option>
-          {NEIGHBORHOODS.map((nh) => (
-            <option key={nh} value={nh}>
-              {nh}
-            </option>
+          <option value="">All Departments</option>
+          {DEPARTMENTS.map((dept) => (
+            <option key={dept} value={dept}>{dept}</option>
           ))}
         </select>
+
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
           <input
             type="checkbox"
-            checked={includeArchived}
-            onChange={(e) => setIncludeArchived(e.target.checked)}
             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           Include Archived
