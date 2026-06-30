@@ -49,7 +49,7 @@ export default function Sidebar({ proposals }: SidebarProps) {
             }}
           >
             <Link
-              href="/"
+              href="/dashboard"
               style={{
                 color: "#6b7280",
                 textDecoration: "none",

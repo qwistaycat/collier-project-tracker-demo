@@ -17,7 +17,7 @@ export default function Navbar() {
     >
       {/* Left: logo icon + site name */}
       <Link
-        href="/"
+        href="/dashboard"
         style={{
           color: "white",
           textDecoration: "none",
