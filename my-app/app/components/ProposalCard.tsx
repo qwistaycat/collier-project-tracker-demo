@@ -87,13 +87,18 @@ export default function ProposalCard({
       </div>
 
       <div className="mt-2.5">
-        <p className="text-xs font-semibold text-blue-600">
-          {card.category}
-          <span className="text-gray-400 font-normal">
-            {" "}
-            | Last Updated {card.updated}
+        {/* Dual tags: functional category + department */}
+        <div className="flex items-center gap-2 flex-wrap mb-1">
+          <span className="text-xs font-semibold text-blue-600">
+            {card.functionalCategory}
           </span>
-        </p>
+          <span className="text-gray-300 text-xs">·</span>
+          <span className="text-xs font-medium text-gray-500">
+            {card.department}
+          </span>
+          <span className="text-gray-300 text-xs">·</span>
+          <span className="text-xs text-gray-400">Updated {card.updated}</span>
+        </div>
         <div className="flex items-start justify-between gap-2 mt-1">
           <h3 className="card-title text-sm font-semibold text-gray-900 transition-colors duration-150">
             {card.title}
