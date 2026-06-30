@@ -51,6 +51,10 @@ export default function DashboardContent() {
 
     // Apply search + filters (skip for the followed section so it always shows what you follow)
     if (!section.dynamic) {
+      // Category filter: sections ARE categories — hide entire section if title doesn't match
+      if (filterCategory && section.title !== filterCategory) {
+        return null;
+      }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         cards = cards.filter(
@@ -59,9 +63,7 @@ export default function DashboardContent() {
             c.description.toLowerCase().includes(q)
         );
       }
-      if (filterCategory) {
-        cards = cards.filter((c) => c.functionalCategory === filterCategory);
-      }
+      // Department filter: filter cards within the section
       if (filterDepartment) {
         cards = cards.filter((c) => c.department === filterDepartment);
       }
