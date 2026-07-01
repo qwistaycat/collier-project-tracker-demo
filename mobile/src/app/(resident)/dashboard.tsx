@@ -1,6 +1,6 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
 import { useState } from "react";
-import { dashboardSections, type DashboardSection, type ProposalCard as ProposalCardType } from "../../data/proposals";
+import { dashboardSections, type DashboardSection, type ProposalCard as ProposalCardType } from "../../../../shared/data/proposals";
 import ProposalCard from "../../components/ProposalCard";
 import Filters from "../../components/Filters";
 
