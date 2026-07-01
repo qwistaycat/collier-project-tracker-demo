@@ -221,13 +221,13 @@ export default function VoteBanner({
         background: "#0d3266",
         borderRadius: 16,
         boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
       {/* Minimize button — always visible on voting and results panels */}
       <button
         onClick={closeBanner}
-        className="minimize-tooltip-wrap"
+        className="custom-tooltip-wrap tooltip-align-right"
         style={{
           position: "absolute",
           top: 14,
@@ -245,7 +245,7 @@ export default function VoteBanner({
         aria-label="Minimize"
       >
         <MinimizeIcon size={16} />
-        <span className="minimize-tooltip-text">Minimize</span>
+        <span className="custom-tooltip-text">Minimize</span>
       </button>
 
       {/* Panel A: Vote prompt */}
