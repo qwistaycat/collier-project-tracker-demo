@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { PieChartIcon } from "./icons";
+import { PieChartIcon, MinimizeIcon } from "./icons";
 
 type VoteChoice = "agree" | "disagree" | "neutral";
 
@@ -224,9 +224,10 @@ export default function VoteBanner({
         overflow: "hidden",
       }}
     >
-      {/* Close button — always visible on voting and results panels */}
+      {/* Minimize button — always visible on voting and results panels */}
       <button
         onClick={closeBanner}
+        className="minimize-tooltip-wrap"
         style={{
           position: "absolute",
           top: 14,
@@ -234,14 +235,17 @@ export default function VoteBanner({
           background: "none",
           border: "none",
           color: "rgba(255,255,255,0.55)",
-          fontSize: 18,
           cursor: "pointer",
-          lineHeight: 1,
           padding: 4,
           zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
+        aria-label="Minimize"
       >
-        ✕
+        <MinimizeIcon size={16} />
+        <span className="minimize-tooltip-text">Minimize</span>
       </button>
 
       {/* Panel A: Vote prompt */}
