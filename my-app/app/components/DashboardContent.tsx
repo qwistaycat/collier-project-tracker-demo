@@ -109,7 +109,7 @@ export default function DashboardContent() {
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-8 py-10">
       <h1 className="text-2xl font-bold text-gray-900 mb-7">
-        Policy Tracking
+        Project Tracking
       </h1>
 
       {/* Search */}

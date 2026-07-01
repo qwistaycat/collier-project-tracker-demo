@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Switch,
 } from "react-native";
-import { FUNCTIONAL_CATEGORIES, DEPARTMENTS } from "../data/proposals";
+import { FUNCTIONAL_CATEGORIES, DEPARTMENTS } from "../../../shared/data/proposals";
 
 interface FiltersProps {
   selectedCategory: string | null;

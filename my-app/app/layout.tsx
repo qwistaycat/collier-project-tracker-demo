@@ -9,7 +9,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Collier Township Project Tracker",
-  description: "Track and follow township policy proposals and community projects in Collier Township.",
+  description: "Track and follow township project proposals and community projects in Collier Township.",
 };
 
 export default function RootLayout({

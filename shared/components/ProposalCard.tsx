@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -7,11 +8,6 @@ import {
   Platform,
 } from "react-native";
 import type { ProposalCard as ProposalCardType } from "../data/proposals";
-import FollowButton from "./FollowButton";
-
-const getFontFamily = (mobileFont: string) => {
-  return Platform.OS === "web" ? "inherit" : mobileFont;
-};
 
 export interface ProposalCardProps {
   card: ProposalCardType;
@@ -26,8 +22,18 @@ export default function ProposalCard({
   onToggleFollow,
   onPress,
 }: ProposalCardProps) {
-  const showFollowButton = typeof onToggleFollow === "function";
+  const [isHovered, setIsHovered] = useState(false);
 
+  const handleFollowPress = (e: any) => {
+    if (e && typeof e.stopPropagation === "function") {
+      e.stopPropagation();
+    }
+    if (onToggleFollow) {
+      onToggleFollow(card.id);
+    }
+  };
+
+  const showFollowButton = typeof onToggleFollow === "function";
 
   return (
     <Pressable
@@ -48,12 +54,30 @@ export default function ProposalCard({
         />
 
         {showFollowButton && (
-          <View style={styles.followButtonWrapper}>
-            <FollowButton
-              isFollowing={isFollowing}
-              onPress={() => onToggleFollow(card.id)}
-            />
-          </View>
+          <Pressable
+            onPress={handleFollowPress}
+            onHoverIn={() => setIsHovered(true)}
+            onHoverOut={() => setIsHovered(false)}
+            style={({ pressed }) => [
+              styles.followButton,
+              isFollowing ? styles.followingButton : styles.unfollowingButton,
+              isHovered && isFollowing && styles.unfollowButtonHover,
+              pressed && styles.followButtonPressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.followButtonText,
+                isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
+              ]}
+            >
+              {isFollowing
+                ? isHovered
+                  ? "✕ Unfollow"
+                  : "✓ Following"
+                : "+ Follow"}
+            </Text>
+          </Pressable>
         )}
       </View>
 
@@ -79,6 +103,10 @@ export default function ProposalCard({
     </Pressable>
   );
 }
+
+const getFontFamily = (mobileFont: string) => {
+  return Platform.OS === "web" ? "inherit" : mobileFont;
+};
 
 const styles = StyleSheet.create({
   card: {
@@ -128,11 +156,47 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  followButtonWrapper: {
+  followButton: {
     position: "absolute",
     top: 10,
     right: 10,
     zIndex: 10,
+    borderRadius: 9999,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    ...Platform.select({
+      web: {
+        cursor: "pointer",
+        transition: "background-color 0.15s ease, border-color 0.15s ease",
+      },
+    }),
+  },
+  unfollowingButton: {
+    backgroundColor: "#ffffff",
+    borderColor: "#e5e7eb",
+  },
+  followingButton: {
+    backgroundColor: "#2563eb",
+    borderColor: "#2563eb",
+  },
+  unfollowButtonHover: {
+    backgroundColor: "#dc2626",
+    borderColor: "#dc2626",
+  },
+  followButtonPressed: {
+    opacity: 0.85,
+  },
+  followButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
+    fontFamily: getFontFamily("Poppins_600SemiBold"),
+  },
+  unfollowingButtonText: {
+    color: "#111827",
+  },
+  followingButtonText: {
+    color: "#ffffff",
   },
   body: {
     padding: 14,
