@@ -113,13 +113,13 @@ export default function DashboardContent() {
       </h1>
 
       {/* Search */}
-      <div className="relative mb-5 w-60">
+      <div className="relative mb-5 w-80">
         <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
           <SearchIcon size={16} />
         </span>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search by project name or keyword"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
