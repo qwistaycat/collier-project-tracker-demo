@@ -30,7 +30,7 @@ export default function VoteBanner({
 
   const bannerRef = useRef<HTMLDivElement>(null);
 
-  // Show banner when discussion section scrolls into view
+  // Show banner when discussion section is scrolled near the top of the screen
   useEffect(() => {
     const disc = discussionRef.current;
     if (!disc) return;
@@ -41,7 +41,13 @@ export default function VoteBanner({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      {
+        // Shrink the viewport interaction box from the bottom by 80% so that
+        // the intersection only triggers when the discussion section is scrolled
+        // into the top 20% of the viewport.
+        rootMargin: "0px 0px -80% 0px",
+        threshold: 0,
+      }
     );
     observer.observe(disc);
     return () => observer.disconnect();
