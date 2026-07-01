@@ -283,3 +283,22 @@ export function EyeIcon({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+export function DragHandleIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+    >
+      <circle cx="9" cy="8" r="1.5" />
+      <circle cx="9" cy="12" r="1.5" />
+      <circle cx="9" cy="16" r="1.5" />
+      <circle cx="15" cy="8" r="1.5" />
+      <circle cx="15" cy="12" r="1.5" />
+      <circle cx="15" cy="16" r="1.5" />
+    </svg>
+  );
+}
