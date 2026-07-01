@@ -117,11 +117,21 @@ export default function ProposalDetailContent() {
                       transition: "background 0.15s, color 0.15s",
                       background: following
                         ? hovering
-                          ? "#dc2626"
+                          ? "#fef2f2"
                           : "#0d2240"
-                        : "white",
-                      color: following ? "white" : "#2563eb",
-                      border: following ? "none" : "2px solid #2563eb",
+                        : hovering
+                          ? "#eff6ff"
+                          : "white",
+                      color: following
+                        ? hovering
+                          ? "#dc2626"
+                          : "white"
+                        : "#2563eb",
+                      border: following
+                        ? hovering
+                          ? "2px solid #dc2626"
+                          : "2px solid #0d2240"
+                        : "2px solid #2563eb",
                       boxShadow:
                         following && !hovering
                           ? "0 1px 4px rgba(0,0,0,0.18)"
