@@ -1,0 +1,40 @@
+{
+  "extends": "../mobile/node_modules/expo/tsconfig.base",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "typeRoots": [
+      "../mobile/node_modules/@types"
+    ],
+    "paths": {
+      "react": [
+        "../mobile/node_modules/@types/react",
+        "../mobile/node_modules/react"
+      ],
+      "react/jsx-runtime": [
+        "../mobile/node_modules/@types/react/jsx-runtime",
+        "../mobile/node_modules/react/jsx-runtime"
+      ],
+      "react/jsx-dev-runtime": [
+        "../mobile/node_modules/@types/react/jsx-dev-runtime",
+        "../mobile/node_modules/react/jsx-dev-runtime"
+      ],
+      "react/*": [
+        "../mobile/node_modules/@types/react/*",
+        "../mobile/node_modules/react/*"
+      ],
+      "react-native": [
+        "../mobile/node_modules/react-native"
+      ],
+      "react-native/*": [
+        "../mobile/node_modules/react-native/*"
+      ],
+      "*": [
+        "../mobile/node_modules/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}

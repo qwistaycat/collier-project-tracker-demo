@@ -71,11 +71,19 @@ export default function ProposalCard({
             opacity: isFollowing ? 1 : 0,
             background: isFollowing
               ? hoveringBadge
-                ? "#dc2626"
+                ? "white"
                 : "#2563eb"
               : "white",
-            color: isFollowing ? "white" : "#111827",
-            border: isFollowing ? "none" : "1.5px solid #e5e7eb",
+            color: isFollowing
+              ? hoveringBadge
+                ? "#dc2626"
+                : "white"
+              : "#111827",
+            border: isFollowing
+              ? hoveringBadge
+                ? "1.5px solid #dc2626"
+                : "1.5px solid #2563eb"
+              : "1.5px solid #e5e7eb",
           }}
         >
           {isFollowing
