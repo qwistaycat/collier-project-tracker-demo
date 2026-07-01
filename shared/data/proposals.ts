@@ -1,24 +1,59 @@
 // ================================================================
 //  DATA LAYER — single source of truth for all proposals and content.
-//  Shared between web and mobile apps.
+//  Ported from the vanilla JS inline data.
 // ================================================================
+
+// ── Tag Constants ────────────────────────────────────────────────
+
+/** Five resident-facing functional categories shown on the dashboard */
+export type FunctionalCategory =
+  | "Roads & Transportation"
+  | "Parks & Green Spaces"
+  | "Infrastructure & Facilities"
+  | "Plan, Development & Sustainability"
+  | "Public Safety";
+
+export const FUNCTIONAL_CATEGORIES: FunctionalCategory[] = [
+  "Roads & Transportation",
+  "Parks & Green Spaces",
+  "Infrastructure & Facilities",
+  "Plan, Development & Sustainability",
+  "Public Safety",
+];
+
+/** Collier Township departments — used in filter UI and government interface */
+export type Department =
+  | "Public Works"
+  | "Parks & Recreation"
+  | "EMS & Fire Services"
+  | "Police Department"
+  | "Planning, Zoning, & Land Development"
+  | "Administration"
+  | "Sewer Department";
+
+export const DEPARTMENTS: Department[] = [
+  "Public Works",
+  "Parks & Recreation",
+  "EMS & Fire Services",
+  "Police Department",
+  "Planning, Zoning, & Land Development",
+  "Administration",
+  "Sewer Department",
+];
 
 // ── Types ────────────────────────────────────────────────────────
 
 export interface ProposalCard {
   id: string;
   title: string;
-  category: string;
-  neighborhood: string;
+  /** Resident-facing functional category (one of the five) */
+  functionalCategory: FunctionalCategory;
+  /** Township department responsible for this proposal */
+  department: Department;
   updated: string;
   description: string;
   image: string;
   link: string;
-  isArchived: boolean;
-  createdDate: string; // ISO format: YYYY-MM-DD for sorting
-  daysUntilDeadline?: number; // Days until deadline for sorting
-  commentsCount: number;
-  viewsCount: number;
 }
 
 export interface DashboardSection {
@@ -103,170 +138,163 @@ export interface DiscussionData {
   public: PublicDiscussion;
 }
 
-// ── Shared Filter Options ──────────────────────────────────────────
-
-export const CATEGORIES = [
-  "Parks & Recreation",
-  "Traffic and Safety",
-  "Zoning",
-  "Infrastructure",
-  "Public Safety",
-];
-
-export const NEIGHBORHOODS = [
-  "Nevilewood",
-  "Beechmont",
-  "Kirwan Heights",
-  "Rennerdale",
-];
-
 // ── Proposal Registry ────────────────────────────────────────────
 
 export const proposalRegistry: Record<string, ProposalCard> = {
-  "hilltop-park": {
-    id: "hilltop-park",
-    title: "Hilltop Park Expansion",
-    category: "Parks & Recreation",
-    neighborhood: "Rennerdale",
-    updated: "2 days ago",
+  // ── Roads & Transportation ───────────────────────────────────────
+  "road-paving-2026": {
+    id: "road-paving-2026",
+    title: "Road Paving 2026",
+    functionalCategory: "Roads & Transportation",
+    department: "Public Works",
+    updated: "1 week ago",
     description:
-      "Expanding Hilltop Park by adding new courts, a more accessible playground, extra parking, trail lighting, and permanent restrooms.",
-    image: "https://picsum.photos/seed/hilltoppark/600/340",
+      "Resurfacing six residential streets: Maclaine Dr, Turnberry Dr, Sunnyside Ave, Columbia Ave, Highlandview Dr, and Walker Ave.",
+    image: "https://picsum.photos/seed/roadpaving/600/340",
     link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-28",
-    commentsCount: 24,
-    viewsCount: 342,
   },
-  "nevilewood-traffic": {
-    id: "nevilewood-traffic",
-    title: "Nevilewood Traffic Management Plan",
-    category: "Traffic and Safety",
-    neighborhood: "Nevilewood",
-    updated: "2 hours ago",
-    description: "Improving traffic on Nevilewood's main entrance road.",
-    image: "https://picsum.photos/seed/roundabout/600/340",
-    link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-30",
-    commentsCount: 42,
-    viewsCount: 512,
-  },
-  "mixed-use-dev": {
-    id: "mixed-use-dev",
-    title: "Small-Scale Mixed-Use Development",
-    category: "Zoning",
-    neighborhood: "Beechmont",
+  "lobaugh-drive": {
+    id: "lobaugh-drive",
+    title: "Private Road Maintenance – Lobaugh Drive",
+    functionalCategory: "Roads & Transportation",
+    department: "Public Works",
     updated: "3 days ago",
     description:
-      "Updating the zoning rules in Beechmont to allow shops, cafes, and small businesses on ground floors of residential buildings.",
-    image: "https://picsum.photos/seed/cafeinterior/600/340",
+      "Addressing maintenance obligations and cost-sharing for Lobaugh Drive, a privately owned road within the township.",
+    image: "https://picsum.photos/seed/lobaughdrive/600/340",
     link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-27",
-    commentsCount: 15,
-    viewsCount: 189,
   },
-  "sidewalk-safety": {
-    id: "sidewalk-safety",
-    title: "Sidewalk and Pedestrian Safety Improvement",
-    category: "Infrastructure",
-    neighborhood: "Beechmont",
-    updated: "1 day ago",
-    description: "Making walking safer in Beechmont by fixing their sidewalks.",
-    image: "https://picsum.photos/seed/suburbhouse/600/340",
-    link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-29",
-    commentsCount: 8,
-    viewsCount: 120,
-  },
-  "conservation-easement": {
-    id: "conservation-easement",
-    title: "Conservation Easement on Undeveloped Green Space",
-    category: "Parks & Recreation",
-    neighborhood: "Rennerdale",
-    updated: "2 hours ago",
+  // ── Parks & Green Spaces ─────────────────────────────────────────
+  "collier-park-upgrades": {
+    id: "collier-park-upgrades",
+    title: "Collier Park & Ballfield Upgrades",
+    functionalCategory: "Parks & Green Spaces",
+    department: "Parks & Recreation",
+    updated: "5 days ago",
     description:
-      "Protecting 14.3 acres of undeveloped land in Rennerdale by placing a conservation easement on it.",
-    image: "https://picsum.photos/seed/greenforest/600/340",
+      "Renovating athletic fields and recreational facilities at Collier Township Park, including dugout improvements and field drainage.",
+    image: "https://picsum.photos/seed/ballfield/600/340",
     link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-30",
-    daysUntilDeadline: 3,
-    commentsCount: 31,
-    viewsCount: 275,
   },
-  "stormwater-upgrade": {
-    id: "stormwater-upgrade",
-    title: "Stormwater Drainage System Upgrade",
-    category: "Infrastructure",
-    neighborhood: "Kirwan Heights",
-    updated: "1 hour ago",
+  // ── Infrastructure & Facilities ──────────────────────────────────
+  "police-remodeling": {
+    id: "police-remodeling",
+    title: "Police Department Facility Remodeling",
+    functionalCategory: "Infrastructure & Facilities",
+    department: "Police Department",
+    updated: "2 weeks ago",
     description:
-      "Replacing pines and fixing road drainage to prevent stormwater flooding in Kirwan Heights.",
-    image: "https://picsum.photos/seed/floodroad/600/340",
+      "Renovating and modernizing the Collier Township Police Department building to improve operational capacity and staff facilities.",
+    image: "https://picsum.photos/seed/policedept/600/340",
     link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-30",
-    commentsCount: 19,
-    viewsCount: 210,
   },
-  "fire-dept-renovation": {
-    id: "fire-dept-renovation",
-    title: "Fire Department Facility Renovation",
-    category: "Public Safety",
-    neighborhood: "Kirwan Heights",
-    updated: "3 weeks ago",
+  "fire-station-presto": {
+    id: "fire-station-presto",
+    title: "Fire Station Upgrades – Presto",
+    functionalCategory: "Infrastructure & Facilities",
+    department: "EMS & Fire Services",
+    updated: "1 week ago",
     description:
-      "Adding a new HVAC system, diesel exhaust system, and structural wall repairs at Kirwan Heights' fire station.",
-    image: "https://picsum.photos/seed/firestation42/600/340",
+      "Capital improvements to the Presto Volunteer Fire Department station, including structural repairs and equipment storage upgrades.",
+    image: "https://picsum.photos/seed/firestationpresto/600/340",
     link: "/proposal",
-    isArchived: false,
-    createdDate: "2026-06-09",
-    commentsCount: 5,
-    viewsCount: 95,
   },
-  "street-sweeping-2025": {
-    id: "street-sweeping-2025",
-    title: "2025 Fall Street Sweeping Schedule",
-    category: "Infrastructure",
-    neighborhood: "Nevilewood",
-    updated: "6 months ago",
+  "fire-station-rennerdale": {
+    id: "fire-station-rennerdale",
+    title: "Fire Station Upgrades – Rennerdale",
+    functionalCategory: "Infrastructure & Facilities",
+    department: "EMS & Fire Services",
+    updated: "1 week ago",
     description:
-      "Routine street sweeping schedule and parking restrictions for the fall season.",
-    image: "https://picsum.photos/seed/sweeper/600/340",
+      "Capital improvements to the Rennerdale Volunteer Fire Department station, including bay expansion and safety system upgrades.",
+    image: "https://picsum.photos/seed/firestationrennerdale/600/340",
     link: "/proposal",
-    isArchived: true,
-    createdDate: "2025-10-15",
-    commentsCount: 2,
-    viewsCount: 45,
+  },
+  "community-center-parking": {
+    id: "community-center-parking",
+    title: "Community Center Parking Lot",
+    functionalCategory: "Infrastructure & Facilities",
+    department: "Parks & Recreation",
+    updated: "4 days ago",
+    description:
+      "Resurfacing and restriping the parking lot at Collier Township Community Center to improve safety and capacity.",
+    image: "https://picsum.photos/seed/parkinglot/600/340",
+    link: "/proposal",
+  },
+  "ms4-stormwater": {
+    id: "ms4-stormwater",
+    title: "MS4 Stormwater Projects",
+    functionalCategory: "Infrastructure & Facilities",
+    department: "Sewer Department",
+    updated: "2 days ago",
+    description:
+      "Municipal Separate Storm Sewer System compliance projects to manage stormwater runoff and meet DEP permit requirements.",
+    image: "https://picsum.photos/seed/stormwater/600/340",
+    link: "/proposal",
+  },
+  // ── Plan, Development & Sustainability ───────────────────────────
+  "new-development": {
+    id: "new-development",
+    title: "New Development Review",
+    functionalCategory: "Plan, Development & Sustainability",
+    department: "Planning, Zoning, & Land Development",
+    updated: "3 days ago",
+    description:
+      "Review and processing of new residential and commercial development applications under current township land use ordinances.",
+    image: "https://picsum.photos/seed/newdevelopment/600/340",
+    link: "/proposal",
+  },
+  "ordinance-updates": {
+    id: "ordinance-updates",
+    title: "Township Ordinance Updates",
+    functionalCategory: "Plan, Development & Sustainability",
+    department: "Planning, Zoning, & Land Development",
+    updated: "1 week ago",
+    description:
+      "Revision of township ordinances to reflect current zoning standards, land use policy, and state regulatory requirements.",
+    image: "https://picsum.photos/seed/ordinance/600/340",
+    link: "/proposal",
+  },
+  // ── Public Safety ────────────────────────────────────────────────
+  "fire-dept-consolidation": {
+    id: "fire-dept-consolidation",
+    title: "Fire Department Consolidation",
+    functionalCategory: "Public Safety",
+    department: "EMS & Fire Services",
+    updated: "2 weeks ago",
+    description:
+      "Evaluating consolidation options among Collier's three volunteer fire departments to improve emergency response and reduce operational costs.",
+    image: "https://picsum.photos/seed/fireconsolidate/600/340",
+    link: "/proposal",
+  },
+  "ems-grants": {
+    id: "ems-grants",
+    title: "EMS Grants",
+    functionalCategory: "Public Safety",
+    department: "EMS & Fire Services",
+    updated: "5 days ago",
+    description:
+      "Pursuing state and federal grant funding to support emergency medical services equipment, training, and personnel across the township.",
+    image: "https://picsum.photos/seed/emsgrants/600/340",
+    link: "/proposal",
   },
 };
 
 // ── Dashboard Sections ───────────────────────────────────────────
+// Resident-facing dashboard: one section per functional category,
+// plus a dynamic "Your Followed Projects" section at the top.
 
 export const dashboardSections: DashboardSection[] = [
   {
     title: "Your Followed Projects",
     dynamic: true,
   },
-  {
-    title: "Newest",
-    cards: ["hilltop-park", "nevilewood-traffic", "mixed-use-dev", "sidewalk-safety"].map(
-      (id) => proposalRegistry[id]
+  ...FUNCTIONAL_CATEGORIES.map((cat) => ({
+    title: cat,
+    cards: Object.values(proposalRegistry).filter(
+      (p) => p.functionalCategory === cat
     ),
-  },
-  {
-    title: "Urgent Approaching Deadlines",
-    cards: ["conservation-easement"].map((id) => proposalRegistry[id]),
-  },
-  {
-    title: "Most Discussed Policies",
-    cards: ["stormwater-upgrade", "fire-dept-renovation"].map(
-      (id) => proposalRegistry[id]
-    ),
-  },
+  })),
 ];
 
 // ── Sidebar Proposals ────────────────────────────────────────────

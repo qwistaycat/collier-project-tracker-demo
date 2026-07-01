@@ -7,14 +7,14 @@ import Filters from "../../components/Filters";
 export default function DashboardScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState("Newest First");
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("");
   const [includeArchived, setIncludeArchived] = useState(false);
 
   console.log("Rendering DashboardScreen", {
     searchQuery,
     selectedCategory,
-    selectedNeighborhood,
+    selectedDepartment,
     sortBy,
     includeArchived,
   });
@@ -24,46 +24,24 @@ export default function DashboardScreen() {
     if (section.dynamic) return { ...section, cards: [] };
     if (!section.cards) return section;
 
-    // Apply all filters
+    // Category filter: sections ARE categories — hide/empty out section if title doesn't match
+    if (selectedCategory && section.title !== selectedCategory) {
+      return { ...section, cards: [] };
+    }
+
+    // Apply search + department filters
     let filtered = section.cards.filter((card) => {
       // 1. Search Query
       const matchesSearch =
         searchQuery === "" ||
         card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        card.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         card.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // 2. Category
-      const matchesCategory =
-        !selectedCategory || card.category === selectedCategory;
+      // 2. Department
+      const matchesDepartment =
+        !selectedDepartment || card.department === selectedDepartment;
 
-      // 3. Neighborhood
-      const matchesNeighborhood =
-        !selectedNeighborhood || card.neighborhood === selectedNeighborhood;
-
-      // 4. Archive Status
-      const matchesArchived = includeArchived ? true : !card.isArchived;
-
-      return matchesSearch && matchesCategory && matchesNeighborhood && matchesArchived;
-    });
-
-    // Apply Sorting
-    filtered = [...filtered].sort((a, b) => {
-      if (sortBy === "Newest First") {
-        return b.createdDate.localeCompare(a.createdDate);
-      }
-      if (sortBy === "Deadline Approaching") {
-        const aDeadline = a.daysUntilDeadline ?? 9999;
-        const bDeadline = b.daysUntilDeadline ?? 9999;
-        return aDeadline - bDeadline;
-      }
-      if (sortBy === "Most Discussed") {
-        return (b.commentsCount ?? 0) - (a.commentsCount ?? 0);
-      }
-      if (sortBy === "Most Viewed") {
-        return (b.viewsCount ?? 0) - (a.viewsCount ?? 0);
-      }
-      return 0;
+      return matchesSearch && matchesDepartment;
     });
 
     return { ...section, cards: filtered };
@@ -103,8 +81,8 @@ export default function DashboardScreen() {
       <Filters
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        selectedNeighborhood={selectedNeighborhood}
-        onSelectNeighborhood={setSelectedNeighborhood}
+        selectedDepartment={selectedDepartment}
+        onSelectDepartment={setSelectedDepartment}
         sortBy={sortBy}
         onSelectSortBy={setSortBy}
         includeArchived={includeArchived}
