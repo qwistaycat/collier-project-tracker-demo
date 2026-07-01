@@ -176,6 +176,17 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     image: "https://picsum.photos/seed/ballfield/600/340",
     link: "/proposal",
   },
+  "hilltop-park": {
+    id: "hilltop-park",
+    title: "Hilltop Park Expansion",
+    functionalCategory: "Parks & Green Spaces",
+    department: "Parks & Recreation",
+    updated: "2 weeks ago",
+    description:
+      "This project improves Hilltop Park by adding new recreation space and permanent facilities. It focuses on access, safety, and capacity during high-use times.",
+    image: "https://picsum.photos/seed/hilltoppark/600/340",
+    link: "/proposal",
+  },
   // ── Infrastructure & Facilities ──────────────────────────────────
   "police-remodeling": {
     id: "police-remodeling",

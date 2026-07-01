@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["172.26.23.215"],
@@ -12,6 +13,9 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     externalDir: true,
+  },
+  turbopack: {
+    root: path.resolve(__dirname, "../"),
   },
 };
 
