@@ -140,6 +140,43 @@ select {
   opacity: 1;
 }
 
+/* ── Minimize Button Tooltip ── */
+.minimize-tooltip-wrap {
+  position: relative;
+}
+.minimize-tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #1e293b;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  line-height: 1.2;
+}
+.minimize-tooltip-text::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  right: 6px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #1e293b transparent;
+}
+.minimize-tooltip-wrap:hover .minimize-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* ── Choose Demo Landing Page ── */
 .choose-demo-page {
   min-height: 100vh;

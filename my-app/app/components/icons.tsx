@@ -111,6 +111,26 @@ export function CloseIcon({ size = 14, className, strokeWidth = 2.5 }: IconProps
   );
 }
 
+export function MinimizeIcon({ size = 14, className, strokeWidth = 2.5 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 12h14"
+      />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon({ size = 16, className }: IconProps) {
   return (
     <svg
