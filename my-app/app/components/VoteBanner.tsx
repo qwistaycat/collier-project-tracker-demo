@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { PieChartIcon, MinimizeIcon } from "./icons";
+import { PieChartIcon, MinimizeIcon, DragHandleIcon } from "./icons";
 
 type VoteChoice = "agree" | "disagree" | "neutral";
 
@@ -29,6 +29,43 @@ export default function VoteBanner({
   });
 
   const bannerRef = useRef<HTMLDivElement>(null);
+
+  const [yOffset, setYOffset] = useState(0);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const startYOffset = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return; // Left click only
+    e.preventDefault();
+    e.stopPropagation();
+
+    isDragging.current = true;
+    startY.current = e.clientY;
+    startYOffset.current = yOffset;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDragging.current) return;
+      const deltaY = moveEvent.clientY - startY.current;
+      const proposedYOffset = startYOffset.current + deltaY;
+      const proposedBottom = 28 - proposedYOffset;
+      
+      const minBottom = 10;
+      const maxBottom = window.innerHeight - 150;
+      const constrainedBottom = Math.max(minBottom, Math.min(maxBottom, proposedBottom));
+      
+      setYOffset(28 - constrainedBottom);
+    };
+
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, [yOffset]);
 
   // Show banner when discussion section is scrolled near the top of the screen
   useEffect(() => {
@@ -174,23 +211,41 @@ export default function VoteBanner({
         onClick={reopenBanner}
         style={{
           position: "fixed",
-          bottom: 28,
+          bottom: 28 - yOffset,
           right: 32,
           zIndex: 1000,
-          width: 188,
+          width: 198,
           height: 44,
           background: "#0d3266",
           borderRadius: 16,
           boxShadow: "0 2px 10px rgba(13,50,102,0.28)",
-          overflow: "hidden",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 8,
-          padding: "0 20px",
+          gap: 6,
+          padding: "0 16px 0 28px",
         }}
       >
+        <div
+          onMouseDown={handleMouseDown}
+          className="custom-tooltip-wrap"
+          style={{
+            position: "absolute",
+            left: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            cursor: "ns-resize",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "4px 2px",
+            color: "rgba(255, 255, 255, 0.4)",
+          }}
+        >
+          <DragHandleIcon size={14} />
+          <span className="custom-tooltip-text">Drag up/down</span>
+        </div>
         <PieChartIcon size={14} className="text-white" />
         <span
           style={{
@@ -214,7 +269,7 @@ export default function VoteBanner({
       className={visible ? "vote-banner-visible" : ""}
       style={{
         position: "fixed",
-        bottom: 28,
+        bottom: 28 - yOffset,
         right: 32,
         zIndex: 1000,
         width: 380,
@@ -224,6 +279,26 @@ export default function VoteBanner({
         overflow: "visible",
       }}
     >
+      {/* Drag handle — positioned in the top-left corner */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="custom-tooltip-wrap"
+        style={{
+          position: "absolute",
+          left: 16,
+          top: 14,
+          cursor: "ns-resize",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 4,
+          color: "rgba(255, 255, 255, 0.35)",
+          zIndex: 10,
+        }}
+      >
+        <DragHandleIcon size={16} />
+        <span className="custom-tooltip-text">Drag up/down</span>
+      </div>
       {/* Minimize button — always visible on voting and results panels */}
       <button
         onClick={closeBanner}
@@ -256,7 +331,7 @@ export default function VoteBanner({
               color: "white",
               fontSize: 18,
               fontWeight: 800,
-              margin: "0 0 8px 0",
+              margin: "16px 0 8px 0",
             }}
           >
             Poll Voting
@@ -345,7 +420,7 @@ export default function VoteBanner({
               color: "white",
               fontSize: 18,
               fontWeight: 800,
-              margin: "0 0 12px 0",
+              margin: "16px 0 12px 0",
               paddingRight: 24,
             }}
           >
