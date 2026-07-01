@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   Switch,
 } from "react-native";
-import { CATEGORIES, NEIGHBORHOODS } from "../data/proposals";
+import { FUNCTIONAL_CATEGORIES, DEPARTMENTS } from "../data/proposals";
 
 interface FiltersProps {
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
-  selectedNeighborhood: string | null;
-  onSelectNeighborhood: (neighborhood: string | null) => void;
+  selectedDepartment: string | null;
+  onSelectDepartment: (department: string | null) => void;
   sortBy: string;
   onSelectSortBy: (sort: string) => void;
   includeArchived: boolean;
@@ -29,17 +29,17 @@ const SORT_OPTIONS = [
 export default function Filters({
   selectedCategory,
   onSelectCategory,
-  selectedNeighborhood,
-  onSelectNeighborhood,
+  selectedDepartment,
+  onSelectDepartment,
   sortBy,
   onSelectSortBy,
   includeArchived,
   onToggleIncludeArchived,
 }: FiltersProps) {
   // Track which dropdown is open
-  const [openDropdown, setOpenDropdown] = useState<"sort" | "category" | "neighborhood" | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<"sort" | "category" | "department" | null>(null);
 
-  const toggleDropdown = (dropdown: "sort" | "category" | "neighborhood") => {
+  const toggleDropdown = (dropdown: "sort" | "category" | "department") => {
     if (openDropdown === dropdown) {
       setOpenDropdown(null);
     } else {
@@ -49,7 +49,7 @@ export default function Filters({
 
   console.log("Rendering Filters Component", {
     selectedCategory,
-    selectedNeighborhood,
+    selectedDepartment,
     sortBy,
     includeArchived,
   });
@@ -112,7 +112,7 @@ export default function Filters({
           onPress={() => toggleDropdown("category")}
         >
           <Text style={styles.selectText}>
-            {selectedCategory ? selectedCategory : "Filter Category"}
+            {selectedCategory ? selectedCategory : "All Categories"}
           </Text>
           <Text style={styles.chevron}>{openDropdown === "category" ? "▲" : "▼"}</Text>
         </TouchableOpacity>
@@ -126,9 +126,9 @@ export default function Filters({
                 setOpenDropdown(null);
               }}
             >
-              <Text style={styles.optionTextPlaceholder}>Filter Category</Text>
+              <Text style={styles.optionTextPlaceholder}>All Categories</Text>
             </TouchableOpacity>
-            {CATEGORIES.map((cat) => (
+            {FUNCTIONAL_CATEGORIES.map((cat) => (
               <TouchableOpacity
                 key={cat}
                 style={[
@@ -154,48 +154,48 @@ export default function Filters({
         )}
       </View>
 
-      {/* 3. Filter by Neighborhood Dropdown */}
+      {/* 3. Filter by Department Dropdown */}
       <View style={styles.dropdownWrapper}>
         <TouchableOpacity
           style={styles.selectBox}
-          onPress={() => toggleDropdown("neighborhood")}
+          onPress={() => toggleDropdown("department")}
         >
           <Text style={styles.selectText}>
-            {selectedNeighborhood ? selectedNeighborhood : "Filter by Neighborhood"}
+            {selectedDepartment ? selectedDepartment : "All Departments"}
           </Text>
-          <Text style={styles.chevron}>{openDropdown === "neighborhood" ? "▲" : "▼"}</Text>
+          <Text style={styles.chevron}>{openDropdown === "department" ? "▲" : "▼"}</Text>
         </TouchableOpacity>
 
-        {openDropdown === "neighborhood" && (
+        {openDropdown === "department" && (
           <View style={styles.optionsList}>
             <TouchableOpacity
               style={styles.optionItem}
               onPress={() => {
-                onSelectNeighborhood(null);
+                onSelectDepartment(null);
                 setOpenDropdown(null);
               }}
             >
-              <Text style={styles.optionTextPlaceholder}>Filter by Neighborhood</Text>
+              <Text style={styles.optionTextPlaceholder}>All Departments</Text>
             </TouchableOpacity>
-            {NEIGHBORHOODS.map((nh) => (
+            {DEPARTMENTS.map((dept) => (
               <TouchableOpacity
-                key={nh}
+                key={dept}
                 style={[
                   styles.optionItem,
-                  selectedNeighborhood === nh && styles.activeOptionItem,
+                  selectedDepartment === dept && styles.activeOptionItem,
                 ]}
                 onPress={() => {
-                  onSelectNeighborhood(nh);
+                  onSelectDepartment(dept);
                   setOpenDropdown(null);
                 }}
               >
                 <Text
                   style={[
                     styles.optionText,
-                    selectedNeighborhood === nh && styles.activeOptionText,
+                    selectedDepartment === dept && styles.activeOptionText,
                   ]}
                 >
-                  {nh}
+                  {dept}
                 </Text>
               </TouchableOpacity>
             ))}

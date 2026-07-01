@@ -17,7 +17,7 @@ export default function ProposalCard({ card }: Props) {
       />
       <View style={styles.body}>
         <View style={styles.meta}>
-          <Text style={styles.category}>{card.category}</Text>
+          <Text style={styles.category}>{card.functionalCategory}</Text>
           <Text style={styles.dot}>·</Text>
           <Text style={styles.updated}>{card.updated}</Text>
         </View>
