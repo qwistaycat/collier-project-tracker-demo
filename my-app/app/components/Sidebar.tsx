@@ -56,9 +56,13 @@ export default function Sidebar({ proposals }: SidebarProps) {
                 display: "flex",
                 alignItems: "center",
                 padding: 4,
+                gap: 4,
+                fontSize: 13,
+                fontWeight: 600,
               }}
             >
-              <ChevronLeftIcon />
+              <ChevronLeftIcon size={18} />
+              <span>Back</span>
             </Link>
             <button
               onClick={() => setIsOpen(false)}
