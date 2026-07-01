@@ -23,9 +23,13 @@ export default function Navbar() {
           textDecoration: "none",
           display: "flex",
           alignItems: "center",
+          gap: 6,
+          fontSize: 14,
+          fontWeight: 600,
         }}
       >
         <HomeIcon />
+        <span>Home</span>
       </Link>
 
       {/* Right: bell + avatar */}
