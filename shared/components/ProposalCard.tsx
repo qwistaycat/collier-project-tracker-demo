@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
   },
   body: {
     padding: 14,
+    flex: 1,
   },
   meta: {
     flexDirection: "row",
@@ -271,9 +272,10 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     lineHeight: 18,
     fontFamily: getFontFamily("Poppins_400Regular"),
+    marginBottom: 14,
   },
   detailsButton: {
-    marginTop: 14,
+    marginTop: "auto",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
