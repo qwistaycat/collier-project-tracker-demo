@@ -117,9 +117,11 @@ export default function ProposalDetailContent() {
                       transition: "background 0.15s, color 0.15s",
                       background: following
                         ? hovering
-                          ? "white"
+                          ? "#fef2f2"
                           : "#0d2240"
-                        : "white",
+                        : hovering
+                          ? "#eff6ff"
+                          : "white",
                       color: following
                         ? hovering
                           ? "#dc2626"

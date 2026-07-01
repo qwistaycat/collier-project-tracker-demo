@@ -20,7 +20,10 @@ export default function ProposalCard({
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleBadgeEnter = useCallback(() => {
-    if (!isFollowing) return;
+    if (!isFollowing) {
+      setHoveringBadge(true);
+      return;
+    }
     hoverTimer.current = setTimeout(() => {
       setHoveringBadge(true);
     }, 180);
@@ -71,9 +74,11 @@ export default function ProposalCard({
             opacity: isFollowing ? 1 : 0,
             background: isFollowing
               ? hoveringBadge
-                ? "white"
+                ? "#fef2f2"
                 : "#2563eb"
-              : "white",
+              : hoveringBadge
+                ? "#f3f4f6"
+                : "white",
             color: isFollowing
               ? hoveringBadge
                 ? "#dc2626"
@@ -83,7 +88,9 @@ export default function ProposalCard({
               ? hoveringBadge
                 ? "1.5px solid #dc2626"
                 : "1.5px solid #2563eb"
-              : "1.5px solid #e5e7eb",
+              : hoveringBadge
+                ? "1.5px solid #d1d5db"
+                : "1.5px solid #e5e7eb",
           }}
         >
           {isFollowing
