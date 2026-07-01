@@ -23,6 +23,7 @@ export default function ProposalCard({
   onPress,
 }: ProposalCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isCardHovered, setIsCardHovered] = useState(false);
 
   const handleFollowPress = (e: any) => {
     if (e && typeof e.stopPropagation === "function") {
@@ -41,8 +42,11 @@ export default function ProposalCard({
       // On Web, react-native-web will render this as a link if href is provided
       // @ts-ignore
       href={Platform.OS === "web" ? card.link : undefined}
+      onHoverIn={() => setIsCardHovered(true)}
+      onHoverOut={() => setIsCardHovered(false)}
       style={({ pressed }) => [
         styles.card,
+        isCardHovered && styles.cardHovered,
         pressed && styles.cardPressed,
       ]}
     >
@@ -99,6 +103,22 @@ export default function ProposalCard({
         <Text style={styles.description} numberOfLines={2}>
           {card.description}
         </Text>
+
+        <View
+          style={[
+            styles.detailsButton,
+            isCardHovered && styles.detailsButtonHovered,
+          ]}
+        >
+          <Text
+            style={[
+              styles.detailsButtonText,
+              isCardHovered && styles.detailsButtonTextHovered,
+            ]}
+          >
+            View Project Details
+          </Text>
+        </View>
       </View>
     </Pressable>
   );
@@ -146,6 +166,13 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  cardHovered: Platform.select({
+    web: {
+      transform: [{ translateY: -4 }],
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    },
+    default: {},
+  }),
   imageContainer: {
     position: "relative",
     width: "100%",
@@ -200,6 +227,7 @@ const styles = StyleSheet.create({
   },
   body: {
     padding: 14,
+    flex: 1,
   },
   meta: {
     flexDirection: "row",
@@ -244,5 +272,39 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     lineHeight: 18,
     fontFamily: getFontFamily("Poppins_400Regular"),
+    marginBottom: 14,
+  },
+  detailsButton: {
+    marginTop: "auto",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#0d2240",
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      web: {
+        transition: "background-color 0.15s ease, border-color 0.15s ease",
+      },
+    }),
+  },
+  detailsButtonHovered: {
+    backgroundColor: "#0d2240",
+  },
+  detailsButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#0d2240",
+    fontFamily: getFontFamily("Poppins_600SemiBold"),
+    ...Platform.select({
+      web: {
+        transition: "color 0.15s ease",
+      },
+    }),
+  },
+  detailsButtonTextHovered: {
+    color: "#ffffff",
   },
 });
