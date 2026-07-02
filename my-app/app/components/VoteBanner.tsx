@@ -125,9 +125,9 @@ export default function VoteBanner({
   // ── Pie chart SVG ──
 
   const buildPie = () => {
-    const cx = 60,
-      cy = 60,
-      r = 50;
+    const cx = 75,
+      cy = 75,
+      r = 68;
     const segments: {
       key: VoteChoice;
       color: string;
@@ -152,6 +152,7 @@ export default function VoteBanner({
       const [lx, ly] = toXY(angle + sweep / 2, r * 0.58);
       const p = pct(seg.key);
       const isUser = seg.key === voteState.userVote;
+      const count = voteState[seg.key];
 
       const d = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`;
 
@@ -159,40 +160,64 @@ export default function VoteBanner({
       return (
         <g key={seg.key}>
           <path d={d} fill={seg.color} stroke="#0d3266" strokeWidth="2" />
-          {isUser ? (
-            <>
-              <text
-                x={lx}
-                y={ly - 7}
-                textAnchor="middle"
-                fontSize="13"
-                fontWeight="700"
-                fill="#111"
-              >
-                {p}%
-              </text>
-              <text
-                x={lx}
-                y={ly + 9}
-                textAnchor="middle"
-                fontSize="11"
-                fontWeight="700"
-                fill="#111"
-              >
-                (You)
-              </text>
-            </>
-          ) : (
-            <text
-              x={lx}
-              y={ly + 5}
-              textAnchor="middle"
-              fontSize="13"
-              fontWeight="700"
-              fill="#111"
-            >
-              {p}%
-            </text>
+          {count > 0 && (
+            isUser ? (
+              <>
+                <text
+                  x={lx}
+                  y={ly - 10}
+                  textAnchor="middle"
+                  fontSize="18"
+                  fontWeight="800"
+                  fill="#111"
+                >
+                  {count}
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 4}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="500"
+                  fill="#111"
+                >
+                  ({p}%)
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 16}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fontWeight="700"
+                  fill="#111"
+                >
+                  (You)
+                </text>
+              </>
+            ) : (
+              <>
+                <text
+                  x={lx}
+                  y={ly - 4}
+                  textAnchor="middle"
+                  fontSize="18"
+                  fontWeight="800"
+                  fill="#111"
+                >
+                  {count}
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 10}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="500"
+                  fill="#111"
+                >
+                  ({p}%)
+                </text>
+              </>
+            )
           )}
         </g>
       );
@@ -439,29 +464,47 @@ export default function VoteBanner({
             <div style={{ flexShrink: 0 }}>
               <div
                 style={{
-                  color: "rgba(255,255,255,0.7)",
-                  fontSize: 11,
                   textAlign: "center",
-                  marginBottom: 6,
+                  marginBottom: 8,
+                  lineHeight: 1.1,
                 }}
               >
-                {total} votes
+                <span
+                  style={{
+                    color: "white",
+                    fontSize: 18,
+                    fontWeight: 800,
+                    marginRight: 4,
+                  }}
+                >
+                  {total}
+                </span>
+                <span
+                  style={{
+                    color: "rgba(255, 255, 255, 0.65)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                >
+                  votes
+                </span>
               </div>
-              <svg width="120" height="120" viewBox="0 0 120 120">
+              <svg width="150" height="150" viewBox="0 0 150 150">
                 {piePaths}
               </svg>
             </div>
-            <div style={{ lineHeight: 1.9, flex: 1 }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
               {pieSegments.map((seg) => {
                 const p = pct(seg.key);
                 const isUser = seg.key === voteState.userVote;
+                const count = voteState[seg.key];
                 return (
                   <div
                     key={seg.key}
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: 6,
+                      alignItems: "flex-start",
+                      gap: 8,
                     }}
                   >
                     <span
@@ -471,19 +514,45 @@ export default function VoteBanner({
                         borderRadius: "50%",
                         background: seg.color,
                         flexShrink: 0,
-                        display: "inline-block",
+                        marginTop: 4,
                       }}
                     />
-                    <span
-                      style={{
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: isUser ? 700 : 400,
-                      }}
-                    >
-                      {p}% {seg.label}
-                      {isUser ? " (You)" : ""}
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                      <span
+                        style={{
+                          color: isUser ? "white" : "rgba(255, 255, 255, 0.9)",
+                          fontSize: 12,
+                          fontWeight: isUser ? 700 : 500,
+                        }}
+                      >
+                        {seg.label}
+                        {isUser ? " (You)" : ""}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "baseline", marginTop: 2 }}>
+                        <span
+                          style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: 800,
+                            marginRight: 4,
+                          }}
+                        >
+                          {count}
+                        </span>
+                        <span
+                          style={{
+                            color: "rgba(255, 255, 255, 0.65)",
+                            fontSize: 12,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count === 1 ? "vote" : "votes"}{" "}
+                          <span style={{ color: "rgba(255, 255, 255, 0.5)", fontWeight: 400 }}>
+                            ({p}%)
+                          </span>
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
