@@ -59,6 +59,23 @@ select {
   filter: brightness(0.95);
 }
 
+.sidebar-cat-btn {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.sidebar-cat-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.sidebar-proj-card {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.sidebar-proj-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+
 /* ── Timeline ── */
 .tl-item {
   transition: background 0.15s ease;
