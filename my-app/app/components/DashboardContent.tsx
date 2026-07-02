@@ -27,6 +27,7 @@ export default function DashboardContent() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [includeArchived, setIncludeArchived] = useState(false);
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -170,10 +171,12 @@ export default function DashboardContent() {
           ))}
         </select>
 
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2.5 text-sm font-semibold text-gray-700 cursor-pointer select-none hover:text-blue-600 transition-colors duration-200">
           <input
             type="checkbox"
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            checked={includeArchived}
+            onChange={(e) => setIncludeArchived(e.target.checked)}
+            className="w-5 h-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600 transition-transform duration-150 active:scale-95"
           />
           Include Archived
         </label>
