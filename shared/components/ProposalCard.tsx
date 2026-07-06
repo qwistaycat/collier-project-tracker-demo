@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   hoverOverlayText: {
-    fontSize: 14,
+    fontSize: 20,
     fontWeight: "600",
     color: "#ffffff",
     fontFamily: getFontFamily("Poppins_600SemiBold"),
