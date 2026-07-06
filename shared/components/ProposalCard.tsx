@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   View,
@@ -119,9 +121,9 @@ export default function ProposalCard({
   );
 }
 
-const getFontFamily = (mobileFont: string) => {
+function getFontFamily(mobileFont: string) {
   return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
-};
+}
 
 const styles = StyleSheet.create({
   card: {

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   Text,
@@ -9,6 +11,10 @@ import {
 export interface FollowButtonProps {
   isFollowing: boolean;
   onPress: () => void;
+}
+
+function getFontFamily(mobileFont: string) {
+  return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
 }
 
 export default function FollowButton({
@@ -24,9 +30,7 @@ export default function FollowButton({
     onPress();
   };
 
-  const getFontFamily = (mobileFont: string) => {
-    return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
-  };
+
 
   // Determine button styles based on state
   let buttonStyle = styles.unfollowing;

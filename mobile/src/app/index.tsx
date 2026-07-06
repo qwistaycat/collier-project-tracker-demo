@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Linking } from "react-native";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import DemoCard from "../components/DemoCard";
 
 export default function ChooseDemoScreen() {
   return (
@@ -14,31 +15,19 @@ export default function ChooseDemoScreen() {
         </Text>
 
         <View style={styles.cards}>
-          {/* Resident Card */}
-          <Link
+          <DemoCard
+            title="Log in as Resident"
+            description="This view shows how information layout is shown to the public and how residents can interact."
             href="/(resident)/dashboard"
-            style={[styles.card, styles.cardActive]}
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.cardHeading}>Log in as Resident</Text>
-              <Text style={styles.cardText}>
-                This view shows how information layout is shown to the public and
-                how residents can interact.
-              </Text>
-            </View>
-          </Link>
+            onPress={() => router.push("/(resident)/dashboard")}
+          />
 
-          {/* Township Card — disabled */}
-          <View style={[styles.card, styles.cardDisabled]}>
-            <Text style={styles.cardHeading}>Log in as Township</Text>
-            <Text style={styles.cardText}>
-              This view shows all management and editing tools, as well as all
-              feedback.
-            </Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>COMING SOON</Text>
-            </View>
-          </View>
+          <DemoCard
+            title="Log in as Township"
+            description="This view shows all management and editing tools, as well as all feedback."
+            disabled
+            badgeText="COMING SOON"
+          />
         </View>
 
         <Text style={styles.contact}>
@@ -82,42 +71,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 14,
     marginBottom: 40,
-  },
-  card: {
-    flex: 1,
-    backgroundColor: "#e8edf4",
-    borderRadius: 15,
-    padding: 22,
-  },
-  cardActive: {},
-  cardDisabled: {
-    opacity: 0.55,
-  },
-  cardHeading: {
-    fontFamily: "Poppins_700Bold",
-    fontSize: 17,
-    color: "#003d7a",
-    marginBottom: 10,
-  },
-  cardText: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 13,
-    color: "#3a5a80",
-    lineHeight: 20,
-  },
-  badge: {
-    marginTop: 14,
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(0, 61, 122, 0.5)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontFamily: "Poppins_600SemiBold",
-    fontSize: 10,
-    color: "#ffffff",
-    letterSpacing: 0.5,
   },
   contact: {
     fontFamily: "Poppins_500Medium",
