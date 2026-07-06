@@ -1,16 +1,23 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SymbolView } from "expo-symbols";
+import { router } from "expo-router";
+import { useNotifications } from "../store/notificationsStore";
 
 export default function HeaderRight() {
+  const { unreadCount } = useNotifications();
+
   return (
     <View style={styles.container}>
-      <Pressable style={styles.iconButton}>
+      <Pressable
+        style={styles.iconButton}
+        onPress={() => router.push("/(resident)/notifications" as any)}
+      >
         <SymbolView
           name={{ ios: "bell", android: "notifications", web: "notifications" }}
           size={22}
           tintColor="#ffffff"
         />
-        <View style={styles.badge} />
+        {unreadCount > 0 && <View style={styles.badge} />}
       </Pressable>
 
       <View style={styles.profileContainer}>

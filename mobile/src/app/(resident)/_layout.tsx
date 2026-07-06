@@ -18,6 +18,10 @@ export default function ResidentLayout() {
         name="dashboard"
         options={{ title: "Collier Township" }}
       />
+      <Stack.Screen
+        name="notifications"
+        options={{ title: "Collier Township" }}
+      />
     </Stack>
   );
 }
