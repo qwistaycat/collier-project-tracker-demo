@@ -183,7 +183,57 @@ export default function DashboardContent() {
       </div>
 
       {/* Card sections */}
-      {dashboardSections.map((section, idx) => renderSection(section, idx))}
+      {(() => {
+        const isFiltering = !!(searchQuery || filterCategory || filterDepartment);
+        const rendered = dashboardSections.map((section, idx) =>
+          renderSection(section, idx)
+        );
+        const hasNonDynamicResults = rendered.some(
+          (el, idx) => el !== null && !dashboardSections[idx].dynamic
+        );
+
+        return (
+          <>
+            {rendered}
+            {isFiltering && !hasNonDynamicResults && (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <svg
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mb-4"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  No results found
+                </h3>
+                <p className="text-sm text-gray-400 max-w-sm mb-5">
+                  No projects match your current search or filter criteria. Try
+                  adjusting your filters or searching with different keywords.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilterCategory("");
+                    setFilterDepartment("");
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </>
+        );
+      })()}
     </main>
   );
 }
