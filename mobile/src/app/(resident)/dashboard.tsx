@@ -1,5 +1,6 @@
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useState, useEffect, useCallback } from "react";
+import { router } from "expo-router";
 import {
   dashboardSections,
   proposalRegistry,
@@ -117,6 +118,12 @@ export default function DashboardScreen() {
             card={card}
             isFollowing={followedIds.includes(card.id)}
             onToggleFollow={toggleFollow}
+            onPress={() =>
+              router.push({
+                pathname: "/(resident)/proposal",
+                params: { id: card.id },
+              } as any)
+            }
           />
         ))}
       </View>
