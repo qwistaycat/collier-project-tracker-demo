@@ -25,7 +25,7 @@ export default function FollowButton({
   };
 
   const getFontFamily = (mobileFont: string) => {
-    return Platform.OS === "web" ? "inherit" : mobileFont;
+    return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
   };
 
   // Determine button styles based on state

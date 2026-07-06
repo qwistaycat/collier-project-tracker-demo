@@ -120,7 +120,7 @@ export default function ProposalCard({
 }
 
 const getFontFamily = (mobileFont: string) => {
-  return Platform.OS === "web" ? "inherit" : mobileFont;
+  return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
 };
 
 const styles = StyleSheet.create({
