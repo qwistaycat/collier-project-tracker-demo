@@ -202,7 +202,7 @@ select {
   padding: 28px 24px;
   text-decoration: none;
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .demo-card-active {
@@ -210,8 +210,9 @@ select {
 }
 
 .demo-card-active:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: #d6dde8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  outline: 1.5px solid #003d7a;
 }
 
 .demo-card-disabled {

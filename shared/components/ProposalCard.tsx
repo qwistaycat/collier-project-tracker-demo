@@ -29,6 +29,9 @@ export default function ProposalCard({
     if (e && typeof e.stopPropagation === "function") {
       e.stopPropagation();
     }
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
     if (onToggleFollow) {
       onToggleFollow(card.id);
     }
@@ -56,33 +59,6 @@ export default function ProposalCard({
           style={styles.image}
           resizeMode="cover"
         />
-
-        {showFollowButton && (
-          <Pressable
-            onPress={handleFollowPress}
-            onHoverIn={() => setIsHovered(true)}
-            onHoverOut={() => setIsHovered(false)}
-            style={({ pressed }) => [
-              styles.followButton,
-              isFollowing ? styles.followingButton : styles.unfollowingButton,
-              isHovered && isFollowing && styles.unfollowButtonHover,
-              pressed && styles.followButtonPressed,
-            ]}
-          >
-            <Text
-              style={[
-                styles.followButtonText,
-                isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
-              ]}
-            >
-              {isFollowing
-                ? isHovered
-                  ? "✕ Unfollow"
-                  : "✓ Following"
-                : "+ Follow"}
-            </Text>
-          </Pressable>
-        )}
       </View>
 
       <View style={styles.body}>
@@ -103,23 +79,42 @@ export default function ProposalCard({
         <Text style={styles.description} numberOfLines={2}>
           {card.description}
         </Text>
+      </View>
 
-        <View
-          style={[
-            styles.detailsButton,
-            isCardHovered && styles.detailsButtonHovered,
+      {/* Hover overlay – covers entire card */}
+      {isCardHovered && (
+        <View style={styles.hoverOverlay}>
+          <Text style={styles.hoverOverlayText}>View Project Details</Text>
+        </View>
+      )}
+
+      {/* Follow button – rendered last so it's always on top of the overlay */}
+      {showFollowButton && (
+        <Pressable
+          onPress={handleFollowPress}
+          onHoverIn={() => setIsHovered(true)}
+          onHoverOut={() => setIsHovered(false)}
+          style={({ pressed }) => [
+            styles.followButton,
+            isFollowing ? styles.followingButton : styles.unfollowingButton,
+            isHovered && isFollowing && styles.unfollowButtonHover,
+            pressed && styles.followButtonPressed,
           ]}
         >
           <Text
             style={[
-              styles.detailsButtonText,
-              isCardHovered && styles.detailsButtonTextHovered,
+              styles.followButtonText,
+              isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
             ]}
           >
-            View Project Details
+            {isFollowing
+              ? isHovered
+                ? "✕ Unfollow"
+                : "✓ Following"
+              : "+ Follow"}
           </Text>
-        </View>
-      </View>
+        </Pressable>
+      )}
     </Pressable>
   );
 }
@@ -153,23 +148,19 @@ const styles = StyleSheet.create({
       },
       web: {
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
-        transition: "transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+        transition: "background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out",
         cursor: "pointer",
       },
     }),
   },
   cardPressed: {
     opacity: 0.9,
-    ...Platform.select({
-      web: {
-        transform: [{ scale: 0.99 }],
-      },
-    }),
   },
   cardHovered: Platform.select({
     web: {
-      transform: [{ translateY: -4 }],
-      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      backgroundColor: "#e8ecf1",
+      boxShadow: "0 6px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 5px -2px rgba(0, 0, 0, 0.04)",
+      borderColor: "#93b4d4",
     },
     default: {},
   }),
@@ -272,39 +263,24 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     lineHeight: 18,
     fontFamily: getFontFamily("Poppins_400Regular"),
-    marginBottom: 14,
+    marginBottom: 0,
   },
-  detailsButton: {
-    marginTop: "auto",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#0d2240",
-    backgroundColor: "#ffffff",
+  hoverOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 5,
+    backgroundColor: "rgba(13, 34, 64, 0.80)",
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    ...Platform.select({
-      web: {
-        transition: "background-color 0.15s ease, border-color 0.15s ease",
-      },
-    }),
   },
-  detailsButtonHovered: {
-    backgroundColor: "#0d2240",
-  },
-  detailsButtonText: {
-    fontSize: 13,
+  hoverOverlayText: {
+    fontSize: 14,
     fontWeight: "600",
-    color: "#0d2240",
-    fontFamily: getFontFamily("Poppins_600SemiBold"),
-    ...Platform.select({
-      web: {
-        transition: "color 0.15s ease",
-      },
-    }),
-  },
-  detailsButtonTextHovered: {
     color: "#ffffff",
+    fontFamily: getFontFamily("Poppins_600SemiBold"),
   },
 });
