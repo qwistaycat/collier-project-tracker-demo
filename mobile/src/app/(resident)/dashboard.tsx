@@ -156,9 +156,14 @@ export default function DashboardScreen() {
               Followed Projects
             </Text>
             {followedIds.length > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{followedIds.length}</Text>
-              </View>
+              <Text
+                style={[
+                  styles.tabCountText,
+                  activeTab === "followed" ? styles.activeTabCountText : styles.inactiveTabCountText,
+                ]}
+              >
+                ({followedIds.length})
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -252,21 +257,16 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: "#2563eb",
   },
-  badge: {
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 6,
-    paddingHorizontal: 4,
+  tabCountText: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 14,
+    marginLeft: 4,
   },
-  badgeText: {
-    fontFamily: "Poppins_700Bold",
-    fontSize: 11,
-    color: "#ffffff",
-    lineHeight: 13,
+  activeTabCountText: {
+    color: "#2563eb",
+  },
+  inactiveTabCountText: {
+    color: "#9ca3af",
   },
   tabContent: {
     paddingHorizontal: 20,
