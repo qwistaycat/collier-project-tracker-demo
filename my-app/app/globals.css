@@ -77,12 +77,16 @@ select {
 }
 
 /* ── Timeline ── */
+/* Hover is driven by React state (hoveredIdx), not CSS :hover — hovering
+   either side must highlight BOTH the left item and the right card, which
+   a plain pseudo-class can't do across two separate elements. These
+   classes just provide the transition. */
 .tl-item {
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.3s ease;
 }
 
-.tl-item:hover:not(.tl-active) {
-  background: rgba(13, 34, 64, 0.07) !important;
+.tl-card {
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .timeline-content::-webkit-scrollbar {
