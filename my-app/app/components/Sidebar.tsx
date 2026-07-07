@@ -86,15 +86,6 @@ export default function Sidebar({ currentProposalId }: SidebarProps) {
                 textDecoration: "none",
                 display: "flex",
                 alignItems: "center",
-<<<<<<< HEAD
-                gap: 3,
-                fontSize: 13,
-                fontWeight: 500,
-              }}
-            >
-              <ChevronLeftIcon size={14} />
-              All Projects
-=======
                 padding: 4,
                 gap: 4,
                 fontSize: 13,
@@ -103,7 +94,6 @@ export default function Sidebar({ currentProposalId }: SidebarProps) {
             >
               <ChevronLeftIcon size={18} />
               <span>Back</span>
->>>>>>> main
             </Link>
             <button
               onClick={() => setIsOpen(false)}
