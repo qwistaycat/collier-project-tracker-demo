@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { PieChartIcon } from "./icons";
+import { PieChartIcon, MinimizeIcon, DragHandleIcon } from "./icons";
 
 type VoteChoice = "agree" | "disagree" | "neutral";
 
@@ -30,7 +30,44 @@ export default function VoteBanner({
 
   const bannerRef = useRef<HTMLDivElement>(null);
 
-  // Show banner when discussion section scrolls into view
+  const [yOffset, setYOffset] = useState(0);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const startYOffset = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return; // Left click only
+    e.preventDefault();
+    e.stopPropagation();
+
+    isDragging.current = true;
+    startY.current = e.clientY;
+    startYOffset.current = yOffset;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDragging.current) return;
+      const deltaY = moveEvent.clientY - startY.current;
+      const proposedYOffset = startYOffset.current + deltaY;
+      const proposedBottom = 28 - proposedYOffset;
+      
+      const minBottom = 10;
+      const maxBottom = window.innerHeight - 150;
+      const constrainedBottom = Math.max(minBottom, Math.min(maxBottom, proposedBottom));
+      
+      setYOffset(28 - constrainedBottom);
+    };
+
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, [yOffset]);
+
+  // Show banner when discussion section is scrolled near the top of the screen
   useEffect(() => {
     const disc = discussionRef.current;
     if (!disc) return;
@@ -41,7 +78,13 @@ export default function VoteBanner({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      {
+        // Shrink the viewport interaction box from the bottom by 80% so that
+        // the intersection only triggers when the discussion section is scrolled
+        // into the top 20% of the viewport.
+        rootMargin: "0px 0px -80% 0px",
+        threshold: 0,
+      }
     );
     observer.observe(disc);
     return () => observer.disconnect();
@@ -82,9 +125,9 @@ export default function VoteBanner({
   // ── Pie chart SVG ──
 
   const buildPie = () => {
-    const cx = 60,
-      cy = 60,
-      r = 50;
+    const cx = 75,
+      cy = 75,
+      r = 68;
     const segments: {
       key: VoteChoice;
       color: string;
@@ -109,6 +152,7 @@ export default function VoteBanner({
       const [lx, ly] = toXY(angle + sweep / 2, r * 0.58);
       const p = pct(seg.key);
       const isUser = seg.key === voteState.userVote;
+      const count = voteState[seg.key];
 
       const d = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`;
 
@@ -116,40 +160,64 @@ export default function VoteBanner({
       return (
         <g key={seg.key}>
           <path d={d} fill={seg.color} stroke="#0d3266" strokeWidth="2" />
-          {isUser ? (
-            <>
-              <text
-                x={lx}
-                y={ly - 7}
-                textAnchor="middle"
-                fontSize="13"
-                fontWeight="700"
-                fill="#111"
-              >
-                {p}%
-              </text>
-              <text
-                x={lx}
-                y={ly + 9}
-                textAnchor="middle"
-                fontSize="11"
-                fontWeight="700"
-                fill="#111"
-              >
-                (You)
-              </text>
-            </>
-          ) : (
-            <text
-              x={lx}
-              y={ly + 5}
-              textAnchor="middle"
-              fontSize="13"
-              fontWeight="700"
-              fill="#111"
-            >
-              {p}%
-            </text>
+          {count > 0 && (
+            isUser ? (
+              <>
+                <text
+                  x={lx}
+                  y={ly - 10}
+                  textAnchor="middle"
+                  fontSize="18"
+                  fontWeight="800"
+                  fill="#111"
+                >
+                  {count}
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 4}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="500"
+                  fill="#111"
+                >
+                  ({p}%)
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 16}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fontWeight="700"
+                  fill="#111"
+                >
+                  (You)
+                </text>
+              </>
+            ) : (
+              <>
+                <text
+                  x={lx}
+                  y={ly - 4}
+                  textAnchor="middle"
+                  fontSize="18"
+                  fontWeight="800"
+                  fill="#111"
+                >
+                  {count}
+                </text>
+                <text
+                  x={lx}
+                  y={ly + 10}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="500"
+                  fill="#111"
+                >
+                  ({p}%)
+                </text>
+              </>
+            )
           )}
         </g>
       );
@@ -168,23 +236,41 @@ export default function VoteBanner({
         onClick={reopenBanner}
         style={{
           position: "fixed",
-          bottom: 28,
+          bottom: 28 - yOffset,
           right: 32,
           zIndex: 1000,
-          width: 188,
+          width: 198,
           height: 44,
           background: "#0d3266",
           borderRadius: 16,
           boxShadow: "0 2px 10px rgba(13,50,102,0.28)",
-          overflow: "hidden",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 8,
-          padding: "0 20px",
+          gap: 6,
+          padding: "0 16px 0 28px",
         }}
       >
+        <div
+          onMouseDown={handleMouseDown}
+          className="custom-tooltip-wrap"
+          style={{
+            position: "absolute",
+            left: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            cursor: "ns-resize",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "4px 2px",
+            color: "rgba(255, 255, 255, 0.4)",
+          }}
+        >
+          <DragHandleIcon size={14} />
+          <span className="custom-tooltip-text">Drag up/down</span>
+        </div>
         <PieChartIcon size={14} className="text-white" />
         <span
           style={{
@@ -208,19 +294,40 @@ export default function VoteBanner({
       className={visible ? "vote-banner-visible" : ""}
       style={{
         position: "fixed",
-        bottom: 28,
+        bottom: 28 - yOffset,
         right: 32,
         zIndex: 1000,
         width: 380,
         background: "#0d3266",
         borderRadius: 16,
         boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
-      {/* Close button — always visible on voting and results panels */}
+      {/* Drag handle — positioned in the top-left corner */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="custom-tooltip-wrap"
+        style={{
+          position: "absolute",
+          left: 16,
+          top: 14,
+          cursor: "ns-resize",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 4,
+          color: "rgba(255, 255, 255, 0.35)",
+          zIndex: 10,
+        }}
+      >
+        <DragHandleIcon size={16} />
+        <span className="custom-tooltip-text">Drag up/down</span>
+      </div>
+      {/* Minimize button — always visible on voting and results panels */}
       <button
         onClick={closeBanner}
+        className="custom-tooltip-wrap tooltip-align-right"
         style={{
           position: "absolute",
           top: 14,
@@ -228,14 +335,17 @@ export default function VoteBanner({
           background: "none",
           border: "none",
           color: "rgba(255,255,255,0.55)",
-          fontSize: 18,
           cursor: "pointer",
-          lineHeight: 1,
           padding: 4,
           zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
+        aria-label="Minimize"
       >
-        ✕
+        <MinimizeIcon size={16} />
+        <span className="custom-tooltip-text">Minimize</span>
       </button>
 
       {/* Panel A: Vote prompt */}
@@ -246,7 +356,7 @@ export default function VoteBanner({
               color: "white",
               fontSize: 18,
               fontWeight: 800,
-              margin: "0 0 8px 0",
+              margin: "16px 0 8px 0",
             }}
           >
             Poll Voting
@@ -335,7 +445,7 @@ export default function VoteBanner({
               color: "white",
               fontSize: 18,
               fontWeight: 800,
-              margin: "0 0 12px 0",
+              margin: "16px 0 12px 0",
               paddingRight: 24,
             }}
           >
@@ -354,29 +464,47 @@ export default function VoteBanner({
             <div style={{ flexShrink: 0 }}>
               <div
                 style={{
-                  color: "rgba(255,255,255,0.7)",
-                  fontSize: 11,
                   textAlign: "center",
-                  marginBottom: 6,
+                  marginBottom: 8,
+                  lineHeight: 1.1,
                 }}
               >
-                {total} votes
+                <span
+                  style={{
+                    color: "white",
+                    fontSize: 18,
+                    fontWeight: 800,
+                    marginRight: 4,
+                  }}
+                >
+                  {total}
+                </span>
+                <span
+                  style={{
+                    color: "rgba(255, 255, 255, 0.65)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                >
+                  votes
+                </span>
               </div>
-              <svg width="120" height="120" viewBox="0 0 120 120">
+              <svg width="150" height="150" viewBox="0 0 150 150">
                 {piePaths}
               </svg>
             </div>
-            <div style={{ lineHeight: 1.9, flex: 1 }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
               {pieSegments.map((seg) => {
                 const p = pct(seg.key);
                 const isUser = seg.key === voteState.userVote;
+                const count = voteState[seg.key];
                 return (
                   <div
                     key={seg.key}
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: 6,
+                      alignItems: "flex-start",
+                      gap: 8,
                     }}
                   >
                     <span
@@ -386,19 +514,45 @@ export default function VoteBanner({
                         borderRadius: "50%",
                         background: seg.color,
                         flexShrink: 0,
-                        display: "inline-block",
+                        marginTop: 4,
                       }}
                     />
-                    <span
-                      style={{
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: isUser ? 700 : 400,
-                      }}
-                    >
-                      {p}% {seg.label}
-                      {isUser ? " (You)" : ""}
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                      <span
+                        style={{
+                          color: isUser ? "white" : "rgba(255, 255, 255, 0.9)",
+                          fontSize: 12,
+                          fontWeight: isUser ? 700 : 500,
+                        }}
+                      >
+                        {seg.label}
+                        {isUser ? " (You)" : ""}
+                      </span>
+                      <div style={{ display: "flex", alignItems: "baseline", marginTop: 2 }}>
+                        <span
+                          style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: 800,
+                            marginRight: 4,
+                          }}
+                        >
+                          {count}
+                        </span>
+                        <span
+                          style={{
+                            color: "rgba(255, 255, 255, 0.65)",
+                            fontSize: 12,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count === 1 ? "vote" : "votes"}{" "}
+                          <span style={{ color: "rgba(255, 255, 255, 0.5)", fontWeight: 400 }}>
+                            ({p}%)
+                          </span>
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}

@@ -27,6 +27,7 @@ export default function DashboardContent() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [includeArchived, setIncludeArchived] = useState(false);
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -113,13 +114,13 @@ export default function DashboardContent() {
       </h1>
 
       {/* Search */}
-      <div className="relative mb-5 w-60">
+      <div className="relative mb-5 w-80">
         <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
           <SearchIcon size={16} />
         </span>
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search by project name or keyword"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -170,17 +171,69 @@ export default function DashboardContent() {
           ))}
         </select>
 
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2.5 text-sm font-semibold text-gray-700 cursor-pointer select-none hover:text-blue-600 transition-colors duration-200">
           <input
             type="checkbox"
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            checked={includeArchived}
+            onChange={(e) => setIncludeArchived(e.target.checked)}
+            className="w-5 h-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600 transition-transform duration-150 active:scale-95"
           />
           Include Archived
         </label>
       </div>
 
       {/* Card sections */}
-      {dashboardSections.map((section, idx) => renderSection(section, idx))}
+      {(() => {
+        const isFiltering = !!(searchQuery || filterCategory || filterDepartment);
+        const rendered = dashboardSections.map((section, idx) =>
+          renderSection(section, idx)
+        );
+        const hasNonDynamicResults = rendered.some(
+          (el, idx) => el !== null && !dashboardSections[idx].dynamic
+        );
+
+        return (
+          <>
+            {rendered}
+            {isFiltering && !hasNonDynamicResults && (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <svg
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mb-4"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  No results found
+                </h3>
+                <p className="text-sm text-gray-400 max-w-sm mb-5">
+                  No projects match your current search or filter criteria. Try
+                  adjusting your filters or searching with different keywords.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilterCategory("");
+                    setFilterDepartment("");
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </>
+        );
+      })()}
     </main>
   );
 }

@@ -214,6 +214,7 @@ export default function Filters({
           thumbColor={includeArchived ? "#2563eb" : "#f3f4f6"}
           value={includeArchived}
           onValueChange={onToggleIncludeArchived}
+          style={{ transform: [{ scaleX: 1.25 }, { scaleY: 1.25 }], marginRight: 4 }}
         />
         <Text style={styles.checkboxLabel}>Include Archived</Text>
       </TouchableOpacity>
@@ -290,13 +291,16 @@ const styles = StyleSheet.create({
   checkboxRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 4,
-    paddingVertical: 4,
+    gap: 12,
+    marginTop: 8,
+    paddingVertical: 6,
   },
   checkboxLabel: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 14,
+    fontFamily: "Poppins_500Medium",
+    fontSize: 15,
     color: "#4b5563",
+  },
+  checkboxLabelActive: {
+    fontFamily: "Poppins_600SemiBold",
   },
 });

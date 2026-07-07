@@ -1,6 +1,12 @@
-import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
-import { useState } from "react";
-import { dashboardSections, type DashboardSection, type ProposalCard as ProposalCardType } from "../../../../shared/data/proposals";
+import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { router } from "expo-router";
+import {
+  dashboardSections,
+  proposalRegistry,
+  type DashboardSection,
+  type ProposalCard as ProposalCardType,
+} from "../../../../shared/data/proposals";
 import ProposalCard from "../../components/ProposalCard";
 import Filters from "../../components/Filters";
 
@@ -10,6 +16,38 @@ export default function DashboardScreen() {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("");
   const [includeArchived, setIncludeArchived] = useState(false);
+  const [followedIds, setFollowedIds] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<"all" | "followed">("all");
+
+  // Load from localStorage if on web
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.localStorage) {
+      try {
+        const stored = window.localStorage.getItem("collier_followed");
+        if (stored) {
+          setFollowedIds(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error("Failed to load followed projects", e);
+      }
+    }
+  }, []);
+
+  const toggleFollow = useCallback((id: string) => {
+    setFollowedIds((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+      if (typeof window !== "undefined" && window.localStorage) {
+        try {
+          window.localStorage.setItem("collier_followed", JSON.stringify(next));
+        } catch (e) {
+          console.error("Failed to save followed projects", e);
+        }
+      }
+      return next;
+    });
+  }, []);
 
   console.log("Rendering DashboardScreen", {
     searchQuery,
@@ -17,11 +55,18 @@ export default function DashboardScreen() {
     selectedDepartment,
     sortBy,
     includeArchived,
+    followedIds,
+    activeTab,
   });
 
   const filteredSections = dashboardSections.map((section) => {
-    // We ignore the dynamic "Your Followed Projects" section in mobile for now if it is empty
-    if (section.dynamic) return { ...section, cards: [] };
+    // Build followed cards dynamically
+    if (section.dynamic) {
+      const cards = followedIds
+        .map((id) => proposalRegistry[id])
+        .filter((c): c is ProposalCardType => !!c);
+      return { ...section, cards };
+    }
     if (!section.cards) return section;
 
     // Category filter: sections ARE categories — hide/empty out section if title doesn't match
@@ -49,48 +94,124 @@ export default function DashboardScreen() {
 
   const renderSection = (section: DashboardSection, idx: number) => {
     const cards: ProposalCardType[] = section.cards || [];
-    if (cards.length === 0) return null;
+
+    // Empty-state for followed section
+    if (cards.length === 0) {
+      if (section.dynamic) {
+        return (
+          <View key={idx} style={styles.section}>
+            <Text style={styles.emptyFollowedText}>
+              You haven't followed any projects yet. Tap the follow button on a project to track it here.
+            </Text>
+          </View>
+        );
+      }
+      return null;
+    }
 
     return (
       <View key={idx} style={styles.section}>
-        <Text style={styles.sectionTitle}>{section.title}</Text>
+        {!section.dynamic && <Text style={styles.sectionTitle}>{section.title}</Text>}
         {cards.map((card) => (
-          <ProposalCard key={card.id} card={card} />
+          <ProposalCard
+            key={card.id}
+            card={card}
+            isFollowing={followedIds.includes(card.id)}
+            onToggleFollow={toggleFollow}
+            onPress={() =>
+              router.push({
+                pathname: "/(resident)/proposal",
+                params: { id: card.id },
+              } as any)
+            }
+          />
         ))}
       </View>
     );
   };
 
+  // Split into tabs
+  const exploreSections = filteredSections.filter((section) => !section.dynamic);
+  const followedSection = filteredSections.find((section) => section.dynamic);
+
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.content}
+      stickyHeaderIndices={[1]}
+    >
+      {/* Index 0: Page Title */}
       <Text style={styles.pageTitle}>Project Tracking</Text>
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search..."
-          placeholderTextColor="#9ca3af"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+      {/* Index 1: Sticky Tab Bar */}
+      <View style={styles.stickyTabContainer}>
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === "all" && styles.activeTabButton]}
+            onPress={() => setActiveTab("all")}
+          >
+            <Text style={[styles.tabText, activeTab === "all" && styles.activeTabText]}>
+              All Projects
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === "followed" && styles.activeTabButton]}
+            onPress={() => setActiveTab("followed")}
+          >
+            <Text style={[styles.tabText, activeTab === "followed" && styles.activeTabText]}>
+              Followed Projects
+            </Text>
+            {followedIds.length > 0 && (
+              <Text
+                style={[
+                  styles.tabCountText,
+                  activeTab === "followed" ? styles.activeTabCountText : styles.inactiveTabCountText,
+                ]}
+              >
+                ({followedIds.length})
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Interactive Filters */}
-      <Filters
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-        selectedDepartment={selectedDepartment}
-        onSelectDepartment={setSelectedDepartment}
-        sortBy={sortBy}
-        onSelectSortBy={setSortBy}
-        includeArchived={includeArchived}
-        onToggleIncludeArchived={setIncludeArchived}
-      />
+      {/* Index 2: Tab Content */}
+      {activeTab === "all" ? (
+        <View style={styles.tabContent}>
+          {/* Search */}
+          <View style={styles.searchContainer}>
+            <Text style={styles.searchIcon}>🔍</Text>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search..."
+              placeholderTextColor="#9ca3af"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
 
-      {/* Sections */}
-      {filteredSections.map((section, idx) => renderSection(section, idx))}
+          {/* Interactive Filters */}
+          <Filters
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            selectedDepartment={selectedDepartment}
+            onSelectDepartment={setSelectedDepartment}
+            sortBy={sortBy}
+            onSelectSortBy={setSortBy}
+            includeArchived={includeArchived}
+            onToggleIncludeArchived={setIncludeArchived}
+          />
+
+          {/* Explore Sections */}
+          {exploreSections.map((section, idx) => renderSection(section, idx))}
+        </View>
+      ) : (
+        <View style={styles.tabContent}>
+          {/* Followed Section */}
+          {followedSection && renderSection(followedSection, 0)}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -101,14 +222,62 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   content: {
-    padding: 20,
     paddingBottom: 40,
   },
   pageTitle: {
     fontFamily: "Poppins_700Bold",
     fontSize: 24,
     color: "#111827",
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    marginBottom: 16,
+  },
+  stickyTabContainer: {
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  tabBar: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  tabButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: "#f3f4f6",
+  },
+  activeTabButton: {
+    backgroundColor: "#eff6ff",
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+  },
+  tabText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 14,
+    color: "#4b5563",
+  },
+  activeTabText: {
+    color: "#2563eb",
+  },
+  tabCountText: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  activeTabCountText: {
+    color: "#2563eb",
+  },
+  inactiveTabCountText: {
+    color: "#9ca3af",
+  },
+  tabContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
   searchContainer: {
     flexDirection: "row",
@@ -139,5 +308,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#111827",
     marginBottom: 14,
+  },
+  emptyFollowedText: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    color: "#9ca3af",
+    fontStyle: "italic",
+    paddingVertical: 8,
   },
 });

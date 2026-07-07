@@ -11,11 +11,11 @@
         "../mobile/node_modules/react"
       ],
       "react/jsx-runtime": [
-        "../mobile/node_modules/@types/react/jsx-runtime",
+        "../mobile/node_modules/@types/react/jsx-runtime.d.ts",
         "../mobile/node_modules/react/jsx-runtime"
       ],
       "react/jsx-dev-runtime": [
-        "../mobile/node_modules/@types/react/jsx-dev-runtime",
+        "../mobile/node_modules/@types/react/jsx-dev-runtime.d.ts",
         "../mobile/node_modules/react/jsx-dev-runtime"
       ],
       "react/*": [

@@ -491,6 +491,8 @@ export default function Discussion({ data }: DiscussionProps) {
     data.private.pastFeedback
   );
   const [publicComments, setPublicComments] = useState(data.public.comments);
+  const [privateText, setPrivateText] = useState("");
+  const [publicText, setPublicText] = useState("");
   const privateInputRef = useRef<HTMLTextAreaElement>(null);
   const publicInputRef = useRef<HTMLTextAreaElement>(null);
   const [liveViewers, setLiveViewers] = useState(data.public.viewCount);
@@ -507,8 +509,7 @@ export default function Discussion({ data }: DiscussionProps) {
   }, []);
 
   const submitPrivateMessage = () => {
-    const input = privateInputRef.current;
-    if (!input || !input.value.trim()) return;
+    if (!privateText.trim()) return;
     const now = new Date();
     const timeStr =
       now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) +
@@ -519,24 +520,23 @@ export default function Discussion({ data }: DiscussionProps) {
         year: "numeric",
       });
     setPrivateFeedback((prev) => [
-      { time: timeStr, message: input.value.trim() },
+      { time: timeStr, message: privateText.trim() },
       ...prev,
     ]);
-    input.value = "";
+    setPrivateText("");
   };
 
   const submitPublicMessage = () => {
-    const input = publicInputRef.current;
-    if (!input || !input.value.trim()) return;
+    if (!publicText.trim()) return;
     const newComment: Comment = {
       user: "You",
       avatarColor: "#22c55e",
       timeAgo: "just now",
-      message: input.value.trim(),
+      message: publicText.trim(),
       replies: [],
     };
     setPublicComments((prev) => [newComment, ...prev]);
-    input.value = "";
+    setPublicText("");
   };
 
   const handleSendReply = (threadIdx: string, message: string) => {
@@ -652,6 +652,8 @@ export default function Discussion({ data }: DiscussionProps) {
             </p>
             <textarea
               ref={privateInputRef}
+              value={privateText}
+              onChange={(e) => setPrivateText(e.target.value)}
               placeholder={data.private.placeholder}
               style={{
                 width: "100%",
@@ -667,23 +669,47 @@ export default function Discussion({ data }: DiscussionProps) {
                 outline: "none",
               }}
             />
-            <button
-              onClick={submitPrivateMessage}
+            <div
               style={{
-                width: "100%",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
                 marginTop: 8,
-                padding: 12,
-                background: "#0d2240",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
               }}
             >
-              {data.private.buttonLabel}
-            </button>
+              {privateText.length > 0 && (
+                <button
+                  onClick={() => setPrivateText("")}
+                  style={{
+                    padding: "8px 16px",
+                    background: "white",
+                    color: "#6b7280",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={submitPrivateMessage}
+                style={{
+                  padding: "8px 18px",
+                  background: "#0d2240",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                {data.private.buttonLabel}
+              </button>
+            </div>
             <div style={{ marginTop: 24 }}>
               <h3
                 style={{
@@ -730,6 +756,8 @@ export default function Discussion({ data }: DiscussionProps) {
             </p>
             <textarea
               ref={publicInputRef}
+              value={publicText}
+              onChange={(e) => setPublicText(e.target.value)}
               placeholder={data.public.placeholder}
               style={{
                 width: "100%",
@@ -745,23 +773,47 @@ export default function Discussion({ data }: DiscussionProps) {
                 outline: "none",
               }}
             />
-            <button
-              onClick={submitPublicMessage}
+            <div
               style={{
-                width: "100%",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
                 marginTop: 8,
-                padding: 12,
-                background: "#0d2240",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
               }}
             >
-              {data.public.buttonLabel}
-            </button>
+              {publicText.length > 0 && (
+                <button
+                  onClick={() => setPublicText("")}
+                  style={{
+                    padding: "8px 16px",
+                    background: "white",
+                    color: "#6b7280",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={submitPublicMessage}
+                style={{
+                  padding: "8px 18px",
+                  background: "#0d2240",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                {data.public.buttonLabel}
+              </button>
+            </div>
             <div style={{ marginTop: 24 }}>
               <div
                 style={{

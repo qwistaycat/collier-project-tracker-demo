@@ -99,7 +99,7 @@ export default function ProposalDetailContent() {
                   flexWrap: "wrap",
                 }}
               >
-                <div className="follow-tooltip-wrap" style={{ position: "relative" }}>
+                <div className="custom-tooltip-wrap" style={{ position: "relative" }}>
                   <button
                     onClick={toggleFollow}
                     onMouseEnter={() => setHovering(true)}
@@ -153,7 +153,7 @@ export default function ProposalDetailContent() {
                       </>
                     )}
                   </button>
-                  <span className="follow-tooltip-text">
+                  <span className="custom-tooltip-text">
                     Get notifications and saves to Your Following Projects in home page
                   </span>
                 </div>

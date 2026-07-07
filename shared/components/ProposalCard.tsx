@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   View,
@@ -23,10 +25,14 @@ export default function ProposalCard({
   onPress,
 }: ProposalCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isCardHovered, setIsCardHovered] = useState(false);
 
   const handleFollowPress = (e: any) => {
     if (e && typeof e.stopPropagation === "function") {
       e.stopPropagation();
+    }
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
     }
     if (onToggleFollow) {
       onToggleFollow(card.id);
@@ -41,8 +47,11 @@ export default function ProposalCard({
       // On Web, react-native-web will render this as a link if href is provided
       // @ts-ignore
       href={Platform.OS === "web" ? card.link : undefined}
+      onHoverIn={() => setIsCardHovered(true)}
+      onHoverOut={() => setIsCardHovered(false)}
       style={({ pressed }) => [
         styles.card,
+        isCardHovered && styles.cardHovered,
         pressed && styles.cardPressed,
       ]}
     >
@@ -52,33 +61,6 @@ export default function ProposalCard({
           style={styles.image}
           resizeMode="cover"
         />
-
-        {showFollowButton && (
-          <Pressable
-            onPress={handleFollowPress}
-            onHoverIn={() => setIsHovered(true)}
-            onHoverOut={() => setIsHovered(false)}
-            style={({ pressed }) => [
-              styles.followButton,
-              isFollowing ? styles.followingButton : styles.unfollowingButton,
-              isHovered && isFollowing && styles.unfollowButtonHover,
-              pressed && styles.followButtonPressed,
-            ]}
-          >
-            <Text
-              style={[
-                styles.followButtonText,
-                isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
-              ]}
-            >
-              {isFollowing
-                ? isHovered
-                  ? "✕ Unfollow"
-                  : "✓ Following"
-                : "+ Follow"}
-            </Text>
-          </Pressable>
-        )}
       </View>
 
       <View style={styles.body}>
@@ -100,13 +82,48 @@ export default function ProposalCard({
           {card.description}
         </Text>
       </View>
+
+      {/* Hover overlay – covers entire card */}
+      {isCardHovered && (
+        <View style={styles.hoverOverlay}>
+          <Text style={styles.hoverOverlayText}>View Project Details</Text>
+        </View>
+      )}
+
+      {/* Follow button – rendered last so it's always on top of the overlay */}
+      {showFollowButton && (
+        <Pressable
+          onPress={handleFollowPress}
+          onHoverIn={() => setIsHovered(true)}
+          onHoverOut={() => setIsHovered(false)}
+          style={({ pressed }) => [
+            styles.followButton,
+            isFollowing ? styles.followingButton : styles.unfollowingButton,
+            isHovered && isFollowing && styles.unfollowButtonHover,
+            pressed && styles.followButtonPressed,
+          ]}
+        >
+          <Text
+            style={[
+              styles.followButtonText,
+              isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
+            ]}
+          >
+            {isFollowing
+              ? isHovered
+                ? "✕ Unfollow"
+                : "✓ Following"
+              : "+ Follow"}
+          </Text>
+        </Pressable>
+      )}
     </Pressable>
   );
 }
 
-const getFontFamily = (mobileFont: string) => {
-  return Platform.OS === "web" ? "inherit" : mobileFont;
-};
+function getFontFamily(mobileFont: string) {
+  return Platform.OS === "web" ? `${mobileFont}, Poppins, sans-serif` : mobileFont;
+}
 
 const styles = StyleSheet.create({
   card: {
@@ -133,19 +150,22 @@ const styles = StyleSheet.create({
       },
       web: {
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
-        transition: "transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+        transition: "background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out",
         cursor: "pointer",
       },
     }),
   },
   cardPressed: {
     opacity: 0.9,
-    ...Platform.select({
-      web: {
-        transform: [{ scale: 0.99 }],
-      },
-    }),
   },
+  cardHovered: Platform.select({
+    web: {
+      backgroundColor: "#e8ecf1",
+      boxShadow: "0 6px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 5px -2px rgba(0, 0, 0, 0.04)",
+      borderColor: "#93b4d4",
+    },
+    default: {},
+  }),
   imageContainer: {
     position: "relative",
     width: "100%",
@@ -200,6 +220,7 @@ const styles = StyleSheet.create({
   },
   body: {
     padding: 14,
+    flex: 1,
   },
   meta: {
     flexDirection: "row",
@@ -244,5 +265,24 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     lineHeight: 18,
     fontFamily: getFontFamily("Poppins_400Regular"),
+    marginBottom: 0,
+  },
+  hoverOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 5,
+    backgroundColor: "rgba(13, 34, 64, 0.80)",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  hoverOverlayText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#ffffff",
+    fontFamily: getFontFamily("Poppins_600SemiBold"),
   },
 });

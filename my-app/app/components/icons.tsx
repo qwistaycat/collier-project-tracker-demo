@@ -111,6 +111,26 @@ export function CloseIcon({ size = 14, className, strokeWidth = 2.5 }: IconProps
   );
 }
 
+export function MinimizeIcon({ size = 14, className, strokeWidth = 2.5 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 12h14"
+      />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon({ size = 16, className }: IconProps) {
   return (
     <svg
@@ -276,6 +296,25 @@ export function EyeIcon({ size = 16, className }: IconProps) {
         strokeLinejoin="round"
         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
       />
+    </svg>
+  );
+}
+
+export function DragHandleIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+    >
+      <circle cx="9" cy="8" r="1.5" />
+      <circle cx="9" cy="12" r="1.5" />
+      <circle cx="9" cy="16" r="1.5" />
+      <circle cx="15" cy="8" r="1.5" />
+      <circle cx="15" cy="12" r="1.5" />
+      <circle cx="15" cy="16" r="1.5" />
     </svg>
   );
 }

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import DemoCard from "@/app/components/DemoCard";
 
 export default function ChooseDemoPage() {
   return (
@@ -12,24 +12,18 @@ export default function ChooseDemoPage() {
         </p>
 
         <div className="choose-demo-cards">
-          {/* Resident Card — links to dashboard */}
-          <Link href="/dashboard" className="demo-card demo-card-active">
-            <h2 className="demo-card-heading">Log in as Resident</h2>
-            <p className="demo-card-text">
-              This view shows how information layout is shown to the public and
-              how residents can interact.
-            </p>
-          </Link>
+          <DemoCard
+            title="Log in as Resident"
+            description="This view shows how information layout is shown to the public and how residents can interact."
+            href="/dashboard"
+          />
 
-          {/* Township Card — disabled */}
-          <div className="demo-card demo-card-disabled" aria-disabled="true">
-            <h2 className="demo-card-heading">Log in as Township</h2>
-            <p className="demo-card-text">
-              This view shows all management and editing tools, as well as all
-              feedback.
-            </p>
-            <span className="demo-card-badge">Coming Soon</span>
-          </div>
+          <DemoCard
+            title="Log in as Township"
+            description="This view shows all management and editing tools, as well as all feedback."
+            disabled
+            badgeText="Coming Soon"
+          />
         </div>
 
         <p className="choose-demo-contact">

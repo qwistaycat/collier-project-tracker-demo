@@ -147,7 +147,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Road Paving 2026",
     functionalCategory: "Roads & Transportation",
     department: "Public Works",
-    updated: "1 week ago",
+    updated: "Updated 1 week ago",
     description:
       "Resurfacing six residential streets: Maclaine Dr, Turnberry Dr, Sunnyside Ave, Columbia Ave, Highlandview Dr, and Walker Ave.",
     image: "https://picsum.photos/seed/roadpaving/600/340",
@@ -158,7 +158,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Private Road Maintenance – Lobaugh Drive",
     functionalCategory: "Roads & Transportation",
     department: "Public Works",
-    updated: "3 days ago",
+    updated: "Updated 3 days ago",
     description:
       "Addressing maintenance obligations and cost-sharing for Lobaugh Drive, a privately owned road within the township.",
     image: "https://picsum.photos/seed/lobaughdrive/600/340",
@@ -170,7 +170,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Collier Park & Ballfield Upgrades",
     functionalCategory: "Parks & Green Spaces",
     department: "Parks & Recreation",
-    updated: "5 days ago",
+    updated: "Updated 5 days ago",
     description:
       "Renovating athletic fields and recreational facilities at Collier Township Park, including dugout improvements and field drainage.",
     image: "https://picsum.photos/seed/ballfield/600/340",
@@ -181,7 +181,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Hilltop Park Expansion",
     functionalCategory: "Parks & Green Spaces",
     department: "Parks & Recreation",
-    updated: "2 weeks ago",
+    updated: "Updated 2 weeks ago",
     description:
       "This project improves Hilltop Park by adding new recreation space and permanent facilities. It focuses on access, safety, and capacity during high-use times.",
     image: "https://picsum.photos/seed/hilltoppark/600/340",
@@ -193,7 +193,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Police Department Facility Remodeling",
     functionalCategory: "Infrastructure & Facilities",
     department: "Police Department",
-    updated: "2 weeks ago",
+    updated: "Updated 2 weeks ago",
     description:
       "Renovating and modernizing the Collier Township Police Department building to improve operational capacity and staff facilities.",
     image: "https://picsum.photos/seed/policedept/600/340",
@@ -204,7 +204,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Station Upgrades – Presto",
     functionalCategory: "Infrastructure & Facilities",
     department: "EMS & Fire Services",
-    updated: "1 week ago",
+    updated: "Updated 1 week ago",
     description:
       "Capital improvements to the Presto Volunteer Fire Department station, including structural repairs and equipment storage upgrades.",
     image: "https://picsum.photos/seed/firestationpresto/600/340",
@@ -215,7 +215,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Station Upgrades – Rennerdale",
     functionalCategory: "Infrastructure & Facilities",
     department: "EMS & Fire Services",
-    updated: "1 week ago",
+    updated: "Updated 1 week ago",
     description:
       "Capital improvements to the Rennerdale Volunteer Fire Department station, including bay expansion and safety system upgrades.",
     image: "https://picsum.photos/seed/firestationrennerdale/600/340",
@@ -226,7 +226,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Community Center Parking Lot",
     functionalCategory: "Infrastructure & Facilities",
     department: "Parks & Recreation",
-    updated: "4 days ago",
+    updated: "Updated 4 days ago",
     description:
       "Resurfacing and restriping the parking lot at Collier Township Community Center to improve safety and capacity.",
     image: "https://picsum.photos/seed/parkinglot/600/340",
@@ -237,7 +237,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "MS4 Stormwater Projects",
     functionalCategory: "Infrastructure & Facilities",
     department: "Sewer Department",
-    updated: "2 days ago",
+    updated: "Updated 2 days ago",
     description:
       "Municipal Separate Storm Sewer System compliance projects to manage stormwater runoff and meet DEP permit requirements.",
     image: "https://picsum.photos/seed/stormwater/600/340",
@@ -249,7 +249,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "New Development Review",
     functionalCategory: "Plan, Development & Sustainability",
     department: "Planning, Zoning, & Land Development",
-    updated: "3 days ago",
+    updated: "Updated 3 days ago",
     description:
       "Review and processing of new residential and commercial development applications under current township land use ordinances.",
     image: "https://picsum.photos/seed/newdevelopment/600/340",
@@ -260,7 +260,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Township Ordinance Updates",
     functionalCategory: "Plan, Development & Sustainability",
     department: "Planning, Zoning, & Land Development",
-    updated: "1 week ago",
+    updated: "Updated 1 week ago",
     description:
       "Revision of township ordinances to reflect current zoning standards, land use policy, and state regulatory requirements.",
     image: "https://picsum.photos/seed/ordinance/600/340",
@@ -272,7 +272,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Department Consolidation",
     functionalCategory: "Public Safety",
     department: "EMS & Fire Services",
-    updated: "2 weeks ago",
+    updated: "Updated 2 weeks ago",
     description:
       "Evaluating consolidation options among Collier's three volunteer fire departments to improve emergency response and reduce operational costs.",
     image: "https://picsum.photos/seed/fireconsolidate/600/340",
@@ -283,7 +283,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "EMS Grants",
     functionalCategory: "Public Safety",
     department: "EMS & Fire Services",
-    updated: "5 days ago",
+    updated: "Updated 5 days ago",
     description:
       "Pursuing state and federal grant funding to support emergency medical services equipment, training, and personnel across the township.",
     image: "https://picsum.photos/seed/emsgrants/600/340",

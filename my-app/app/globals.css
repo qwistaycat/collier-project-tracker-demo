@@ -126,37 +126,55 @@ select {
   animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* ── Follow Button Tooltip ── */
-.follow-tooltip-text {
+/* ── Unified Tooltip Styles ── */
+.custom-tooltip-wrap {
+  position: relative;
+}
+.custom-tooltip-text {
   visibility: hidden;
   opacity: 0;
   position: absolute;
-  top: calc(100% + 10px);
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: #1e293b;
   color: white;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
   white-space: nowrap;
   pointer-events: none;
   transition: opacity 0.15s ease, visibility 0.15s ease;
-  z-index: 10;
-  line-height: 1.4;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  line-height: 1.3;
 }
-.follow-tooltip-text::before {
+/* Default arrow (centered pointing down) */
+.custom-tooltip-text::before {
   content: "";
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #1e293b transparent;
+  border-color: #1e293b transparent transparent transparent;
 }
-.follow-tooltip-wrap:hover .follow-tooltip-text {
+
+/* Right-aligned modifier */
+.custom-tooltip-wrap.tooltip-align-right .custom-tooltip-text {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.custom-tooltip-wrap.tooltip-align-right .custom-tooltip-text::before {
+  left: auto;
+  right: 6px;
+  transform: none;
+}
+
+.custom-tooltip-wrap:hover .custom-tooltip-text {
   visibility: visible;
   opacity: 1;
 }
@@ -205,7 +223,7 @@ select {
   padding: 28px 24px;
   text-decoration: none;
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .demo-card-active {
@@ -213,8 +231,9 @@ select {
 }
 
 .demo-card-active:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: #d6dde8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  outline: 1.5px solid #003d7a;
 }
 
 .demo-card-disabled {
