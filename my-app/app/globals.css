@@ -59,13 +59,34 @@ select {
   filter: brightness(0.95);
 }
 
-/* ── Timeline ── */
-.tl-item {
+.sidebar-cat-btn {
+  cursor: pointer;
   transition: background 0.15s ease;
 }
+.sidebar-cat-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
 
-.tl-item:hover:not(.tl-active) {
-  background: rgba(13, 34, 64, 0.07) !important;
+.sidebar-proj-card {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.sidebar-proj-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Timeline ── */
+/* Hover is driven by React state (hoveredIdx), not CSS :hover — hovering
+   either side must highlight BOTH the left item and the right card, which
+   a plain pseudo-class can't do across two separate elements. These
+   classes just provide the transition. */
+.tl-item {
+  transition: background 0.15s ease, border-color 0.3s ease;
+}
+
+.tl-card {
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .timeline-content::-webkit-scrollbar {

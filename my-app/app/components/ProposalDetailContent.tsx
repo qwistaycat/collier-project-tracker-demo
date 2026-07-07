@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  sidebarProposals,
   proposalData,
   timelineStages,
   discussionData,
@@ -62,7 +61,7 @@ export default function ProposalDetailContent() {
           position: "relative",
         }}
       >
-        <Sidebar proposals={sidebarProposals} />
+        <Sidebar currentProposalId={proposalData.id} />
 
         {/* Main content */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
