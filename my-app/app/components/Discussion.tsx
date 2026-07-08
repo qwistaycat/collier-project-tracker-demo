@@ -122,6 +122,15 @@ function ReplyForm({
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.focus();
+    const len = el.value.length;
+    el.setSelectionRange(len, len);
+  }, []);
+
   return (
     <div style={{ marginTop: 8 }}>
       <textarea
@@ -284,6 +293,7 @@ function CommentThread({
   const [expanded, setExpanded] = useState(false);
   const [replyFormOpen, setReplyFormOpen] = useState(false);
   const [replyInitial, setReplyInitial] = useState("");
+  const [replyKey, setReplyKey] = useState(0);
 
   const allReplies = comment.replies || [];
   const officialReplies = allReplies.filter((r) => r.isOfficial);
@@ -297,6 +307,7 @@ function CommentThread({
   const openReply = (user: string | null) => {
     setReplyInitial(user ? `@${user} ` : "");
     setReplyFormOpen(true);
+    setReplyKey((k) => k + 1); // force remount so scroll/focus + prefill re-run every click
   };
 
   return (
@@ -423,6 +434,7 @@ function CommentThread({
         {/* Reply form */}
         {replyFormOpen && (
           <ReplyForm
+            key={replyKey}
             threadIdx={threadIdx}
             initialValue={replyInitial}
             onCancel={() => setReplyFormOpen(false)}
