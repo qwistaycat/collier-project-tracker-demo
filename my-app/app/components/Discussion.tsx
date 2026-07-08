@@ -112,14 +112,14 @@ function ReplyForm({
   threadIdx,
   onSend,
   onCancel,
-  initialValue,
+  replyToUser,
 }: {
   threadIdx: string;
-  onSend: (threadIdx: string, message: string) => void;
+  onSend: (threadIdx: string, message: string, replyTo?: string) => void;
   onCancel: () => void;
-  initialValue: string;
+  replyToUser?: string | null;
 }) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -127,15 +127,14 @@ function ReplyForm({
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center" });
     el.focus();
-    const len = el.value.length;
-    el.setSelectionRange(len, len);
+    el.setSelectionRange(0, 0); // cursor at the very front
   }, []);
 
   return (
     <div style={{ marginTop: 8 }}>
       <textarea
         ref={inputRef}
-        placeholder="Write a reply..."
+        placeholder={replyToUser ? `@${replyToUser}` : "Write a reply..."}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
@@ -180,7 +179,8 @@ function ReplyForm({
         </button>
         <button
           onClick={() => {
-            if (value.trim()) onSend(threadIdx, value.trim());
+            if (value.trim())
+              onSend(threadIdx, value.trim(), replyToUser ?? undefined);
           }}
           style={{
             padding: "7px 18px",
@@ -287,16 +287,16 @@ function CommentThread({
   onSendReply,
   openThreadIdx,
   openNonce,
-  openInitial,
+  openReplyToUser,
   onOpenReply,
   onCloseReply,
 }: {
   comment: Comment;
   threadIdx: string;
-  onSendReply: (threadIdx: string, message: string) => void;
+  onSendReply: (threadIdx: string, message: string, replyTo?: string) => void;
   openThreadIdx: string | null;
   openNonce: number;
-  openInitial: string;
+  openReplyToUser: string | null;
   onOpenReply: (threadIdx: string, user: string | null) => void;
   onCloseReply: () => void;
 }) {
@@ -443,10 +443,10 @@ function CommentThread({
           <ReplyForm
             key={openNonce}
             threadIdx={threadIdx}
-            initialValue={openInitial}
+            replyToUser={openReplyToUser}
             onCancel={onCloseReply}
-            onSend={(tid, msg) => {
-              onSendReply(tid, msg);
+            onSend={(tid, msg, replyTo) => {
+              onSendReply(tid, msg, replyTo);
               onCloseReply();
             }}
           />
@@ -518,13 +518,13 @@ export default function Discussion({ data }: DiscussionProps) {
 
   // Only one reply form (across all threads) may be open at a time.
   const [openThreadIdx, setOpenThreadIdx] = useState<string | null>(null);
-  const [openInitial, setOpenInitial] = useState("");
+  const [openReplyToUser, setOpenReplyToUser] = useState<string | null>(null);
   const [openNonce, setOpenNonce] = useState(0);
 
   const handleOpenReply = (threadIdx: string, user: string | null) => {
     setOpenThreadIdx(threadIdx);
-    setOpenInitial(user ? `@${user} ` : "");
-    setOpenNonce((n) => n + 1); // force remount so scroll/focus + prefill re-run every click
+    setOpenReplyToUser(user);
+    setOpenNonce((n) => n + 1); // force remount so scroll/focus re-run every click
   };
   const handleCloseReply = () => setOpenThreadIdx(null);
 
@@ -570,27 +570,22 @@ export default function Discussion({ data }: DiscussionProps) {
     setPublicText("");
   };
 
-  const handleSendReply = (threadIdx: string, message: string) => {
+  const handleSendReply = (
+    threadIdx: string,
+    message: string,
+    replyTo?: string
+  ) => {
     // threadIdx is like "pub-0", "pub-1", etc.
     const parts = threadIdx.split("-");
     const idx = parseInt(parts[1], 10);
     if (isNaN(idx)) return;
-
-    // Parse @username mention from the start of the message
-    let replyTo: string | undefined;
-    let cleanMessage = message;
-    const mentionMatch = message.match(/^@(\S+)\s*/);
-    if (mentionMatch) {
-      replyTo = mentionMatch[1];
-      cleanMessage = message.slice(mentionMatch[0].length);
-    }
 
     const newReply: Reply = {
       user: "You",
       avatarColor: "#22c55e",
       timeAgo: "just now",
       replyTo,
-      message: cleanMessage,
+      message,
     };
 
     setPublicComments((prev) =>
@@ -885,7 +880,7 @@ export default function Discussion({ data }: DiscussionProps) {
                   onSendReply={handleSendReply}
                   openThreadIdx={openThreadIdx}
                   openNonce={openNonce}
-                  openInitial={openInitial}
+                  openReplyToUser={openReplyToUser}
                   onOpenReply={handleOpenReply}
                   onCloseReply={handleCloseReply}
                 />
