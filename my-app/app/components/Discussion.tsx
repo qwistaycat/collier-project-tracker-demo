@@ -285,15 +285,24 @@ function CommentThread({
   comment,
   threadIdx,
   onSendReply,
+  openThreadIdx,
+  openNonce,
+  openInitial,
+  onOpenReply,
+  onCloseReply,
 }: {
   comment: Comment;
   threadIdx: string;
   onSendReply: (threadIdx: string, message: string) => void;
+  openThreadIdx: string | null;
+  openNonce: number;
+  openInitial: string;
+  onOpenReply: (threadIdx: string, user: string | null) => void;
+  onCloseReply: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [replyFormOpen, setReplyFormOpen] = useState(false);
-  const [replyInitial, setReplyInitial] = useState("");
-  const [replyKey, setReplyKey] = useState(0);
+
+  const isReplyOpen = openThreadIdx === threadIdx;
 
   const allReplies = comment.replies || [];
   const officialReplies = allReplies.filter((r) => r.isOfficial);
@@ -305,9 +314,7 @@ function CommentThread({
     : { fontWeight: 600, fontSize: 13, color: "#111827" };
 
   const openReply = (user: string | null) => {
-    setReplyInitial(user ? `@${user} ` : "");
-    setReplyFormOpen(true);
-    setReplyKey((k) => k + 1); // force remount so scroll/focus + prefill re-run every click
+    onOpenReply(threadIdx, user);
   };
 
   return (
@@ -345,7 +352,7 @@ function CommentThread({
             {comment.message}
           </div>
           <span
-            onClick={() => openReply(null)}
+            onClick={() => openReply(comment.user)}
             style={{
               display: "inline-block",
               marginTop: 5,
@@ -432,15 +439,15 @@ function CommentThread({
         )}
 
         {/* Reply form */}
-        {replyFormOpen && (
+        {isReplyOpen && (
           <ReplyForm
-            key={replyKey}
+            key={openNonce}
             threadIdx={threadIdx}
-            initialValue={replyInitial}
-            onCancel={() => setReplyFormOpen(false)}
+            initialValue={openInitial}
+            onCancel={onCloseReply}
             onSend={(tid, msg) => {
               onSendReply(tid, msg);
-              setReplyFormOpen(false);
+              onCloseReply();
             }}
           />
         )}
@@ -508,6 +515,18 @@ export default function Discussion({ data }: DiscussionProps) {
   const privateInputRef = useRef<HTMLTextAreaElement>(null);
   const publicInputRef = useRef<HTMLTextAreaElement>(null);
   const [liveViewers, setLiveViewers] = useState(data.public.viewCount);
+
+  // Only one reply form (across all threads) may be open at a time.
+  const [openThreadIdx, setOpenThreadIdx] = useState<string | null>(null);
+  const [openInitial, setOpenInitial] = useState("");
+  const [openNonce, setOpenNonce] = useState(0);
+
+  const handleOpenReply = (threadIdx: string, user: string | null) => {
+    setOpenThreadIdx(threadIdx);
+    setOpenInitial(user ? `@${user} ` : "");
+    setOpenNonce((n) => n + 1); // force remount so scroll/focus + prefill re-run every click
+  };
+  const handleCloseReply = () => setOpenThreadIdx(null);
 
   // Randomly fluctuate live viewer count
   useEffect(() => {
@@ -864,6 +883,11 @@ export default function Discussion({ data }: DiscussionProps) {
                   comment={comment}
                   threadIdx={`pub-${i}`}
                   onSendReply={handleSendReply}
+                  openThreadIdx={openThreadIdx}
+                  openNonce={openNonce}
+                  openInitial={openInitial}
+                  onOpenReply={handleOpenReply}
+                  onCloseReply={handleCloseReply}
                 />
               ))}
             </div>
