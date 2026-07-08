@@ -9,6 +9,7 @@ interface IconProps {
   size?: number;
   className?: string;
   strokeWidth?: number;
+  style?: React.CSSProperties;
 }
 
 export function BuildingIcon({ size = 24, className }: IconProps) {
@@ -295,6 +296,100 @@ export function EyeIcon({ size = 16, className }: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+      />
+    </svg>
+  );
+}
+
+interface VoteIconProps extends IconProps {
+  filled?: boolean;
+}
+
+// Filled state reuses the exact same outline path (just switching from a
+// stroke render to a fill render) instead of swapping in a separately
+// designed "solid" icon — Heroicons' solid set is drawn on a 20x20 grid
+// vs. 24x24 for outline, so mixing the two made the icon jump in size/
+// shape when toggling. Same path data = guaranteed identical size.
+
+export function ThumbUpIcon({ size = 14, className, filled = false }: VoteIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth={1.8}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z"
+      />
+    </svg>
+  );
+}
+
+export function ThumbDownIcon({ size = 14, className, filled = false }: VoteIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth={1.8}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398C20.613 14.547 19.833 15 19 15h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384"
+      />
+    </svg>
+  );
+}
+
+export function MoreIcon({ size = 14, className, style }: IconProps) {
+  // Cropped tight to the dots themselves (viewBox height 6, not 24) so the
+  // rendered box has almost no invisible padding above/below — a menu
+  // anchored to this icon's edge sits right against the visible dots
+  // instead of against empty space inside a square icon canvas.
+  return (
+    <svg
+      width={size}
+      height={size * 0.25}
+      viewBox="0 0 24 6"
+      fill="currentColor"
+      className={className}
+      style={{ flexShrink: 0, display: "block", ...style }}
+    >
+      <circle cx="4" cy="3" r="1.7" />
+      <circle cx="12" cy="3" r="1.7" />
+      <circle cx="20" cy="3" r="1.7" />
+    </svg>
+  );
+}
+
+export function ReplyIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
       />
     </svg>
   );

@@ -2,13 +2,58 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { DiscussionData, Comment, Reply } from "@/app/data/proposals";
-import { EyeIcon } from "./icons";
+import { EyeIcon, ThumbUpIcon, ThumbDownIcon, ReplyIcon, MoreIcon } from "./icons";
+
+// ── Local data shapes ─────────────────────────────────────────────
+// The shared Comment/Reply types don't carry an id or vote counts (the
+// mobile app also consumes that file), so we layer them on locally the
+// moment data comes in, rather than touching the shared schema.
+
+type VoteValue = "like" | "dislike" | undefined;
+
+type ReplyWithMeta = Reply & { _id: string; likes: number; dislikes: number };
+
+type CommentWithMeta = Omit<Comment, "replies"> & {
+  _id: string;
+  likes: number;
+  dislikes: number;
+  replies: ReplyWithMeta[];
+};
+
+function seedComments(comments: Comment[]): CommentWithMeta[] {
+  return comments.map((c, i) => ({
+    ...c,
+    _id: `c${i}`,
+    likes: 0,
+    dislikes: 0,
+    replies: c.replies.map((r, j) => ({
+      ...r,
+      _id: `c${i}-r${j}`,
+      likes: 0,
+      dislikes: 0,
+    })),
+  }));
+}
+
+// Delta to apply to a single vote-kind's counter when switching a vote
+// from `current` to `next` (either of which may be undefined/"no vote").
+function voteDelta(current: VoteValue, next: VoteValue, kind: "like" | "dislike") {
+  const wasActive = current === kind;
+  const isActive = next === kind;
+  if (wasActive === isActive) return 0;
+  return isActive ? 1 : -1;
+}
 
 // ── Shared styles & helpers ───────────────────────────────────────
 // Pulled out because the same "message bubble", "reply link", and
 // "cancel/submit button" visuals were previously copy-pasted across
 // ReplyItem, CommentThread, PastFeedbackItem, ReplyForm, and both the
 // private/public composer blocks.
+
+// Shared inactive color for reply/like/dislike so all three read as one
+// consistent set of icon+text controls.
+const actionIdleColor = "#6b7280";
+const actionHoverColor = "#2563eb";
 
 const bubbleStyle: React.CSSProperties = {
   border: "1px solid #e5e7eb",
@@ -20,12 +65,29 @@ const bubbleStyle: React.CSSProperties = {
 };
 
 const replyTriggerStyle: React.CSSProperties = {
-  display: "inline-block",
-  marginTop: 5,
-  fontSize: 12,
-  color: "#6b7280",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  fontSize: 14,
+  color: actionIdleColor,
   cursor: "pointer",
 };
+
+const actionsRowStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 16,
+  marginTop: 5,
+};
+
+const voteButtonStyle = (active: boolean, activeColor: string): React.CSSProperties => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  fontSize: 12,
+  color: active ? activeColor : actionIdleColor,
+  cursor: "pointer",
+});
 
 const cancelButtonStyle: React.CSSProperties = {
   padding: "8px 16px",
@@ -38,16 +100,20 @@ const cancelButtonStyle: React.CSSProperties = {
   cursor: "pointer",
 };
 
-const submitButtonStyle: React.CSSProperties = {
-  padding: "8px 18px",
-  background: "#0d2240",
-  color: "white",
-  border: "none",
-  borderRadius: 6,
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
-};
+function getSubmitButtonStyle(enabled: boolean): React.CSSProperties {
+  return {
+    padding: "8px 18px",
+    background: "#0d2240",
+    color: "white",
+    border: "none",
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: enabled ? "pointer" : "default",
+    opacity: enabled ? 1 : 0.65,
+    transition: "opacity 0.15s",
+  };
+}
 
 function getNameStyle(isOfficial?: boolean): React.CSSProperties {
   return isOfficial
@@ -87,7 +153,8 @@ function CommentHeader({
   name,
   timeAgo,
   isOfficial,
-  marginBottom = 6,
+  marginBottom = 3,
+  menu,
 }: {
   initial: string;
   avatarColor: string;
@@ -95,6 +162,7 @@ function CommentHeader({
   timeAgo: string;
   isOfficial?: boolean;
   marginBottom?: number;
+  menu?: React.ReactNode;
 }) {
   return (
     <div
@@ -117,6 +185,7 @@ function CommentHeader({
         </span>
       )}
       <span style={{ fontSize: 12, color: "#9ca3af" }}>{timeAgo}</span>
+      {menu && <span style={{ marginLeft: "auto" }}>{menu}</span>}
     </div>
   );
 }
@@ -146,8 +215,181 @@ function MessageBubble({
 
 function ReplyTrigger({ onClick }: { onClick: () => void }) {
   return (
-    <span onClick={onClick} style={replyTriggerStyle}>
-      ↩ Reply
+    <span
+      onClick={onClick}
+      onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
+      onMouseLeave={(e) => (e.currentTarget.style.color = actionIdleColor)}
+      style={replyTriggerStyle}
+    >
+      <ReplyIcon size={16} />
+      Reply
+    </span>
+  );
+}
+
+// ── Vote Controls (like/dislike icons + counts) ──────────────────────
+
+function VoteControls({
+  likes,
+  dislikes,
+  myVote,
+  onVote,
+}: {
+  likes: number;
+  dislikes: number;
+  myVote: VoteValue;
+  onVote: (direction: "like" | "dislike") => void;
+}) {
+  return (
+    <>
+      <span
+        onClick={() => onVote("like")}
+        onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.color =
+            myVote === "like" ? actionHoverColor : actionIdleColor)
+        }
+        title={`${likes} like${likes === 1 ? "" : "s"}`}
+        style={voteButtonStyle(myVote === "like", actionHoverColor)}
+      >
+        <ThumbUpIcon size={16} filled={myVote === "like"} />
+        {likes > 0 && likes}
+      </span>
+      <span
+        onClick={() => onVote("dislike")}
+        onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.color =
+            myVote === "dislike" ? actionHoverColor : actionIdleColor)
+        }
+        title={`${dislikes} dislike${dislikes === 1 ? "" : "s"}`}
+        style={voteButtonStyle(myVote === "dislike", actionHoverColor)}
+      >
+        <ThumbDownIcon size={16} filled={myVote === "dislike"} />
+      </span>
+    </>
+  );
+}
+
+// ── More Menu ("...") — report someone else's message, or edit/delete your own ─
+
+function MenuItem({
+  label,
+  onClick,
+  danger = false,
+}: {
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "#f9fafb")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+      style={{
+        padding: "8px 14px",
+        fontSize: 12,
+        color: danger ? "#dc2626" : "#374151",
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function MoreMenu({
+  isOwn,
+  onEdit,
+  onDelete,
+}: {
+  isOwn: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    // Sized to the icon itself (no padding here) so the dropdown below
+    // anchors flush against it. The hit area is enlarged separately via
+    // an invisible absolutely-positioned layer that doesn't affect this
+    // box's size — click target grows without moving the anchor point.
+    <span
+      onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
+      onMouseLeave={(e) => (e.currentTarget.style.color = actionIdleColor)}
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        lineHeight: 0,
+        color: actionIdleColor,
+      }}
+    >
+      <span
+        onClick={() => setOpen((o) => !o)}
+        aria-label="More options"
+        style={{ position: "absolute", inset: -8, cursor: "pointer" }}
+      />
+      <MoreIcon size={20} style={{ pointerEvents: "none" }} />
+      {open && (
+        <>
+          {/* Click-outside catcher */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+            }}
+            style={{ position: "fixed", inset: 0, zIndex: 9 }}
+          />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: "100%",
+              margin: 0,
+              lineHeight: "normal",
+              background: "white",
+              border: "1px solid #e5e7eb",
+              borderRadius: 6,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              zIndex: 10,
+              minWidth: 100,
+              overflow: "hidden",
+            }}
+          >
+            {isOwn ? (
+              <>
+                <MenuItem
+                  label="Edit"
+                  onClick={() => {
+                    setOpen(false);
+                    onEdit();
+                  }}
+                />
+                <MenuItem
+                  label="Delete"
+                  danger
+                  onClick={() => {
+                    setOpen(false);
+                    onDelete();
+                  }}
+                />
+              </>
+            ) : (
+              <MenuItem
+                label="Report"
+                onClick={() => {
+                  setOpen(false);
+                  alert("Reported. Our moderators will take a look.");
+                }}
+              />
+            )}
+          </div>
+        </>
+      )}
     </span>
   );
 }
@@ -247,6 +489,7 @@ function MessageComposer({
   height = 90,
   resize = "vertical",
   borderColor = "#d1d5db",
+  initialValue = "",
 }: {
   placeholder: string;
   onSubmit: (text: string) => void;
@@ -258,8 +501,9 @@ function MessageComposer({
   height?: number;
   resize?: "none" | "vertical";
   borderColor?: string;
+  initialValue?: string;
 }) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -268,11 +512,12 @@ function MessageComposer({
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center" });
     el.focus();
-    el.setSelectionRange(0, 0); // cursor at the very front
+    el.setSelectionRange(el.value.length, el.value.length); // cursor at the end
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showCancel = alwaysShowCancel || value.length > 0;
+  const canSubmit = value.trim().length > 0;
 
   const handleSubmit = () => {
     if (!value.trim()) return;
@@ -328,7 +573,11 @@ function MessageComposer({
             Cancel
           </button>
         )}
-        <button onClick={handleSubmit} style={submitButtonStyle}>
+        <button
+          onClick={handleSubmit}
+          disabled={!canSubmit}
+          style={getSubmitButtonStyle(canSubmit)}
+        >
           {submitLabel}
         </button>
       </div>
@@ -341,23 +590,70 @@ function MessageComposer({
 function ReplyItem({
   reply,
   onReply,
+  myVote,
+  onVote,
+  onEdit,
+  onDelete,
 }: {
-  reply: Reply;
+  reply: ReplyWithMeta;
   onReply: (user: string) => void;
+  myVote: VoteValue;
+  onVote: (direction: "like" | "dislike") => void;
+  onEdit: (text: string) => void;
+  onDelete: () => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const isOwn = reply.user === "You";
+
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 8 }}>
       <CommentHeader
         initial={reply.user.charAt(0).toUpperCase()}
         avatarColor={reply.avatarColor}
         name={reply.user}
         timeAgo={reply.timeAgo}
         isOfficial={reply.isOfficial}
-        marginBottom={5}
+        marginBottom={3}
+        menu={
+          <MoreMenu
+            isOwn={isOwn}
+            onEdit={() => setEditing(true)}
+            onDelete={onDelete}
+          />
+        }
       />
       <div style={{ marginLeft: 40 }}>
-        <MessageBubble replyTo={reply.replyTo} message={reply.message} />
-        <ReplyTrigger onClick={() => onReply(reply.user)} />
+        {editing ? (
+          <MessageComposer
+            placeholder="Write a reply..."
+            initialValue={reply.message}
+            submitLabel="Save"
+            alwaysShowCancel
+            autoFocus
+            focusHighlight
+            height={76}
+            resize="none"
+            borderColor="#e5e7eb"
+            onCancel={() => setEditing(false)}
+            onSubmit={(text) => {
+              onEdit(text);
+              setEditing(false);
+            }}
+          />
+        ) : (
+          <>
+            <MessageBubble replyTo={reply.replyTo} message={reply.message} />
+            <div style={actionsRowStyle}>
+              <VoteControls
+                likes={reply.likes}
+                dislikes={reply.dislikes}
+                myVote={myVote}
+                onVote={onVote}
+              />
+              <ReplyTrigger onClick={() => onReply(reply.user)} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -374,8 +670,14 @@ function CommentThread({
   openReplyToUser,
   onOpenReply,
   onCloseReply,
+  votes,
+  onVote,
+  onEditComment,
+  onDeleteComment,
+  onEditReply,
+  onDeleteReply,
 }: {
-  comment: Comment;
+  comment: CommentWithMeta;
   threadIdx: string;
   onSendReply: (threadIdx: string, message: string, replyTo?: string) => void;
   openThreadIdx: string | null;
@@ -383,10 +685,18 @@ function CommentThread({
   openReplyToUser: string | null;
   onOpenReply: (threadIdx: string, user: string | null) => void;
   onCloseReply: () => void;
+  votes: Record<string, VoteValue>;
+  onVote: (replyId: string | null, direction: "like" | "dislike") => void;
+  onEditComment: (text: string) => void;
+  onDeleteComment: () => void;
+  onEditReply: (replyId: string, text: string) => void;
+  onDeleteReply: (replyId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [editingComment, setEditingComment] = useState(false);
 
   const isReplyOpen = openThreadIdx === threadIdx;
+  const isOwnComment = comment.user === "You";
 
   const allReplies = comment.replies || [];
   const officialReplies = allReplies.filter((r) => r.isOfficial);
@@ -398,7 +708,7 @@ function CommentThread({
   };
 
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 24 }}>
       {/* Top-level comment */}
       <div style={{ marginBottom: 8 }}>
         <CommentHeader
@@ -407,27 +717,75 @@ function CommentThread({
           name={comment.user}
           timeAgo={comment.timeAgo}
           isOfficial={comment.isOfficial}
+          menu={
+            <MoreMenu
+              isOwn={isOwnComment}
+              onEdit={() => setEditingComment(true)}
+              onDelete={onDeleteComment}
+            />
+          }
         />
         <div style={{ marginLeft: 40 }}>
-          <MessageBubble message={comment.message} />
-          <ReplyTrigger onClick={() => openReply(comment.user)} />
+          {editingComment ? (
+            <MessageComposer
+              placeholder="Write a comment..."
+              initialValue={comment.message}
+              submitLabel="Save"
+              alwaysShowCancel
+              autoFocus
+              focusHighlight
+              height={76}
+              resize="none"
+              borderColor="#e5e7eb"
+              onCancel={() => setEditingComment(false)}
+              onSubmit={(text) => {
+                onEditComment(text);
+                setEditingComment(false);
+              }}
+            />
+          ) : (
+            <>
+              <MessageBubble message={comment.message} />
+              <div style={actionsRowStyle}>
+                <VoteControls
+                  likes={comment.likes}
+                  dislikes={comment.dislikes}
+                  myVote={votes[comment._id]}
+                  onVote={(direction) => onVote(null, direction)}
+                />
+                <ReplyTrigger onClick={() => openReply(comment.user)} />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Replies area */}
       <div style={{ marginLeft: 40, marginTop: 2 }}>
         {/* Official replies (always visible) */}
-        {officialReplies.map((r, i) => (
-          <ReplyItem key={`off-${i}`} reply={r} onReply={(u) => openReply(u)} />
+        {officialReplies.map((r) => (
+          <ReplyItem
+            key={r._id}
+            reply={r}
+            onReply={(u) => openReply(u)}
+            myVote={votes[r._id]}
+            onVote={(direction) => onVote(r._id, direction)}
+            onEdit={(text) => onEditReply(r._id, text)}
+            onDelete={() => onDeleteReply(r._id)}
+          />
         ))}
 
         {/* Normal replies */}
         {(!shouldCollapse || expanded) &&
-          normalReplies.map((r, i) => (
+          normalReplies.map((r) => (
             <ReplyItem
-              key={`norm-${i}`}
+              key={r._id}
               reply={r}
               onReply={(u) => openReply(u)}
+              myVote={votes[r._id]}
+              onVote={(direction) => onVote(r._id, direction)}
+              onEdit={(text) => onEditReply(r._id, text)}
+              onDelete={() => onDeleteReply(r._id)}
             />
           ))}
 
@@ -492,7 +850,7 @@ function CommentThread({
             <MessageComposer
               key={openNonce}
               placeholder={openReplyToUser ? `@${openReplyToUser}` : "Write a reply..."}
-              submitLabel="Send Reply"
+              submitLabel="Reply"
               alwaysShowCancel
               autoFocus
               focusHighlight
@@ -542,13 +900,18 @@ export default function Discussion({ data }: DiscussionProps) {
   const [privateFeedback, setPrivateFeedback] = useState(
     data.private.pastFeedback
   );
-  const [publicComments, setPublicComments] = useState(data.public.comments);
+  const [publicComments, setPublicComments] = useState<CommentWithMeta[]>(() =>
+    seedComments(data.public.comments)
+  );
   const [liveViewers, setLiveViewers] = useState(data.public.viewCount);
 
   // Only one reply form (across all threads) may be open at a time.
   const [openThreadIdx, setOpenThreadIdx] = useState<string | null>(null);
   const [openReplyToUser, setOpenReplyToUser] = useState<string | null>(null);
   const [openNonce, setOpenNonce] = useState(0);
+
+  // "You" haven't voted on anything yet; keyed by comment/reply _id.
+  const [votes, setVotes] = useState<Record<string, VoteValue>>({});
 
   const handleOpenReply = (threadIdx: string, user: string | null) => {
     setOpenThreadIdx(threadIdx);
@@ -582,12 +945,15 @@ export default function Discussion({ data }: DiscussionProps) {
   };
 
   const submitPublicMessage = (text: string) => {
-    const newComment: Comment = {
+    const newComment: CommentWithMeta = {
       user: "You",
       avatarColor: "#22c55e",
       timeAgo: "just now",
       message: text,
       replies: [],
+      _id: `c-new-${Date.now()}`,
+      likes: 0,
+      dislikes: 0,
     };
     setPublicComments((prev) => [newComment, ...prev]);
   };
@@ -602,12 +968,15 @@ export default function Discussion({ data }: DiscussionProps) {
     const idx = parseInt(parts[1], 10);
     if (isNaN(idx)) return;
 
-    const newReply: Reply = {
+    const newReply: ReplyWithMeta = {
       user: "You",
       avatarColor: "#22c55e",
       timeAgo: "just now",
       replyTo,
       message,
+      _id: `r-new-${Date.now()}`,
+      likes: 0,
+      dislikes: 0,
     };
 
     setPublicComments((prev) =>
@@ -615,6 +984,92 @@ export default function Discussion({ data }: DiscussionProps) {
         i === idx
           ? { ...comment, replies: [...comment.replies, newReply] }
           : comment
+      )
+    );
+  };
+
+  const handleVote = (
+    threadIdx: string,
+    replyId: string | null,
+    direction: "like" | "dislike"
+  ) => {
+    const parts = threadIdx.split("-");
+    const idx = parseInt(parts[1], 10);
+    if (isNaN(idx)) return;
+
+    const comment = publicComments[idx];
+    if (!comment) return;
+    const targetId = replyId ?? comment._id;
+    const current = votes[targetId];
+    const next = current === direction ? undefined : direction;
+
+    setVotes((prev) => ({ ...prev, [targetId]: next }));
+
+    setPublicComments((prev) =>
+      prev.map((c, i) => {
+        if (i !== idx) return c;
+        if (replyId === null) {
+          return {
+            ...c,
+            likes: c.likes + voteDelta(current, next, "like"),
+            dislikes: c.dislikes + voteDelta(current, next, "dislike"),
+          };
+        }
+        return {
+          ...c,
+          replies: c.replies.map((r) =>
+            r._id === replyId
+              ? {
+                  ...r,
+                  likes: r.likes + voteDelta(current, next, "like"),
+                  dislikes: r.dislikes + voteDelta(current, next, "dislike"),
+                }
+              : r
+          ),
+        };
+      })
+    );
+  };
+
+  const handleDeleteComment = (threadIdx: string) => {
+    const idx = parseInt(threadIdx.split("-")[1], 10);
+    if (isNaN(idx)) return;
+    setPublicComments((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleEditComment = (threadIdx: string, text: string) => {
+    const idx = parseInt(threadIdx.split("-")[1], 10);
+    if (isNaN(idx)) return;
+    setPublicComments((prev) =>
+      prev.map((c, i) => (i === idx ? { ...c, message: text } : c))
+    );
+  };
+
+  const handleDeleteReply = (threadIdx: string, replyId: string) => {
+    const idx = parseInt(threadIdx.split("-")[1], 10);
+    if (isNaN(idx)) return;
+    setPublicComments((prev) =>
+      prev.map((c, i) =>
+        i === idx
+          ? { ...c, replies: c.replies.filter((r) => r._id !== replyId) }
+          : c
+      )
+    );
+  };
+
+  const handleEditReply = (threadIdx: string, replyId: string, text: string) => {
+    const idx = parseInt(threadIdx.split("-")[1], 10);
+    if (isNaN(idx)) return;
+    setPublicComments((prev) =>
+      prev.map((c, i) =>
+        i === idx
+          ? {
+              ...c,
+              replies: c.replies.map((r) =>
+                r._id === replyId ? { ...r, message: text } : r
+              ),
+            }
+          : c
       )
     );
   };
@@ -700,7 +1155,7 @@ export default function Discussion({ data }: DiscussionProps) {
             </p>
             <MessageComposer
               placeholder={data.private.placeholder}
-              submitLabel={data.private.buttonLabel}
+              submitLabel="Comment"
               onSubmit={submitPrivateMessage}
             />
             <div style={{ marginTop: 24 }}>
@@ -749,7 +1204,7 @@ export default function Discussion({ data }: DiscussionProps) {
             </p>
             <MessageComposer
               placeholder={data.public.placeholder}
-              submitLabel={data.public.buttonLabel}
+              submitLabel="Comment"
               onSubmit={submitPublicMessage}
             />
             <div style={{ marginTop: 24 }}>
@@ -786,7 +1241,7 @@ export default function Discussion({ data }: DiscussionProps) {
               </div>
               {publicComments.map((comment, i) => (
                 <CommentThread
-                  key={i}
+                  key={comment._id}
                   comment={comment}
                   threadIdx={`pub-${i}`}
                   onSendReply={handleSendReply}
@@ -795,6 +1250,18 @@ export default function Discussion({ data }: DiscussionProps) {
                   openReplyToUser={openReplyToUser}
                   onOpenReply={handleOpenReply}
                   onCloseReply={handleCloseReply}
+                  votes={votes}
+                  onVote={(replyId, direction) =>
+                    handleVote(`pub-${i}`, replyId, direction)
+                  }
+                  onEditComment={(text) => handleEditComment(`pub-${i}`, text)}
+                  onDeleteComment={() => handleDeleteComment(`pub-${i}`)}
+                  onEditReply={(replyId, text) =>
+                    handleEditReply(`pub-${i}`, replyId, text)
+                  }
+                  onDeleteReply={(replyId) =>
+                    handleDeleteReply(`pub-${i}`, replyId)
+                  }
                 />
               ))}
             </div>
