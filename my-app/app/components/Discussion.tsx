@@ -656,7 +656,6 @@ function ReplyItem({
   onVote,
   onEdit,
   onDelete,
-  justSent = false,
 }: {
   reply: ReplyWithMeta;
   onReply: (user: string) => void;
@@ -664,24 +663,12 @@ function ReplyItem({
   onVote: (direction: "like" | "dislike") => void;
   onEdit: (text: string) => void;
   onDelete: () => void;
-  // True only for the single reply that was just created by submitting the
-  // reply form — lets us scroll smoothly to its actual resting place
-  // instead of letting the browser silently jump the page when the
-  // composer above it unmounts at the same time this item mounts.
-  justSent?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const isOwn = reply.user === "You";
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!justSent) return;
-    rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
-    <div ref={rootRef} style={{ marginBottom: 8 }}>
+    <div style={{ marginBottom: 8 }}>
       <CommentHeader
         initial={reply.user.charAt(0).toUpperCase()}
         avatarColor={reply.avatarColor}
@@ -751,7 +738,6 @@ function CommentThread({
   onDeleteComment,
   onEditReply,
   onDeleteReply,
-  justSentReplyId,
 }: {
   comment: CommentWithMeta;
   threadIdx: string;
@@ -767,9 +753,6 @@ function CommentThread({
   onDeleteComment: () => void;
   onEditReply: (replyId: string, text: string) => void;
   onDeleteReply: (replyId: string) => void;
-  // Id of the reply that was just created by submitting the reply form —
-  // passed through so the matching ReplyItem can scroll itself into view.
-  justSentReplyId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editingComment, setEditingComment] = useState(false);
@@ -890,7 +873,6 @@ function CommentThread({
             onVote={(direction) => onVote(r._id, direction)}
             onEdit={(text) => onEditReply(r._id, text)}
             onDelete={() => onDeleteReply(r._id)}
-            justSent={r._id === justSentReplyId}
           />
         ))}
 
@@ -907,7 +889,6 @@ function CommentThread({
             onVote={(direction) => onVote(r._id, direction)}
             onEdit={(text) => onEditReply(r._id, text)}
             onDelete={() => onDeleteReply(r._id)}
-            justSent={r._id === justSentReplyId}
           />
         ))}
 
@@ -922,7 +903,6 @@ function CommentThread({
               onVote={(direction) => onVote(r._id, direction)}
               onEdit={(text) => onEditReply(r._id, text)}
               onDelete={() => onDeleteReply(r._id)}
-              justSent={r._id === justSentReplyId}
             />
           ))}
 
@@ -1072,11 +1052,6 @@ export default function Discussion({ data }: DiscussionProps) {
   );
   const [openNonce, setOpenNonce] = useState(0);
 
-  // Id of the reply most recently created via the reply form, so the new
-  // ReplyItem can scroll itself into view instead of the page silently
-  // jumping when the (differently-sized) composer above it unmounts.
-  const [justSentReplyId, setJustSentReplyId] = useState<string | null>(null);
-
   // "You" haven't voted on anything yet; keyed by comment/reply _id.
   const [votes, setVotes] = useState<Record<string, VoteValue>>({});
 
@@ -1172,7 +1147,6 @@ export default function Discussion({ data }: DiscussionProps) {
           : comment
       )
     );
-    setJustSentReplyId(newReply._id);
   };
 
   const handleVote = (
@@ -1445,7 +1419,6 @@ export default function Discussion({ data }: DiscussionProps) {
                   openReplyToUser={openReplyToUser}
                   onOpenReply={handleOpenReply}
                   onCloseReply={handleCloseReply}
-                  justSentReplyId={justSentReplyId}
                   votes={votes}
                   onVote={(replyId, direction) =>
                     handleVote(`pub-${i}`, replyId, direction)
