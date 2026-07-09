@@ -7,11 +7,10 @@ export default function ChooseDemoScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.container}>
-        <Text style={styles.title}>Choose Demo</Text>
+        <Text style={styles.title}>Mobile Demo</Text>
 
         <Text style={styles.description}>
-          The Project Tracker web app offers different experiences. If you're
-          unsure, choose resident to see the default view.
+          The Project Tracker mobile app only supports resident-facing view. If you're looking for the township official-facing demo, view this on Desktop.
         </Text>
 
         <View style={styles.cards}>
@@ -20,13 +19,6 @@ export default function ChooseDemoScreen() {
             description="This view shows how information layout is shown to the public and how residents can interact."
             href="/(resident)/dashboard"
             onPress={() => router.push("/(resident)/dashboard")}
-          />
-
-          <DemoCard
-            title="Log in as Township"
-            description="This view shows all management and editing tools, as well as all feedback."
-            disabled
-            badgeText="COMING SOON"
           />
         </View>
 
