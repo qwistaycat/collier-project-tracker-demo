@@ -62,6 +62,13 @@ function voteDelta(current: VoteValue, next: VoteValue, kind: "like" | "dislike"
   return isActive ? 1 : -1;
 }
 
+// threadIdx is formatted as "pub-<index>" — every comment handler below
+// needs the numeric index back out to look up/update the right comment.
+function parseThreadIdx(threadIdx: string): number | null {
+  const idx = parseInt(threadIdx.split("-")[1], 10);
+  return isNaN(idx) ? null : idx;
+}
+
 // ── Shared styles & helpers ───────────────────────────────────────
 // Pulled out because the same "message bubble", "reply link", and
 // "cancel/submit button" visuals were previously copy-pasted across
@@ -72,6 +79,20 @@ function voteDelta(current: VoteValue, next: VoteValue, kind: "like" | "dislike"
 // consistent set of icon+text controls.
 const actionIdleColor = "#6b7280";
 const actionHoverColor = "#2563eb";
+
+// Hover-to-blue behavior shared by every inline icon+text control (Reply,
+// Like/Dislike, the "..." menu trigger) — pass `isActive` for controls
+// that should stay blue on mouse-out once toggled on (e.g. a pressed vote).
+function hoverColorHandlers(isActive: boolean = false) {
+  return {
+    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+      e.currentTarget.style.color = actionHoverColor;
+    },
+    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+      e.currentTarget.style.color = isActive ? actionHoverColor : actionIdleColor;
+    },
+  };
+}
 
 const bubbleStyle: React.CSSProperties = {
   border: "1px solid #e5e7eb",
@@ -137,6 +158,21 @@ function getNameStyle(isOfficial?: boolean): React.CSSProperties {
   return isOfficial
     ? { fontWeight: 700, color: "#2563eb", fontSize: 13 }
     : { fontWeight: 600, fontSize: 13, color: "#111827" };
+}
+
+function getTabStyle(active: boolean): React.CSSProperties {
+  return {
+    flex: 1,
+    padding: 14,
+    border: "none",
+    borderLeft: active ? "none" : "1px solid #e5e7eb",
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 600,
+    background: active ? "#0d2240" : "white",
+    color: active ? "white" : "#374151",
+    borderRadius: 0,
+  };
 }
 
 // ── Avatar ──────────────────────────────────────────────────────
@@ -233,12 +269,7 @@ function MessageBubble({
 
 function ReplyTrigger({ onClick }: { onClick: () => void }) {
   return (
-    <span
-      onClick={onClick}
-      onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
-      onMouseLeave={(e) => (e.currentTarget.style.color = actionIdleColor)}
-      style={replyTriggerStyle}
-    >
+    <span onClick={onClick} {...hoverColorHandlers()} style={replyTriggerStyle}>
       <ReplyIcon size={16} />
       Reply
     </span>
@@ -262,11 +293,7 @@ function VoteControls({
     <>
       <span
         onClick={() => onVote("like")}
-        onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.color =
-            myVote === "like" ? actionHoverColor : actionIdleColor)
-        }
+        {...hoverColorHandlers(myVote === "like")}
         title={`${likes} like${likes === 1 ? "" : "s"}`}
         style={voteButtonStyle(myVote === "like", actionHoverColor)}
       >
@@ -275,11 +302,7 @@ function VoteControls({
       </span>
       <span
         onClick={() => onVote("dislike")}
-        onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.color =
-            myVote === "dislike" ? actionHoverColor : actionIdleColor)
-        }
+        {...hoverColorHandlers(myVote === "dislike")}
         title={`${dislikes} dislike${dislikes === 1 ? "" : "s"}`}
         style={voteButtonStyle(myVote === "dislike", actionHoverColor)}
       >
@@ -335,8 +358,7 @@ function MoreMenu({
     // an invisible absolutely-positioned layer that doesn't affect this
     // box's size — click target grows without moving the anchor point.
     <span
-      onMouseEnter={(e) => (e.currentTarget.style.color = actionHoverColor)}
-      onMouseLeave={(e) => (e.currentTarget.style.color = actionIdleColor)}
+      {...hoverColorHandlers()}
       style={{
         position: "relative",
         display: "inline-flex",
@@ -489,6 +511,19 @@ function AnimatedCounter({ value }: { value: number }) {
     </span>
   );
 }
+
+// Shared prop defaults for every *inline* composer — replying to a
+// thread, and editing an existing comment/reply/feedback item. They're
+// all the same small size with the same focus-highlight border, unlike
+// the two top-level (collapsible) "write a comment" boxes.
+const inlineComposerDefaults = {
+  alwaysShowCancel: true,
+  autoFocus: true,
+  focusHighlight: true,
+  height: 76,
+  resize: "none" as const,
+  borderColor: "#e5e7eb",
+};
 
 // ── Message Composer ─────────────────────────────────────────────
 // One shared textarea + cancel/submit control used for: the top-level
@@ -687,15 +722,10 @@ function ReplyItem({
       <div style={{ marginLeft: 40 }}>
         {editing ? (
           <MessageComposer
+            {...inlineComposerDefaults}
             placeholder="Write a reply..."
             initialValue={reply.message}
             submitLabel="Save"
-            alwaysShowCancel
-            autoFocus
-            focusHighlight
-            height={76}
-            resize="none"
-            borderColor="#e5e7eb"
             onCancel={() => setEditing(false)}
             onSubmit={(text) => {
               onEdit(text);
@@ -791,15 +821,10 @@ function CommentThread({
 
   const replyComposer = (
     <MessageComposer
+      {...inlineComposerDefaults}
       key={openNonce}
       placeholder={openReplyToUser ? `@${openReplyToUser}` : "Write a reply..."}
       submitLabel="Reply"
-      alwaysShowCancel
-      autoFocus
-      focusHighlight
-      height={76}
-      resize="none"
-      borderColor="#e5e7eb"
       onCancel={onCloseReply}
       onSubmit={(text) => {
         onSendReply(threadIdx, text, openReplyToUser ?? undefined);
@@ -829,15 +854,10 @@ function CommentThread({
         <div style={{ marginLeft: 40 }}>
           {editingComment ? (
             <MessageComposer
+              {...inlineComposerDefaults}
               placeholder="Write a comment..."
               initialValue={comment.message}
               submitLabel="Save"
-              alwaysShowCancel
-              autoFocus
-              focusHighlight
-              height={76}
-              resize="none"
-              borderColor="#e5e7eb"
               onCancel={() => setEditingComment(false)}
               onSubmit={(text) => {
                 onEditComment(text);
@@ -1002,15 +1022,10 @@ function PastFeedbackItem({
       <div style={{ marginLeft: 42 }}>
         {editing ? (
           <MessageComposer
+            {...inlineComposerDefaults}
             placeholder="Edit your message..."
             initialValue={message}
             submitLabel="Save"
-            alwaysShowCancel
-            autoFocus
-            focusHighlight
-            height={76}
-            resize="none"
-            borderColor="#e5e7eb"
             onCancel={() => setEditing(false)}
             onSubmit={(text) => {
               onEdit(text);
@@ -1054,6 +1069,21 @@ export default function Discussion({ data }: DiscussionProps) {
 
   // "You" haven't voted on anything yet; keyed by comment/reply _id.
   const [votes, setVotes] = useState<Record<string, VoteValue>>({});
+
+  // Shared read-modify-write for a single comment by array index — every
+  // reply/vote/edit/delete handler below is just a different `updater`.
+  const updateCommentAt = (
+    idx: number,
+    updater: (comment: CommentWithMeta) => CommentWithMeta
+  ) => {
+    setPublicComments((prev) =>
+      prev.map((c, i) => (i === idx ? updater(c) : c))
+    );
+  };
+
+  const removeCommentAt = (idx: number) => {
+    setPublicComments((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleOpenReply = (
     threadIdx: string,
@@ -1123,10 +1153,8 @@ export default function Discussion({ data }: DiscussionProps) {
     message: string,
     replyTo?: string
   ) => {
-    // threadIdx is like "pub-0", "pub-1", etc.
-    const parts = threadIdx.split("-");
-    const idx = parseInt(parts[1], 10);
-    if (isNaN(idx)) return;
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
 
     const newReply: ReplyWithMeta = {
       user: "You",
@@ -1140,13 +1168,7 @@ export default function Discussion({ data }: DiscussionProps) {
       pinnedAfter: openReplyTargetId ?? undefined,
     };
 
-    setPublicComments((prev) =>
-      prev.map((comment, i) =>
-        i === idx
-          ? { ...comment, replies: [...comment.replies, newReply] }
-          : comment
-      )
-    );
+    updateCommentAt(idx, (c) => ({ ...c, replies: [...c.replies, newReply] }));
   };
 
   const handleVote = (
@@ -1154,9 +1176,8 @@ export default function Discussion({ data }: DiscussionProps) {
     replyId: string | null,
     direction: "like" | "dislike"
   ) => {
-    const parts = threadIdx.split("-");
-    const idx = parseInt(parts[1], 10);
-    if (isNaN(idx)) return;
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
 
     const comment = publicComments[idx];
     if (!comment) return;
@@ -1166,103 +1187,58 @@ export default function Discussion({ data }: DiscussionProps) {
 
     setVotes((prev) => ({ ...prev, [targetId]: next }));
 
-    setPublicComments((prev) =>
-      prev.map((c, i) => {
-        if (i !== idx) return c;
-        if (replyId === null) {
-          return {
+    updateCommentAt(idx, (c) =>
+      replyId === null
+        ? {
             ...c,
             likes: c.likes + voteDelta(current, next, "like"),
             dislikes: c.dislikes + voteDelta(current, next, "dislike"),
-          };
-        }
-        return {
-          ...c,
-          replies: c.replies.map((r) =>
-            r._id === replyId
-              ? {
-                  ...r,
-                  likes: r.likes + voteDelta(current, next, "like"),
-                  dislikes: r.dislikes + voteDelta(current, next, "dislike"),
-                }
-              : r
-          ),
-        };
-      })
+          }
+        : {
+            ...c,
+            replies: c.replies.map((r) =>
+              r._id === replyId
+                ? {
+                    ...r,
+                    likes: r.likes + voteDelta(current, next, "like"),
+                    dislikes: r.dislikes + voteDelta(current, next, "dislike"),
+                  }
+                : r
+            ),
+          }
     );
   };
 
   const handleDeleteComment = (threadIdx: string) => {
-    const idx = parseInt(threadIdx.split("-")[1], 10);
-    if (isNaN(idx)) return;
-    setPublicComments((prev) => prev.filter((_, i) => i !== idx));
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
+    removeCommentAt(idx);
   };
 
   const handleEditComment = (threadIdx: string, text: string) => {
-    const idx = parseInt(threadIdx.split("-")[1], 10);
-    if (isNaN(idx)) return;
-    setPublicComments((prev) =>
-      prev.map((c, i) => (i === idx ? { ...c, message: text } : c))
-    );
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
+    updateCommentAt(idx, (c) => ({ ...c, message: text }));
   };
 
   const handleDeleteReply = (threadIdx: string, replyId: string) => {
-    const idx = parseInt(threadIdx.split("-")[1], 10);
-    if (isNaN(idx)) return;
-    setPublicComments((prev) =>
-      prev.map((c, i) =>
-        i === idx
-          ? { ...c, replies: c.replies.filter((r) => r._id !== replyId) }
-          : c
-      )
-    );
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
+    updateCommentAt(idx, (c) => ({
+      ...c,
+      replies: c.replies.filter((r) => r._id !== replyId),
+    }));
   };
 
   const handleEditReply = (threadIdx: string, replyId: string, text: string) => {
-    const idx = parseInt(threadIdx.split("-")[1], 10);
-    if (isNaN(idx)) return;
-    setPublicComments((prev) =>
-      prev.map((c, i) =>
-        i === idx
-          ? {
-              ...c,
-              replies: c.replies.map((r) =>
-                r._id === replyId ? { ...r, message: text } : r
-              ),
-            }
-          : c
-      )
-    );
-  };
-
-  const activeStyle: React.CSSProperties = {
-    flex: 1,
-    padding: 14,
-    borderTop: "none",
-    borderRight: "none",
-    borderBottom: "none",
-    borderLeft: "none",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    background: "#0d2240",
-    color: "white",
-    borderRadius: 0,
-  };
-
-  const inactiveStyle: React.CSSProperties = {
-    flex: 1,
-    padding: 14,
-    borderTop: "none",
-    borderRight: "none",
-    borderBottom: "none",
-    borderLeft: "1px solid #e5e7eb",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: 600,
-    background: "white",
-    color: "#374151",
-    borderRadius: 0,
+    const idx = parseThreadIdx(threadIdx);
+    if (idx === null) return;
+    updateCommentAt(idx, (c) => ({
+      ...c,
+      replies: c.replies.map((r) =>
+        r._id === replyId ? { ...r, message: text } : r
+      ),
+    }));
   };
 
   return (
@@ -1277,13 +1253,13 @@ export default function Discussion({ data }: DiscussionProps) {
       <div style={{ display: "flex" }}>
         <button
           onClick={() => setActiveTab("private")}
-          style={activeTab === "private" ? activeStyle : inactiveStyle}
+          style={getTabStyle(activeTab === "private")}
         >
           Private Message to Township
         </button>
         <button
           onClick={() => setActiveTab("public")}
-          style={activeTab === "public" ? activeStyle : inactiveStyle}
+          style={getTabStyle(activeTab === "public")}
         >
           Community Feedback Forum
         </button>
