@@ -13,7 +13,17 @@ type VoteValue = "like" | "dislike" | undefined;
 
 type PastFeedbackWithMeta = { time: string; message: string; _id: string };
 
-type ReplyWithMeta = Reply & { _id: string; likes: number; dislikes: number };
+type ReplyWithMeta = Reply & {
+  _id: string;
+  likes: number;
+  dislikes: number;
+  // The comment's _id (replied to the top-level post) or another reply's
+  // _id (replied to a specific, currently-visible reply) that this reply
+  // was created under. Only used while the thread is collapsed, so the
+  // reply stays visible right where it was posted instead of disappearing
+  // behind the "View N replies" toggle.
+  pinnedAfter?: string;
+};
 
 type CommentWithMeta = Omit<Comment, "replies"> & {
   _id: string;
@@ -646,6 +656,7 @@ function ReplyItem({
   onVote,
   onEdit,
   onDelete,
+  justSent = false,
 }: {
   reply: ReplyWithMeta;
   onReply: (user: string) => void;
@@ -653,12 +664,24 @@ function ReplyItem({
   onVote: (direction: "like" | "dislike") => void;
   onEdit: (text: string) => void;
   onDelete: () => void;
+  // True only for the single reply that was just created by submitting the
+  // reply form — lets us scroll smoothly to its actual resting place
+  // instead of letting the browser silently jump the page when the
+  // composer above it unmounts at the same time this item mounts.
+  justSent?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const isOwn = reply.user === "You";
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!justSent) return;
+    rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div style={{ marginBottom: 8 }}>
+    <div ref={rootRef} style={{ marginBottom: 8 }}>
       <CommentHeader
         initial={reply.user.charAt(0).toUpperCase()}
         avatarColor={reply.avatarColor}
@@ -728,6 +751,7 @@ function CommentThread({
   onDeleteComment,
   onEditReply,
   onDeleteReply,
+  justSentReplyId,
 }: {
   comment: CommentWithMeta;
   threadIdx: string;
@@ -735,7 +759,7 @@ function CommentThread({
   openThreadIdx: string | null;
   openNonce: number;
   openReplyToUser: string | null;
-  onOpenReply: (threadIdx: string, user: string | null) => void;
+  onOpenReply: (threadIdx: string, user: string | null, targetId: string) => void;
   onCloseReply: () => void;
   votes: Record<string, VoteValue>;
   onVote: (replyId: string | null, direction: "like" | "dislike") => void;
@@ -743,6 +767,9 @@ function CommentThread({
   onDeleteComment: () => void;
   onEditReply: (replyId: string, text: string) => void;
   onDeleteReply: (replyId: string) => void;
+  // Id of the reply that was just created by submitting the reply form —
+  // passed through so the matching ReplyItem can scroll itself into view.
+  justSentReplyId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editingComment, setEditingComment] = useState(false);
@@ -754,10 +781,49 @@ function CommentThread({
   const officialReplies = allReplies.filter((r) => r.isOfficial);
   const normalReplies = allReplies.filter((r) => !r.isOfficial);
   const shouldCollapse = normalReplies.length > 2;
+  const isCollapsedView = shouldCollapse && !expanded;
 
-  const openReply = (user: string | null) => {
-    onOpenReply(threadIdx, user);
+  // A reply created while the thread was collapsed — whether it replied
+  // to the comment itself or to one of the always-visible official
+  // replies — stacks right after that visible group, instead of
+  // disappearing behind the "View N replies" toggle. Once expanded,
+  // everything just renders in its normal spot; pinning only matters
+  // while something is actually hidden.
+  const officialIds = new Set(officialReplies.map((r) => r._id));
+  const pinnedVisible = isCollapsedView
+    ? normalReplies.filter(
+        (r) =>
+          r.pinnedAfter === comment._id ||
+          (r.pinnedAfter && officialIds.has(r.pinnedAfter))
+      )
+    : [];
+  const pinnedIds = new Set(pinnedVisible.map((r) => r._id));
+  const collapsibleNormalReplies = normalReplies.filter(
+    (r) => !pinnedIds.has(r._id)
+  );
+
+  const openReply = (user: string | null, targetId: string) => {
+    onOpenReply(threadIdx, user, targetId);
   };
+
+  const replyComposer = (
+    <MessageComposer
+      key={openNonce}
+      placeholder={openReplyToUser ? `@${openReplyToUser}` : "Write a reply..."}
+      submitLabel="Reply"
+      alwaysShowCancel
+      autoFocus
+      focusHighlight
+      height={76}
+      resize="none"
+      borderColor="#e5e7eb"
+      onCancel={onCloseReply}
+      onSubmit={(text) => {
+        onSendReply(threadIdx, text, openReplyToUser ?? undefined);
+        onCloseReply();
+      }}
+    />
+  );
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -805,7 +871,7 @@ function CommentThread({
                   myVote={votes[comment._id]}
                   onVote={(direction) => onVote(null, direction)}
                 />
-                <ReplyTrigger onClick={() => openReply(comment.user)} />
+                <ReplyTrigger onClick={() => openReply(comment.user, comment._id)} />
               </div>
             </>
           )}
@@ -819,25 +885,44 @@ function CommentThread({
           <ReplyItem
             key={r._id}
             reply={r}
-            onReply={(u) => openReply(u)}
+            onReply={(u) => openReply(u, r._id)}
             myVote={votes[r._id]}
             onVote={(direction) => onVote(r._id, direction)}
             onEdit={(text) => onEditReply(r._id, text)}
             onDelete={() => onDeleteReply(r._id)}
+            justSent={r._id === justSentReplyId}
           />
         ))}
 
-        {/* Normal replies */}
+        {/* Replies created while the thread was collapsed (whether
+            replying to the comment or to one of the official replies
+            above) — stack together right after the visible group instead
+            of disappearing behind the "View N replies" toggle. */}
+        {pinnedVisible.map((r) => (
+          <ReplyItem
+            key={r._id}
+            reply={r}
+            onReply={(u) => openReply(u, r._id)}
+            myVote={votes[r._id]}
+            onVote={(direction) => onVote(r._id, direction)}
+            onEdit={(text) => onEditReply(r._id, text)}
+            onDelete={() => onDeleteReply(r._id)}
+            justSent={r._id === justSentReplyId}
+          />
+        ))}
+
+        {/* Normal replies (collapsible) */}
         {(!shouldCollapse || expanded) &&
-          normalReplies.map((r) => (
+          collapsibleNormalReplies.map((r) => (
             <ReplyItem
               key={r._id}
               reply={r}
-              onReply={(u) => openReply(u)}
+              onReply={(u) => openReply(u, r._id)}
               myVote={votes[r._id]}
               onVote={(direction) => onVote(r._id, direction)}
               onEdit={(text) => onEditReply(r._id, text)}
               onDelete={() => onDeleteReply(r._id)}
+              justSent={r._id === justSentReplyId}
             />
           ))}
 
@@ -854,7 +939,7 @@ function CommentThread({
             }}
           >
             <div style={{ display: "flex" }}>
-              {normalReplies.slice(0, 3).map((r, i) => (
+              {collapsibleNormalReplies.slice(0, 3).map((r, i) => (
                 <div
                   key={i}
                   style={{
@@ -880,7 +965,7 @@ function CommentThread({
             <span
               style={{ fontSize: 12, color: "#2563eb", fontWeight: 500 }}
             >
-              View {normalReplies.length} replies ›
+              View {collapsibleNormalReplies.length} replies ›
             </span>
           </div>
         )}
@@ -896,26 +981,12 @@ function CommentThread({
           </div>
         )}
 
-        {/* Reply form — only one open across the whole discussion at a time */}
+        {/* Reply form — always at the bottom of the thread, regardless of
+            which reply was clicked. Only one open across the discussion
+            at a time. Where the eventually-submitted reply itself shows
+            up is handled separately via pinnedAfter above. */}
         {isReplyOpen && (
-          <div style={{ marginTop: 8 }}>
-            <MessageComposer
-              key={openNonce}
-              placeholder={openReplyToUser ? `@${openReplyToUser}` : "Write a reply..."}
-              submitLabel="Reply"
-              alwaysShowCancel
-              autoFocus
-              focusHighlight
-              height={76}
-              resize="none"
-              borderColor="#e5e7eb"
-              onCancel={onCloseReply}
-              onSubmit={(text) => {
-                onSendReply(threadIdx, text, openReplyToUser ?? undefined);
-                onCloseReply();
-              }}
-            />
-          </div>
+          <div style={{ marginTop: 8 }}>{replyComposer}</div>
         )}
       </div>
     </div>
@@ -993,14 +1064,30 @@ export default function Discussion({ data }: DiscussionProps) {
   // Only one reply form (across all threads) may be open at a time.
   const [openThreadIdx, setOpenThreadIdx] = useState<string | null>(null);
   const [openReplyToUser, setOpenReplyToUser] = useState<string | null>(null);
+  // Id of the specific thing "Reply" was clicked on (a comment's _id, or
+  // a reply's _id) — lets CommentThread anchor the composer right under
+  // whatever was actually clicked while the thread is collapsed.
+  const [openReplyTargetId, setOpenReplyTargetId] = useState<string | null>(
+    null
+  );
   const [openNonce, setOpenNonce] = useState(0);
+
+  // Id of the reply most recently created via the reply form, so the new
+  // ReplyItem can scroll itself into view instead of the page silently
+  // jumping when the (differently-sized) composer above it unmounts.
+  const [justSentReplyId, setJustSentReplyId] = useState<string | null>(null);
 
   // "You" haven't voted on anything yet; keyed by comment/reply _id.
   const [votes, setVotes] = useState<Record<string, VoteValue>>({});
 
-  const handleOpenReply = (threadIdx: string, user: string | null) => {
+  const handleOpenReply = (
+    threadIdx: string,
+    user: string | null,
+    targetId: string
+  ) => {
     setOpenThreadIdx(threadIdx);
     setOpenReplyToUser(user);
+    setOpenReplyTargetId(targetId);
     setOpenNonce((n) => n + 1); // force remount so scroll/focus re-run every click
   };
   const handleCloseReply = () => setOpenThreadIdx(null);
@@ -1075,6 +1162,7 @@ export default function Discussion({ data }: DiscussionProps) {
       _id: `r-new-${Date.now()}`,
       likes: 0,
       dislikes: 0,
+      pinnedAfter: openReplyTargetId ?? undefined,
     };
 
     setPublicComments((prev) =>
@@ -1084,6 +1172,7 @@ export default function Discussion({ data }: DiscussionProps) {
           : comment
       )
     );
+    setJustSentReplyId(newReply._id);
   };
 
   const handleVote = (
@@ -1356,6 +1445,7 @@ export default function Discussion({ data }: DiscussionProps) {
                   openReplyToUser={openReplyToUser}
                   onOpenReply={handleOpenReply}
                   onCloseReply={handleCloseReply}
+                  justSentReplyId={justSentReplyId}
                   votes={votes}
                   onVote={(replyId, direction) =>
                     handleVote(`pub-${i}`, replyId, direction)
