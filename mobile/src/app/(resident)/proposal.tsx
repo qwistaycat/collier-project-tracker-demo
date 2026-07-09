@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,9 @@ import {
   Image,
   TextInput,
   Platform,
+  Animated,
+  Dimensions,
+  PanResponder,
 } from "react-native";
 import { SymbolView } from "expo-symbols";
 import { useLocalSearchParams } from "expo-router";
@@ -34,6 +37,100 @@ export default function ProposalDetailScreen() {
 
   // Feedback tabs: 'private', 'public'
   const [feedbackTab, setFeedbackTab] = useState<"private" | "public">("private");
+
+  // Poll voting state
+  type VoteChoice = "agree" | "disagree" | "neutral";
+  const [pollPanel, setPollPanel] = useState<"closed" | "voting" | "results">("closed");
+  const [voteState, setVoteState] = useState({
+    agree: 2,
+    disagree: 3,
+    neutral: 8,
+    userVote: null as VoteChoice | null,
+  });
+  const pollSlideAnim = useRef(new Animated.Value(Dimensions.get("window").width)).current;
+
+  // Draggable Vote Tab state and PanResponder
+  const [isDraggingTab, setIsDraggingTab] = useState(false);
+  const tabY = useRef(new Animated.Value(0)).current;
+  const lastTabY = useRef(0);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        setIsDraggingTab(true);
+        tabY.setOffset(lastTabY.current);
+        tabY.setValue(0);
+      },
+      onPanResponderMove: (e, gestureState) => {
+        tabY.setValue(gestureState.dy);
+      },
+      onPanResponderRelease: (e, gestureState) => {
+        setIsDraggingTab(false);
+        tabY.flattenOffset();
+        
+        const screenHeight = Dimensions.get("window").height;
+        const currentY = lastTabY.current + gestureState.dy;
+        const clampedY = Math.max(-0.45 * screenHeight, Math.min(0.35 * screenHeight, currentY));
+        
+        lastTabY.current = clampedY;
+        Animated.spring(tabY, {
+          toValue: clampedY,
+          useNativeDriver: true,
+          tension: 80,
+          friction: 12,
+        }).start();
+
+        // If moved less than 5px in total, it's a tap
+        if (Math.abs(gestureState.dy) < 5 && Math.abs(gestureState.dx) < 5) {
+          openPollPanel(voteState.userVote ? "results" : "voting");
+        }
+      },
+    })
+  ).current;
+
+  const openPollPanel = (panel: "voting" | "results") => {
+    setPollPanel(panel);
+    Animated.spring(pollSlideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    }).start();
+  };
+
+  const closePollPanel = () => {
+    Animated.timing(pollSlideAnim, {
+      toValue: Dimensions.get("window").width,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setPollPanel("closed"));
+  };
+
+  const castVote = (choice: VoteChoice) => {
+    setVoteState((prev) => ({
+      ...prev,
+      [choice]: prev[choice] + 1,
+      userVote: choice,
+    }));
+    setPollPanel("results");
+  };
+
+  const editVote = () => {
+    setVoteState((prev) => {
+      if (!prev.userVote) return prev;
+      return {
+        ...prev,
+        [prev.userVote]: prev[prev.userVote] - 1,
+        userVote: null,
+      };
+    });
+    setPollPanel("voting");
+  };
+
+  const pollTotal = voteState.agree + voteState.disagree + voteState.neutral;
+  const pollPct = (key: VoteChoice) => Math.round((voteState[key] / pollTotal) * 100);
 
   // Discussion comments state
   const [privateText, setPrivateText] = useState("");
@@ -170,6 +267,7 @@ export default function ProposalDetailScreen() {
   };
 
   return (
+    <View style={styles.rootContainer}>
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       {/* Hero Image at the top */}
       <Image
@@ -694,10 +792,172 @@ export default function ProposalDetailScreen() {
         </View>
       )}
     </ScrollView>
+
+      {/* Floating Poll Tab on right edge — visible when on Feedback tab and poll is closed */}
+      {activeTab === "feedback" && pollPanel === "closed" && (
+        <Animated.View
+          {...panResponder.panHandlers}
+          style={[
+            styles.pollTabButton,
+            {
+              transform: [
+                { translateY: tabY },
+                { scale: isDraggingTab ? 1.08 : 1 }
+              ],
+              backgroundColor: isDraggingTab ? "#1e3a8a" : "#0d3266",
+            }
+          ]}
+        >
+          {/* Draggable Dots Icon at the top */}
+          <View style={styles.dragHandleDots}>
+            <View style={styles.dragDot} />
+            <View style={styles.dragDot} />
+            <View style={styles.dragDot} />
+            <View style={styles.dragDot} />
+            <View style={styles.dragDot} />
+            <View style={styles.dragDot} />
+          </View>
+          <Text style={styles.pollTabIcon}>📊</Text>
+          <Text style={styles.pollTabText}>
+            {voteState.userVote ? "Results" : "Vote"}
+          </Text>
+        </Animated.View>
+      )}
+
+      {/* Poll Slide-in Drawer from the right */}
+      {pollPanel !== "closed" && (
+        <>
+          {/* Backdrop */}
+          <TouchableOpacity
+            style={styles.pollBackdrop}
+            activeOpacity={1}
+            onPress={closePollPanel}
+          />
+
+          {/* Drawer */}
+          <Animated.View
+            style={[
+              styles.pollDrawer,
+              { transform: [{ translateX: pollSlideAnim }] },
+            ]}
+          >
+            {/* Close button */}
+            <TouchableOpacity
+              style={styles.pollCloseBtn}
+              onPress={closePollPanel}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.pollCloseBtnText}>✕</Text>
+            </TouchableOpacity>
+
+            {pollPanel === "voting" && (
+              <View style={styles.pollContent}>
+                <Text style={styles.pollTitle}>Poll Voting</Text>
+                <Text style={styles.pollSubtitle}>
+                  Your input shapes what the Township decides.
+                </Text>
+                <Text style={styles.pollDescription}>
+                  The more residents weigh in here, the clearer the signal
+                  becomes when commissioners make their final vote.
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.pollAgreeBtn}
+                  onPress={() => castVote("agree")}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.pollBtnText}>I support this</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.pollDisagreeBtn}
+                  onPress={() => castVote("disagree")}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.pollBtnText}>I do not support this</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.pollNeutralBtn}
+                  onPress={() => castVote("neutral")}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.pollNeutralBtnText}>Neutral / Unsure</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {pollPanel === "results" && (
+              <View style={styles.pollContent}>
+                <Text style={styles.pollTitle}>Poll Results</Text>
+
+                <View style={styles.pollTotalRow}>
+                  <Text style={styles.pollTotalCount}>{pollTotal}</Text>
+                  <Text style={styles.pollTotalLabel}>total votes</Text>
+                </View>
+
+                {/* Bar chart results */}
+                {([
+                  { key: "agree" as VoteChoice, label: "Support", color: "#22c55e" },
+                  { key: "disagree" as VoteChoice, label: "Oppose", color: "#f97316" },
+                  { key: "neutral" as VoteChoice, label: "Neutral", color: "#a8d8ea" },
+                ]).map((seg) => {
+                  const count = voteState[seg.key];
+                  const pct = pollPct(seg.key);
+                  const isUser = seg.key === voteState.userVote;
+                  return (
+                    <View key={seg.key} style={styles.pollBarGroup}>
+                      <View style={styles.pollBarLabelRow}>
+                        <View style={[styles.pollBarDot, { backgroundColor: seg.color }]} />
+                        <Text style={[
+                          styles.pollBarLabel,
+                          isUser && styles.pollBarLabelUser,
+                        ]}>
+                          {seg.label}{isUser ? " (You)" : ""}
+                        </Text>
+                        <Text style={styles.pollBarCount}>
+                          {count} {count === 1 ? "vote" : "votes"}{" "}
+                          <Text style={styles.pollBarPct}>({pct}%)</Text>
+                        </Text>
+                      </View>
+                      <View style={styles.pollBarTrack}>
+                        <View
+                          style={[
+                            styles.pollBarFill,
+                            { width: `${Math.max(pct, 4)}%`, backgroundColor: seg.color },
+                          ]}
+                        />
+                      </View>
+                    </View>
+                  );
+                })}
+
+                <Text style={styles.pollDisclaimer}>
+                  The township will consider this poll alongside other inputs
+                  when making decisions. These numbers are not a binding vote.
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.pollEditVoteBtn}
+                  onPress={editVote}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.pollEditVoteText}>Edit my vote</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </Animated.View>
+        </>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   scroll: {
     flex: 1,
     backgroundColor: "#f8fafc",
@@ -1281,5 +1541,231 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#ffffff",
     fontWeight: "600",
+  },
+  pollTabButton: {
+    position: "absolute",
+    right: 0,
+    top: "55%",
+    backgroundColor: "#0d3266",
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    gap: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: -2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 50,
+  },
+  pollTabIcon: {
+    fontSize: 16,
+  },
+  pollTabText: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 10,
+    color: "#ffffff",
+    fontWeight: "700",
+  },
+  pollBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    zIndex: 90,
+  },
+  pollDrawer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: "82%",
+    backgroundColor: "#0d3266",
+    zIndex: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: -4, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  pollCloseBtn: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    padding: 6,
+  },
+  pollCloseBtnText: {
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  pollContent: {
+    paddingTop: 52,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  pollTitle: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 20,
+    color: "#ffffff",
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  pollSubtitle: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 13,
+    color: "#ffffff",
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  pollDescription: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.75)",
+    lineHeight: 18,
+    marginBottom: 24,
+  },
+  pollAgreeBtn: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 9999,
+    backgroundColor: "#22c55e",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  pollDisagreeBtn: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 9999,
+    backgroundColor: "#f87171",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  pollNeutralBtn: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 9999,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.6)",
+    backgroundColor: "transparent",
+    alignItems: "center",
+  },
+  pollBtnText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 13,
+    color: "#ffffff",
+    fontWeight: "600",
+  },
+  pollNeutralBtnText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 13,
+    color: "#ffffff",
+    fontWeight: "600",
+  },
+  pollTotalRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 6,
+    marginBottom: 20,
+  },
+  pollTotalCount: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 28,
+    color: "#ffffff",
+    fontWeight: "700",
+  },
+  pollTotalLabel: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 13,
+    color: "rgba(255,255,255,0.65)",
+  },
+  pollBarGroup: {
+    marginBottom: 16,
+  },
+  pollBarLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  pollBarDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  pollBarLabel: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.9)",
+    flex: 1,
+  },
+  pollBarLabelUser: {
+    fontFamily: "Poppins_700Bold",
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  pollBarCount: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 13,
+    color: "#ffffff",
+    fontWeight: "700",
+  },
+  pollBarPct: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.5)",
+    fontWeight: "400",
+  },
+  pollBarTrack: {
+    height: 8,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  pollBarFill: {
+    height: 8,
+    borderRadius: 4,
+  },
+  pollDisclaimer: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.75)",
+    lineHeight: 18,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  pollEditVoteBtn: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 9999,
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+  },
+  pollEditVoteText: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 13,
+    color: "#0d3266",
+    fontWeight: "600",
+  },
+  dragHandleDots: {
+    width: 14,
+    height: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  dragDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
   },
 });
