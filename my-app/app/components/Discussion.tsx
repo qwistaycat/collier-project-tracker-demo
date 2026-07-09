@@ -11,6 +11,8 @@ import { EyeIcon, ThumbUpIcon, ThumbDownIcon, ReplyIcon, MoreIcon } from "./icon
 
 type VoteValue = "like" | "dislike" | undefined;
 
+type PastFeedbackWithMeta = { time: string; message: string; _id: string };
+
 type ReplyWithMeta = Reply & { _id: string; likes: number; dislikes: number };
 
 type CommentWithMeta = Omit<Comment, "replies"> & {
@@ -19,6 +21,12 @@ type CommentWithMeta = Omit<Comment, "replies"> & {
   dislikes: number;
   replies: ReplyWithMeta[];
 };
+
+function seedPastFeedback(
+  items: { time: string; message: string }[]
+): PastFeedbackWithMeta[] {
+  return items.map((f, i) => ({ ...f, _id: `pf${i}` }));
+}
 
 function seedComments(comments: Comment[]): CommentWithMeta[] {
   return comments.map((c, i) => ({
@@ -487,9 +495,12 @@ function MessageComposer({
   autoFocus = false,
   focusHighlight = false,
   height = 90,
-  resize = "vertical",
+  resize = "none",
   borderColor = "#d1d5db",
   initialValue = "",
+  collapsible = false,
+  avatarInitial,
+  avatarColor = "#22c55e",
 }: {
   placeholder: string;
   onSubmit: (text: string) => void;
@@ -502,8 +513,16 @@ function MessageComposer({
   resize?: "none" | "vertical";
   borderColor?: string;
   initialValue?: string;
+  // Collapsible composers (the top-level "write a comment" boxes) render
+  // as a compact gray pill until focused or typed into, then expand into
+  // a full box — gaining an avatar, full height, and the Cancel/Comment
+  // buttons. Reply/edit composers don't set this and behave as before.
+  collapsible?: boolean;
+  avatarInitial?: string;
+  avatarColor?: string;
 }) {
   const [value, setValue] = useState(initialValue);
+  const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -516,7 +535,9 @@ function MessageComposer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const showCancel = alwaysShowCancel || value.length > 0;
+  const isActive = collapsible ? focused || value.length > 0 : true;
+  const showButtons = collapsible ? isActive : true;
+  const showCancel = isActive && (alwaysShowCancel || value.length > 0 || collapsible);
   const canSubmit = value.trim().length > 0;
 
   const handleSubmit = () => {
@@ -530,56 +551,87 @@ function MessageComposer({
     onCancel?.();
   };
 
-  return (
-    <div>
-      <textarea
-        ref={inputRef}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onFocus={
-          focusHighlight ? (e) => (e.target.style.borderColor = "#93c5fd") : undefined
-        }
-        onBlur={
-          focusHighlight
-            ? (e) => (e.target.style.borderColor = borderColor)
-            : undefined
-        }
-        style={{
-          width: "100%",
-          height,
-          border: `1px solid ${borderColor}`,
-          borderRadius: 6,
-          padding: "10px 14px",
-          fontSize: 13,
-          color: "#374151",
-          resize,
-          fontFamily: "inherit",
-          boxSizing: "border-box",
-          outline: "none",
-          transition: focusHighlight ? "border-color 0.15s" : undefined,
-        }}
-      />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 8,
-          marginTop: 8,
-        }}
-      >
-        {showCancel && (
-          <button onClick={handleCancel} style={cancelButtonStyle}>
-            Cancel
-          </button>
-        )}
-        <button
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          style={getSubmitButtonStyle(canSubmit)}
-        >
-          {submitLabel}
+  const textarea = (
+    <textarea
+      ref={inputRef}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onFocus={(e) => {
+        setFocused(true);
+        if (focusHighlight) e.target.style.borderColor = "#93c5fd";
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        if (focusHighlight) e.target.style.borderColor = borderColor;
+      }}
+      style={{
+        width: "100%",
+        height: collapsible ? (isActive ? height : 40) : height,
+        border: `1px solid ${
+          collapsible ? (isActive ? "#93c5fd" : "#e5e7eb") : borderColor
+        }`,
+        borderRadius: 6,
+        padding: "10px 14px",
+        fontSize: 13,
+        color: "#374151",
+        background: collapsible ? (isActive ? "white" : "#f3f4f6") : "white",
+        resize,
+        fontFamily: "inherit",
+        boxSizing: "border-box",
+        outline: "none",
+        transition: "border-color 0.15s, background 0.15s, height 0.15s",
+      }}
+    />
+  );
+
+  const buttons = showButtons && (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        gap: 8,
+        marginTop: 8,
+      }}
+    >
+      {showCancel && (
+        <button onClick={handleCancel} style={cancelButtonStyle}>
+          Cancel
         </button>
+      )}
+      <button
+        onClick={handleSubmit}
+        disabled={!canSubmit}
+        style={getSubmitButtonStyle(canSubmit)}
+      >
+        {submitLabel}
+      </button>
+    </div>
+  );
+
+  if (!collapsible) {
+    return (
+      <div>
+        {textarea}
+        {buttons}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "flex-start",
+      }}
+    >
+      {avatarInitial && (
+        <Avatar initial={avatarInitial} color={avatarColor} />
+      )}
+      <div style={{ flex: 1 }}>
+        {textarea}
+        {buttons}
       </div>
     </div>
   );
@@ -875,15 +927,48 @@ function CommentThread({
 function PastFeedbackItem({
   time,
   message,
+  onEdit,
+  onDelete,
 }: {
   time: string;
   message: string;
+  onEdit: (text: string) => void;
+  onDelete: () => void;
 }) {
+  const [editing, setEditing] = useState(false);
+
   return (
     <div style={{ marginBottom: 16 }}>
-      <CommentHeader initial="Y" avatarColor="#22c55e" name="You" timeAgo={time} />
+      <CommentHeader
+        initial="Y"
+        avatarColor="#22c55e"
+        name="You"
+        timeAgo={time}
+        menu={
+          <MoreMenu isOwn onEdit={() => setEditing(true)} onDelete={onDelete} />
+        }
+      />
       <div style={{ marginLeft: 42 }}>
-        <MessageBubble message={message} />
+        {editing ? (
+          <MessageComposer
+            placeholder="Edit your message..."
+            initialValue={message}
+            submitLabel="Save"
+            alwaysShowCancel
+            autoFocus
+            focusHighlight
+            height={76}
+            resize="none"
+            borderColor="#e5e7eb"
+            onCancel={() => setEditing(false)}
+            onSubmit={(text) => {
+              onEdit(text);
+              setEditing(false);
+            }}
+          />
+        ) : (
+          <MessageBubble message={message} />
+        )}
       </div>
     </div>
   );
@@ -897,8 +982,8 @@ interface DiscussionProps {
 
 export default function Discussion({ data }: DiscussionProps) {
   const [activeTab, setActiveTab] = useState<"private" | "public">("private");
-  const [privateFeedback, setPrivateFeedback] = useState(
-    data.private.pastFeedback
+  const [privateFeedback, setPrivateFeedback] = useState<PastFeedbackWithMeta[]>(
+    () => seedPastFeedback(data.private.pastFeedback)
   );
   const [publicComments, setPublicComments] = useState<CommentWithMeta[]>(() =>
     seedComments(data.public.comments)
@@ -941,7 +1026,20 @@ export default function Discussion({ data }: DiscussionProps) {
         month: "short",
         year: "numeric",
       });
-    setPrivateFeedback((prev) => [{ time: timeStr, message: text }, ...prev]);
+    setPrivateFeedback((prev) => [
+      { time: timeStr, message: text, _id: `pf-new-${Date.now()}` },
+      ...prev,
+    ]);
+  };
+
+  const handleEditPrivateFeedback = (id: string, text: string) => {
+    setPrivateFeedback((prev) =>
+      prev.map((f) => (f._id === id ? { ...f, message: text } : f))
+    );
+  };
+
+  const handleDeletePrivateFeedback = (id: string) => {
+    setPrivateFeedback((prev) => prev.filter((f) => f._id !== id));
   };
 
   const submitPublicMessage = (text: string) => {
@@ -1157,6 +1255,9 @@ export default function Discussion({ data }: DiscussionProps) {
               placeholder={data.private.placeholder}
               submitLabel="Comment"
               onSubmit={submitPrivateMessage}
+              collapsible
+              avatarInitial="Y"
+              avatarColor="#22c55e"
             />
             <div style={{ marginTop: 24 }}>
               <h3
@@ -1169,11 +1270,13 @@ export default function Discussion({ data }: DiscussionProps) {
               >
                 Your Past Feedback
               </h3>
-              {privateFeedback.map((item, i) => (
+              {privateFeedback.map((item) => (
                 <PastFeedbackItem
-                  key={i}
+                  key={item._id}
                   time={item.time}
                   message={item.message}
+                  onEdit={(text) => handleEditPrivateFeedback(item._id, text)}
+                  onDelete={() => handleDeletePrivateFeedback(item._id)}
                 />
               ))}
             </div>
@@ -1206,6 +1309,9 @@ export default function Discussion({ data }: DiscussionProps) {
               placeholder={data.public.placeholder}
               submitLabel="Comment"
               onSubmit={submitPublicMessage}
+              collapsible
+              avatarInitial="Y"
+              avatarColor="#22c55e"
             />
             <div style={{ marginTop: 24 }}>
               <div
