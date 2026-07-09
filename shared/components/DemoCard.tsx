@@ -53,13 +53,21 @@ export default function DemoCard({
         pressed && !disabled && styles.cardPressed,
       ]}
     >
-      <View style={{ flex: 1 }}>
-        <Text style={styles.cardHeading}>{title}</Text>
-        <Text style={styles.cardText}>{description}</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
+        <View style={{ flex: 1, paddingRight: disabled ? 0 : 8 }}>
+          <Text style={styles.cardHeading}>{title}</Text>
+          <Text style={styles.cardText}>{description}</Text>
+          
+          {badgeText && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{badgeText}</Text>
+            </View>
+          )}
+        </View>
         
-        {badgeText && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{badgeText}</Text>
+        {!disabled && (
+          <View style={styles.arrowContainer}>
+            <Text style={styles.arrowText}>→</Text>
           </View>
         )}
       </View>
@@ -138,5 +146,30 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     letterSpacing: 0.5,
     fontWeight: "600",
+  },
+  arrowContainer: {
+    marginLeft: 24,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#003d7a",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  arrowText: {
+    fontFamily: getFontFamily("Poppins_700Bold"),
+    fontSize: 16,
+    color: "#003d7a",
+    fontWeight: "700",
+    ...Platform.select({
+      ios: {
+        lineHeight: 20,
+      },
+      android: {
+        lineHeight: 20,
+      },
+      default: {},
+    }),
   },
 });
