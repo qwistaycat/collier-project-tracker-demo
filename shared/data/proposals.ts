@@ -41,13 +41,32 @@ export const DEPARTMENTS: Department[] = [
   "Sewer Department",
 ];
 
-/** Geographic scope used in the search page's Region filter */
-export type Region = "Presto" | "Rennerdale" | "Nevillewood" | "Township-Wide";
+/**
+ * Geographic scope used in the search page's Region filter — the real
+ * neighborhoods/villages of Collier Township (per colliertownship.net/
+ * township/neighborhoods/), plus "Township-Wide" for projects that
+ * aren't tied to one specific neighborhood.
+ */
+export type Region =
+  | "Beechmont"
+  | "Ewingsville"
+  | "Fort Pitt"
+  | "Kirwan Heights"
+  | "Nevillewood"
+  | "Presto"
+  | "Rennerdale"
+  | "Walkers Mill"
+  | "Township-Wide";
 
 export const REGIONS: Region[] = [
+  "Beechmont",
+  "Ewingsville",
+  "Fort Pitt",
+  "Kirwan Heights",
+  "Nevillewood",
   "Presto",
   "Rennerdale",
-  "Nevillewood",
+  "Walkers Mill",
   "Township-Wide",
 ];
 

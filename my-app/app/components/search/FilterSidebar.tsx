@@ -3,20 +3,27 @@
 // ================================================================
 //  FilterSidebar — the left column of /search.
 //
+//  One card (rounded, bordered, shadowed, overflow-hidden) with a
+//  header ("Selected Filters" + one dynamic action button) and a body
+//  (Category / Department / Region checkbox groups, always expanded —
+//  no collapse affordance).
+//
 //  Owns *draft* facet selections (category/department/region) as
 //  local state, separate from the *committed* filters in
 //  SearchFilterContext. This mirrors the draft/commit split that used
 //  to live in Navbar, just relocated here now that faceted filtering
 //  is a page-level panel instead of a header dropdown.
 //
-//  Apply/Reset are derived, not hardcoded, from comparing draft vs.
-//  committed (see wireframe states 3a/3c):
-//    - Apply is disabled whenever draft === committed (nothing pending).
-//    - Reset is disabled only when BOTH draft and committed are empty
-//      (wireframe state 3a — the true "nothing selected" starting point).
+//  Reset and Apply used to be two separate buttons; they're now one
+//  button that swaps label/action based on state:
+//    - Any unapplied checkbox change (draft !== committed) → "Apply",
+//      enabled.
+//    - No pending change, but something is currently applied
+//      (draft === committed, committed non-empty) → "Reset", enabled.
+//    - Nothing pending and nothing applied → "Apply", disabled.
 //  Removing a chip in AppliedFiltersBar calls commitFilters directly,
-//  bypassing Apply — the sync check below re-seeds the draft so the
-//  checkboxes here stay in sync with that immediate change.
+//  bypassing this button — the sync check below re-seeds the draft so
+//  the checkboxes here stay in sync with that immediate change.
 // ================================================================
 
 import { useState } from "react";
@@ -82,9 +89,6 @@ export default function FilterSidebar() {
     committedFacets.department.length > 0 ||
     committedFacets.region.length > 0;
 
-  const applyDisabled = !hasPending;
-  const resetDisabled = !hasPending && !hasApplied;
-
   const toggleCategory = (value: FunctionalCategory) => {
     setDraft((prev) => ({
       ...prev,
@@ -122,45 +126,57 @@ export default function FilterSidebar() {
     commitFilters({ ...committedFilters, ...cleared });
   };
 
+  // One button, two personalities: it's "Reset" only when there's
+  // something currently applied and nothing pending to apply on top of
+  // it. Any pending change — even after something's already applied —
+  // flips it back to "Apply".
+  const isResetMode = !hasPending && hasApplied;
+  const actionLabel = isResetMode ? "Reset" : "Apply";
+  const actionDisabled = !isResetMode && !hasPending;
+  const handleAction = isResetMode ? handleReset : handleApply;
+
   return (
-    <aside className="w-64 flex-shrink-0">
-      <h2 className="text-lg font-semibold text-gray-900 mb-3">Filters</h2>
-
-      <FilterSection
-        title="Category"
-        options={FUNCTIONAL_CATEGORIES}
-        selected={draft.category}
-        onToggle={(v) => toggleCategory(v as FunctionalCategory)}
-        defaultExpanded
-      />
-      <FilterSection
-        title="Department"
-        options={DEPARTMENTS}
-        selected={draft.department}
-        onToggle={(v) => toggleDepartment(v as Department)}
-      />
-      <FilterSection
-        title="Region"
-        options={REGIONS}
-        selected={draft.region}
-        onToggle={(v) => toggleRegion(v as Region)}
-      />
-
-      <div className="flex items-center justify-between pt-4 mt-2">
+    <aside className="w-[312px] flex-shrink-0 sticky top-6 bg-white rounded-xl border border-gray-900/10 shadow-sm overflow-hidden">
+      <div className="px-[22px] py-5 border-b border-gray-900/10 flex items-center justify-between gap-3">
+        <h2 className="text-[17px] font-bold text-gray-900">Selected Filters</h2>
         <button
-          onClick={handleReset}
-          disabled={resetDisabled}
-          className="text-sm font-medium text-red-500 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed"
+          onClick={handleAction}
+          disabled={actionDisabled}
+          className={
+            isResetMode
+              ? "flex-shrink-0 text-center text-[13px] font-semibold rounded-[7px] px-4 py-1.5 bg-white border border-gray-900/10 text-gray-900/50 hover:text-gray-900/70 transition-colors"
+              : "flex-shrink-0 text-center text-[13px] font-semibold rounded-[7px] px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-600/40 disabled:text-white/75 disabled:cursor-not-allowed transition-colors"
+          }
         >
-          Reset
+          {actionLabel}
         </button>
-        <button
-          onClick={handleApply}
-          disabled={applyDisabled}
-          className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
-        >
-          Apply
-        </button>
+      </div>
+
+      <div className="px-[22px] py-[18px] flex flex-col gap-5">
+        <FilterSection
+          title="Category"
+          options={FUNCTIONAL_CATEGORIES}
+          selected={draft.category}
+          onToggle={(v) => toggleCategory(v as FunctionalCategory)}
+        />
+
+        <div className="border-t border-gray-900/10 pt-[18px]">
+          <FilterSection
+            title="Department"
+            options={DEPARTMENTS}
+            selected={draft.department}
+            onToggle={(v) => toggleDepartment(v as Department)}
+          />
+        </div>
+
+        <div className="border-t border-gray-900/10 pt-[18px]">
+          <FilterSection
+            title="Region"
+            options={REGIONS}
+            selected={draft.region}
+            onToggle={(v) => toggleRegion(v as Region)}
+          />
+        </div>
       </div>
     </aside>
   );

@@ -1,30 +1,55 @@
 "use client";
 
 // ================================================================
-//  AppliedFiltersBar — sits above the results grid on /search.
-//  Row 1: removable chips for every committed category/department/
-//  region value, plus the (now-live) Sort dropdown.
-//  Row 2: result count.
+//  AppliedFiltersBar — the header row above the results grid on
+//  /search. Matches the reference layout: sits directly on the page's
+//  gray background (no card wrapper, no breadcrumb) with a bottom
+//  border as the only divider between it and the grid.
+//    Row 1: page title + result count (left) ... Sort pill (right)
+//    Row 2 (only if filters are active): removable chips for the
+//      keyword plus every committed category/department/region value
 //
 //  Removing a chip writes straight to committedFilters via
 //  commitFilters — it does NOT go through FilterSidebar's draft/Apply
-//  flow, so the grid re-filters immediately. FilterSidebar's own
-//  useEffect re-seeds its checkboxes from committedFilters, so the
-//  two stay in sync.
+//  flow, so the grid re-filters immediately. The keyword chip's
+//  removal is picked up by Navbar the same way (it re-syncs its input
+//  from committedFilters.keyword). FilterSidebar's own sync check
+//  re-seeds its checkboxes from committedFilters, so all three stay
+//  in sync with each other.
 // ================================================================
 
+import type { ReactNode } from "react";
 import { useSearchFilter, type SortOption } from "@/app/context/SearchFilterContext";
+import { SearchIcon } from "../icons";
 import FilterChip from "./FilterChip";
 
 interface AppliedFiltersBarProps {
+  title: string;
   resultCount: number;
 }
 
-export default function AppliedFiltersBar({ resultCount }: AppliedFiltersBarProps) {
-  const { committedFilters, commitFilters } = useSearchFilter();
-  const { category, department, region, sortBy } = committedFilters;
+interface Chip {
+  key: string;
+  label: string;
+  icon?: ReactNode;
+  onRemove: () => void;
+}
 
-  const chips = [
+export default function AppliedFiltersBar({ title, resultCount }: AppliedFiltersBarProps) {
+  const { committedFilters, commitFilters } = useSearchFilter();
+  const { keyword, category, department, region, sortBy } = committedFilters;
+
+  const chips: Chip[] = [
+    ...(keyword
+      ? [
+          {
+            key: "keyword",
+            label: `"${keyword}"`,
+            icon: <SearchIcon size={11} className="text-blue-400" />,
+            onRemove: () => commitFilters({ ...committedFilters, keyword: "" }),
+          },
+        ]
+      : []),
     ...category.map((value) => ({
       key: `category-${value}`,
       label: value,
@@ -48,23 +73,24 @@ export default function AppliedFiltersBar({ resultCount }: AppliedFiltersBarProp
     })),
   ];
 
+  const resultCountText = `${resultCount} ${resultCount === 1 ? "result" : "results"} found`;
+
   return (
-    <div className="mb-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 flex-wrap">
-          {chips.map((chip) => (
-            <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove} />
-          ))}
+    <div className="pb-4 mb-[22px] border-b border-gray-900/10">
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">{title}</h1>
+          <span className="text-sm text-gray-900/55">{resultCountText}</span>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-gray-600 flex-shrink-0">
-          <span className="sr-only">Sort by</span>
+        <label className="inline-flex items-center gap-2 rounded-full border border-gray-900/12 bg-white pl-4 pr-3.5 py-1.5 text-[13.5px] text-gray-800 flex-shrink-0">
+          Sort by:
           <select
             value={sortBy}
             onChange={(e) =>
               commitFilters({ ...committedFilters, sortBy: e.target.value as SortOption })
             }
-            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="appearance-none bg-transparent border-none pr-5 text-[13.5px] font-medium text-gray-900 focus:outline-none cursor-pointer"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -72,9 +98,18 @@ export default function AppliedFiltersBar({ resultCount }: AppliedFiltersBarProp
         </label>
       </div>
 
-      <p className="text-sm text-gray-500 mt-3">
-        {resultCount} {resultCount === 1 ? "result" : "results"} found
-      </p>
+      {chips.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap mt-3">
+          {chips.map((chip) => (
+            <FilterChip
+              key={chip.key}
+              label={chip.label}
+              icon={chip.icon}
+              onRemove={chip.onRemove}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
