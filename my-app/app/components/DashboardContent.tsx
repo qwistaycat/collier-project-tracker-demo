@@ -1,76 +1,28 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
 import {
   proposalRegistry,
   dashboardSections,
-  FUNCTIONAL_CATEGORIES,
-  DEPARTMENTS,
   type ProposalCard as ProposalCardType,
   type DashboardSection,
 } from "@/app/data/proposals";
 import ProposalCard from "./ProposalCard";
-import { SearchIcon, CloseIcon } from "./icons";
+import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
 
-function getFollowedIds(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem("collier_followed") || "[]");
-  } catch {
-    return [];
-  }
-}
+// Search + filter + sort now live in the Navbar's search panel and the
+// dedicated /search results route (see app/components/Navbar.tsx and
+// app/components/SearchResultsContent.tsx). This component just renders
+// the default, unfiltered dashboard view: your followed projects, plus
+// one section per functional category.
 
 export default function DashboardContent() {
-  const [followedIds, setFollowedIds] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterDepartment, setFilterDepartment] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [includeArchived, setIncludeArchived] = useState(false);
-
-  // Hydrate from localStorage after mount
-  useEffect(() => {
-    setFollowedIds(getFollowedIds());
-  }, []);
-
-  const toggleFollow = useCallback((id: string) => {
-    setFollowedIds((prev) => {
-      const next = prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id];
-      localStorage.setItem("collier_followed", JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const { followedIds, toggleFollow } = useFollowedProjects();
 
   const renderSection = (section: DashboardSection, idx: number) => {
-    // Dynamic: build followed cards from state
-    let cards: ProposalCardType[] = section.dynamic
+    const cards: ProposalCardType[] = section.dynamic
       ? followedIds.map((id) => proposalRegistry[id]).filter(Boolean)
       : section.cards || [];
 
-    // Apply search + filters (skip for the followed section so it always shows what you follow)
-    if (!section.dynamic) {
-      // Category filter: sections ARE categories — hide entire section if title doesn't match
-      if (filterCategory && section.title !== filterCategory) {
-        return null;
-      }
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        cards = cards.filter(
-          (c) =>
-            c.title.toLowerCase().includes(q) ||
-            c.description.toLowerCase().includes(q)
-        );
-      }
-      // Department filter: filter cards within the section
-      if (filterDepartment) {
-        cards = cards.filter((c) => c.department === filterDepartment);
-      }
-    }
-
-    // Empty-state for followed section
     if (cards.length === 0) {
       if (section.dynamic) {
         return (
@@ -113,127 +65,7 @@ export default function DashboardContent() {
         Project Tracking
       </h1>
 
-      {/* Search */}
-      <div className="relative mb-5 w-80">
-        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
-          <SearchIcon size={16} />
-        </span>
-        <input
-          type="text"
-          placeholder="Search by project name or keyword"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <button
-          onClick={() => setSearchQuery("")}
-          className="absolute inset-y-0 right-2.5 flex items-center text-gray-400 hover:text-gray-600"
-        >
-          <CloseIcon size={14} />
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-10 flex-wrap">
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Sort By</option>
-          <option value="newest">Newest First</option>
-          <option value="deadline">Deadline Approaching</option>
-          <option value="discussed">Most Discussed</option>
-          <option value="viewed">Most Viewed</option>
-        </select>
-
-        {/* Tag 1: Functional Category */}
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Categories</option>
-          {FUNCTIONAL_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-
-        {/* Tag 2: Department */}
-        <select
-          value={filterDepartment}
-          onChange={(e) => setFilterDepartment(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Departments</option>
-          {DEPARTMENTS.map((dept) => (
-            <option key={dept} value={dept}>{dept}</option>
-          ))}
-        </select>
-
-        <label className="flex items-center gap-2.5 text-sm font-semibold text-gray-700 cursor-pointer select-none hover:text-blue-600 transition-colors duration-200">
-          <input
-            type="checkbox"
-            checked={includeArchived}
-            onChange={(e) => setIncludeArchived(e.target.checked)}
-            className="w-5 h-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600 transition-transform duration-150 active:scale-95"
-          />
-          Include Archived
-        </label>
-      </div>
-
-      {/* Card sections */}
-      {(() => {
-        const isFiltering = !!(searchQuery || filterCategory || filterDepartment);
-        const rendered = dashboardSections.map((section, idx) =>
-          renderSection(section, idx)
-        );
-        const hasNonDynamicResults = rendered.some(
-          (el, idx) => el !== null && !dashboardSections[idx].dynamic
-        );
-
-        return (
-          <>
-            {rendered}
-            {isFiltering && !hasNonDynamicResults && (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <svg
-                  width="64"
-                  height="64"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#9ca3af"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mb-4"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  <line x1="8" y1="11" x2="14" y2="11" />
-                </svg>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  No results found
-                </h3>
-                <p className="text-sm text-gray-400 max-w-sm mb-5">
-                  No projects match your current search or filter criteria. Try
-                  adjusting your filters or searching with different keywords.
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setFilterCategory("");
-                    setFilterDepartment("");
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Clear filters
-                </button>
-              </div>
-            )}
-          </>
-        );
-      })()}
+      {dashboardSections.map((section, idx) => renderSection(section, idx))}
     </main>
   );
 }

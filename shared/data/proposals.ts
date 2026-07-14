@@ -41,6 +41,16 @@ export const DEPARTMENTS: Department[] = [
   "Sewer Department",
 ];
 
+/** Geographic scope used in the search page's Region filter */
+export type Region = "Presto" | "Rennerdale" | "Nevillewood" | "Township-Wide";
+
+export const REGIONS: Region[] = [
+  "Presto",
+  "Rennerdale",
+  "Nevillewood",
+  "Township-Wide",
+];
+
 // ── Types ────────────────────────────────────────────────────────
 
 export interface ProposalCard {
@@ -50,7 +60,11 @@ export interface ProposalCard {
   functionalCategory: FunctionalCategory;
   /** Township department responsible for this proposal */
   department: Department;
+  /** Geographic scope — used by the search page's Region filter */
+  region: Region;
   updated: string;
+  /** Machine-sortable ISO date (YYYY-MM-DD) backing the "Newest First" sort */
+  updatedAt: string;
   description: string;
   image: string;
   link: string;
@@ -147,7 +161,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Road Paving 2026",
     functionalCategory: "Roads & Transportation",
     department: "Public Works",
+    region: "Township-Wide",
     updated: "Updated 1 week ago",
+    updatedAt: "2026-07-07",
     description:
       "Resurfacing six residential streets: Maclaine Dr, Turnberry Dr, Sunnyside Ave, Columbia Ave, Highlandview Dr, and Walker Ave.",
     image: "https://picsum.photos/seed/roadpaving/600/340",
@@ -158,7 +174,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Private Road Maintenance – Lobaugh Drive",
     functionalCategory: "Roads & Transportation",
     department: "Public Works",
+    region: "Township-Wide",
     updated: "Updated 3 days ago",
+    updatedAt: "2026-07-11",
     description:
       "Addressing maintenance obligations and cost-sharing for Lobaugh Drive, a privately owned road within the township.",
     image: "https://picsum.photos/seed/lobaughdrive/600/340",
@@ -170,7 +188,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Collier Park & Ballfield Upgrades",
     functionalCategory: "Parks & Green Spaces",
     department: "Parks & Recreation",
+    region: "Township-Wide",
     updated: "Updated 5 days ago",
+    updatedAt: "2026-07-09",
     description:
       "Renovating athletic fields and recreational facilities at Collier Township Park, including dugout improvements and field drainage.",
     image: "https://picsum.photos/seed/ballfield/600/340",
@@ -181,7 +201,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Hilltop Park Expansion",
     functionalCategory: "Parks & Green Spaces",
     department: "Parks & Recreation",
+    region: "Township-Wide",
     updated: "Updated 2 weeks ago",
+    updatedAt: "2026-06-30",
     description:
       "This project improves Hilltop Park by adding new recreation space and permanent facilities. It focuses on access, safety, and capacity during high-use times.",
     image: "https://picsum.photos/seed/hilltoppark/600/340",
@@ -193,7 +215,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Police Department Facility Remodeling",
     functionalCategory: "Infrastructure & Facilities",
     department: "Police Department",
+    region: "Township-Wide",
     updated: "Updated 2 weeks ago",
+    updatedAt: "2026-06-30",
     description:
       "Renovating and modernizing the Collier Township Police Department building to improve operational capacity and staff facilities.",
     image: "https://picsum.photos/seed/policedept/600/340",
@@ -204,7 +228,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Station Upgrades – Presto",
     functionalCategory: "Infrastructure & Facilities",
     department: "EMS & Fire Services",
+    region: "Presto",
     updated: "Updated 1 week ago",
+    updatedAt: "2026-07-07",
     description:
       "Capital improvements to the Presto Volunteer Fire Department station, including structural repairs and equipment storage upgrades.",
     image: "https://picsum.photos/seed/firestationpresto/600/340",
@@ -215,7 +241,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Station Upgrades – Rennerdale",
     functionalCategory: "Infrastructure & Facilities",
     department: "EMS & Fire Services",
+    region: "Rennerdale",
     updated: "Updated 1 week ago",
+    updatedAt: "2026-07-07",
     description:
       "Capital improvements to the Rennerdale Volunteer Fire Department station, including bay expansion and safety system upgrades.",
     image: "https://picsum.photos/seed/firestationrennerdale/600/340",
@@ -226,7 +254,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Community Center Parking Lot",
     functionalCategory: "Infrastructure & Facilities",
     department: "Parks & Recreation",
+    region: "Township-Wide",
     updated: "Updated 4 days ago",
+    updatedAt: "2026-07-10",
     description:
       "Resurfacing and restriping the parking lot at Collier Township Community Center to improve safety and capacity.",
     image: "https://picsum.photos/seed/parkinglot/600/340",
@@ -237,7 +267,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "MS4 Stormwater Projects",
     functionalCategory: "Infrastructure & Facilities",
     department: "Sewer Department",
+    region: "Township-Wide",
     updated: "Updated 2 days ago",
+    updatedAt: "2026-07-12",
     description:
       "Municipal Separate Storm Sewer System compliance projects to manage stormwater runoff and meet DEP permit requirements.",
     image: "https://picsum.photos/seed/stormwater/600/340",
@@ -249,7 +281,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "New Development Review",
     functionalCategory: "Plan, Development & Sustainability",
     department: "Planning, Zoning, & Land Development",
+    region: "Township-Wide",
     updated: "Updated 3 days ago",
+    updatedAt: "2026-07-11",
     description:
       "Review and processing of new residential and commercial development applications under current township land use ordinances.",
     image: "https://picsum.photos/seed/newdevelopment/600/340",
@@ -260,7 +294,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Township Ordinance Updates",
     functionalCategory: "Plan, Development & Sustainability",
     department: "Planning, Zoning, & Land Development",
+    region: "Township-Wide",
     updated: "Updated 1 week ago",
+    updatedAt: "2026-07-07",
     description:
       "Revision of township ordinances to reflect current zoning standards, land use policy, and state regulatory requirements.",
     image: "https://picsum.photos/seed/ordinance/600/340",
@@ -272,7 +308,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "Fire Department Consolidation",
     functionalCategory: "Public Safety",
     department: "EMS & Fire Services",
+    region: "Township-Wide",
     updated: "Updated 2 weeks ago",
+    updatedAt: "2026-06-30",
     description:
       "Evaluating consolidation options among Collier's three volunteer fire departments to improve emergency response and reduce operational costs.",
     image: "https://picsum.photos/seed/fireconsolidate/600/340",
@@ -283,7 +321,9 @@ export const proposalRegistry: Record<string, ProposalCard> = {
     title: "EMS Grants",
     functionalCategory: "Public Safety",
     department: "EMS & Fire Services",
+    region: "Township-Wide",
     updated: "Updated 5 days ago",
+    updatedAt: "2026-07-09",
     description:
       "Pursuing state and federal grant funding to support emergency medical services equipment, training, and personnel across the township.",
     image: "https://picsum.photos/seed/emsgrants/600/340",

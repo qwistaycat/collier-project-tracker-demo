@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { SearchFilterProvider } from "./context/SearchFilterContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -19,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`min-h-screen flex flex-col ${poppins.className}`}>{children}</body>
+      <body className={`min-h-screen flex flex-col ${poppins.className}`}>
+        <SearchFilterProvider>{children}</SearchFilterProvider>
+      </body>
     </html>
   );
 }
