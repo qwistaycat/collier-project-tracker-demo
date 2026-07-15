@@ -3,10 +3,12 @@
 import {
   proposalRegistry,
   dashboardSections,
+  getFeaturedBannerCards,
   type ProposalCard as ProposalCardType,
   type DashboardSection,
 } from "@/app/data/proposals";
 import ProposalCard from "./ProposalCard";
+import HomeBanner from "./HomeBanner";
 import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
 import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 
@@ -19,6 +21,7 @@ import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 export default function DashboardContent() {
   const { followedIds, toggleFollow } = useFollowedProjects();
   const { recordView } = useRecentlyViewed();
+  const featuredCards = getFeaturedBannerCards();
 
   const renderSection = (section: DashboardSection, idx: number) => {
     const cards: ProposalCardType[] = section.dynamic
@@ -67,6 +70,8 @@ export default function DashboardContent() {
       <h1 className="text-2xl font-bold text-gray-900 mb-7">
         Project Tracking
       </h1>
+
+      <HomeBanner cards={featuredCards} />
 
       {dashboardSections.map((section, idx) => renderSection(section, idx))}
     </main>
