@@ -395,6 +395,55 @@ export function ReplyIcon({ size = 14, className }: IconProps) {
   );
 }
 
+export function MapPinIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+    </svg>
+  );
+}
+
+export function ImageIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 16l-5.2-5.2a2 2 0 00-2.83 0L4 19"
+      />
+    </svg>
+  );
+}
+
 export function DragHandleIcon({ size = 16, className }: IconProps) {
   return (
     <svg

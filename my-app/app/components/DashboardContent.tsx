@@ -8,6 +8,7 @@ import {
 } from "@/app/data/proposals";
 import ProposalCard from "./ProposalCard";
 import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
+import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 
 // Search + filter + sort now live in the Navbar's search panel and the
 // dedicated /search results route (see app/components/Navbar.tsx and
@@ -17,6 +18,7 @@ import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
 
 export default function DashboardContent() {
   const { followedIds, toggleFollow } = useFollowedProjects();
+  const { recordView } = useRecentlyViewed();
 
   const renderSection = (section: DashboardSection, idx: number) => {
     const cards: ProposalCardType[] = section.dynamic
@@ -52,6 +54,7 @@ export default function DashboardContent() {
               card={card}
               isFollowing={followedIds.includes(card.id)}
               onToggleFollow={toggleFollow}
+              onPress={() => recordView(card.id)}
             />
           ))}
         </div>

@@ -10,6 +10,7 @@ import Sidebar from "./Sidebar";
 import Timeline from "./Timeline";
 import Discussion from "./Discussion";
 import VoteBanner from "./VoteBanner";
+import ProjectMapCard from "./ProjectMapCard";
 import { ExternalLinkIcon, PlusIcon, CheckIcon, CloseIcon } from "./icons";
 
 // ── Follow helpers ──────────────────────────────────────────────
@@ -272,83 +273,8 @@ export default function ProposalDetailContent() {
                 </div>
               </div>
 
-              {/* Metadata strip */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3,1fr)",
-                  marginTop: 28,
-                  paddingTop: 20,
-                  borderTop: "1px solid #e5e7eb",
-                }}
-              >
-                {p.metadata.map((m, i) => {
-                  const borderRight =
-                    i < p.metadata.length - 1
-                      ? "1px solid #e5e7eb"
-                      : undefined;
-                  const padding =
-                    i === 0
-                      ? "0 2rem 0 0"
-                      : i === p.metadata.length - 1
-                        ? "0 0 0 2rem"
-                        : "0 2rem";
-
-                  return (
-                    <div
-                      key={i}
-                      style={{ padding, borderRight }}
-                    >
-                      <p
-                        style={{
-                          fontWeight: 700,
-                          fontSize: 16,
-                          color: "#111827",
-                          lineHeight: 1.35,
-                          margin: "0 0 6px 0",
-                        }}
-                      >
-                        {m.value.split("\n").map((line, li) => (
-                          <span key={li}>
-                            {li > 0 && <br />}
-                            {line}
-                          </span>
-                        ))}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: "#6b7280",
-                          margin: 0,
-                        }}
-                      >
-                        {m.label}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Map */}
-              <div
-                style={{
-                  marginTop: 24,
-                  overflow: "hidden",
-                  borderRadius: 12,
-                  border: "1px solid #e5e7eb",
-                }}
-              >
-                <iframe
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=-80.18%2C40.32%2C-79.98%2C40.42&layer=mapnik"
-                  style={{
-                    width: "100%",
-                    height: 360,
-                    border: "none",
-                    display: "block",
-                  }}
-                  title="Project Location Map"
-                />
-              </div>
+              {/* Project info + Map/Photos card */}
+              <ProjectMapCard p={p} />
 
               {/* Timeline */}
               <div style={{ marginTop: "2.5rem" }}>

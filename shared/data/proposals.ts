@@ -111,6 +111,8 @@ export interface ProposalDetail {
   id: string;
   title: string;
   heroImage: string;
+  /** Additional site photos shown in the map card's photo carousel */
+  photos: string[];
   lastUpdated: string;
   projectLink: string;
   meetingLink: string;
@@ -404,6 +406,12 @@ export const proposalData: ProposalDetail = {
   id: "hilltop-park",
   title: "Hilltop Park Expansion",
   heroImage: "https://picsum.photos/seed/hilltoppark/1200/400",
+  photos: [
+    "https://picsum.photos/seed/hilltoppark-a/900/600",
+    "https://picsum.photos/seed/hilltoppark-b/900/600",
+    "https://picsum.photos/seed/hilltoppark-c/900/600",
+    "https://picsum.photos/seed/hilltoppark-d/900/600",
+  ],
   lastUpdated: "June 10, 2026",
   projectLink: "#",
   meetingLink: "#",

@@ -16,12 +16,14 @@ import { proposalRegistry, type ProposalCard as ProposalCardType } from "@/app/d
 import ProposalCard from "./ProposalCard";
 import { useSearchFilter, EMPTY_FILTERS } from "@/app/context/SearchFilterContext";
 import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
+import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 import FilterSidebar from "./search/FilterSidebar";
 import AppliedFiltersBar from "./search/AppliedFiltersBar";
 
 export default function SearchResultsContent() {
   const { committedFilters, commitFilters } = useSearchFilter();
   const { followedIds, toggleFollow } = useFollowedProjects();
+  const { recordView } = useRecentlyViewed();
   const { keyword, category, department, region, sortBy } = committedFilters;
 
   const results: ProposalCardType[] = Object.values(proposalRegistry).filter((p) => {
@@ -93,6 +95,7 @@ export default function SearchResultsContent() {
                     card={card}
                     isFollowing={followedIds.includes(card.id)}
                     onToggleFollow={toggleFollow}
+                    onPress={() => recordView(card.id)}
                   />
                 ))}
               </div>
