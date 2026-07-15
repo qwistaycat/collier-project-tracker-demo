@@ -37,9 +37,31 @@ export default function ProposalCard({
     if (onToggleFollow) {
       onToggleFollow(card.id);
     }
+    // The mouse hasn't actually left the button, but the follow state just
+    // flipped underneath it. Clear the hover flag so the button falls back
+    // to its resting label ("Following") instead of jumping straight to the
+    // next-state hover label ("Unfollow"). It only re-arms once the pointer
+    // genuinely leaves and re-enters (onHoverIn fires again below).
+    setIsHovered(false);
   };
 
-  const showFollowButton = typeof onToggleFollow === "function";
+  const showFollowButton =
+    typeof onToggleFollow === "function" && (isFollowing || isCardHovered);
+
+  // Derive the follow button's label/variant once so the JSX below doesn't
+  // repeat the isFollowing/isHovered branching three separate times.
+  const followButtonLabel = isFollowing
+    ? isHovered
+      ? "✕ Unfollow"
+      : "✓ Following"
+    : "+ Follow";
+  const followButtonHoverStyle = isHovered
+    ? isFollowing
+      ? styles.followingHover // previewing "Unfollow"
+      : styles.unfollowingHover // previewing "Follow"
+    : null;
+  const followButtonHoverTextStyle =
+    isHovered && !isFollowing ? styles.unfollowingHoverText : null;
 
   return (
     <Pressable
@@ -61,6 +83,15 @@ export default function ProposalCard({
           style={styles.image}
           resizeMode="cover"
         />
+
+        {/* Hover overlay – dims only the photo area */}
+        {isCardHovered && (
+          <View style={styles.hoverOverlay}>
+            <Text style={styles.hoverOverlayText}>
+              Click To View Project Detail
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.body}>
@@ -83,23 +114,22 @@ export default function ProposalCard({
         </Text>
       </View>
 
-      {/* Hover overlay – covers entire card */}
-      {isCardHovered && (
-        <View style={styles.hoverOverlay}>
-          <Text style={styles.hoverOverlayText}>View Project Details</Text>
-        </View>
-      )}
-
       {/* Follow button – rendered last so it's always on top of the overlay */}
       {showFollowButton && (
         <Pressable
           onPress={handleFollowPress}
-          onHoverIn={() => setIsHovered(true)}
+          onHoverIn={() => {
+            // Button hover is contained within card hover: entering the
+            // button must also count as hovering the card so the card's
+            // highlight/overlay never drops out while over the button.
+            setIsHovered(true);
+            setIsCardHovered(true);
+          }}
           onHoverOut={() => setIsHovered(false)}
           style={({ pressed }) => [
             styles.followButton,
             isFollowing ? styles.followingButton : styles.unfollowingButton,
-            isHovered && isFollowing && styles.unfollowButtonHover,
+            followButtonHoverStyle,
             pressed && styles.followButtonPressed,
           ]}
         >
@@ -107,13 +137,10 @@ export default function ProposalCard({
             style={[
               styles.followButtonText,
               isFollowing ? styles.followingButtonText : styles.unfollowingButtonText,
+              followButtonHoverTextStyle,
             ]}
           >
-            {isFollowing
-              ? isHovered
-                ? "✕ Unfollow"
-                : "✓ Following"
-              : "+ Follow"}
+            {followButtonLabel}
           </Text>
         </Pressable>
       )}
@@ -160,9 +187,8 @@ const styles = StyleSheet.create({
   },
   cardHovered: Platform.select({
     web: {
-      backgroundColor: "#e8ecf1",
       boxShadow: "0 6px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 5px -2px rgba(0, 0, 0, 0.04)",
-      borderColor: "#93b4d4",
+      borderColor: "#2563eb",
     },
     default: {},
   }),
@@ -200,9 +226,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#2563eb",
     borderColor: "#2563eb",
   },
-  unfollowButtonHover: {
+  // Shown on the Following button when hovered, previewing "Unfollow".
+  followingHover: {
     backgroundColor: "#dc2626",
     borderColor: "#dc2626",
+  },
+  // Shown on the Follow button when hovered, previewing the follow action.
+  unfollowingHover: {
+    backgroundColor: "#eff6ff",
+    borderColor: "#2563eb",
+  },
+  unfollowingHoverText: {
+    color: "#2563eb",
   },
   followButtonPressed: {
     opacity: 0.85,
@@ -274,15 +309,18 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 5,
-    backgroundColor: "rgba(13, 34, 64, 0.80)",
-    borderRadius: 12,
+    backgroundColor: "rgba(13, 34, 64, 0.55)",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 12,
   },
   hoverOverlayText: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "400",
     color: "#ffffff",
-    fontFamily: getFontFamily("Poppins_600SemiBold"),
+    fontFamily: getFontFamily("Poppins_400Regular"),
+    textAlign: "center",
+    letterSpacing: 0.3,
+    opacity: 0.6,
   },
 });
