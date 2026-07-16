@@ -21,8 +21,7 @@ export default function ChooseDemoPage() {
           <DemoCard
             title="Log in as Township"
             description="This view shows all management and editing tools, as well as all feedback."
-            disabled
-            badgeText="Coming Soon"
+            href="/staff"
           />
         </div>
 
