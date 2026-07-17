@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { TownshipProvider } from "./TownshipContext";
+import { TownshipSearchFilterProvider } from "./TownshipSearchFilterContext";
+import { TownshipRecentlyViewedProvider } from "./TownshipRecentlyViewedContext";
 import Toasts from "./components/Toasts";
 
 export const metadata: Metadata = {
@@ -13,8 +15,12 @@ export default function TownshipLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <TownshipProvider>
-      {children}
-      <Toasts />
+      <TownshipSearchFilterProvider>
+        <TownshipRecentlyViewedProvider>
+          {children}
+          <Toasts />
+        </TownshipRecentlyViewedProvider>
+      </TownshipSearchFilterProvider>
     </TownshipProvider>
   );
 }

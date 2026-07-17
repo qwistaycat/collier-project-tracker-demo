@@ -1,247 +1,182 @@
 "use client";
 
 // ================================================================
-//  ProjectCard — one gallery card. Whole card navigates to the
-//  project detail (Details tab). Hero overlays: spotlight badge,
-//  "Preview as resident" eye (new-tab /proposal), and a pencil
-//  that also opens the detail screen. Lifecycle tints the card
-//  background; spotlighted projects get the #BFDBFE border.
+//  ProjectCard — one gallery card, a direct port of the resident
+//  ProposalCard (shared/components/ProposalCard.tsx): same tokens,
+//  layout, meta line, hover overlay, and hover border. The staff
+//  affordance is a single "Edit" pill sitting where the resident
+//  Follow button sits, styled with the Follow button's tokens.
 // ================================================================
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { EyeIcon } from "@/app/components/icons";
-import { CAT_META, catHeroImage, lcMeta, type StaffProject } from "../../data";
-import { StarFilledIcon, PencilIcon, CommentBubbleIcon, LcGlyph } from "./galleryIcons";
+import { useTownshipRecentlyViewed } from "../../TownshipRecentlyViewedContext";
+import { catFull, catHeroImage, updatedLabel, type StaffProject } from "../../data";
+import { PencilIcon } from "./galleryIcons";
 
-const CARD_BG: Partial<Record<string, string>> = {
-  draft: "#FBFCFD",
-  completed: "#F8FAFC",
-  pending: "#FFFDF7",
-};
-
-const overlayChip: React.CSSProperties = {
-  position: "absolute",
-  top: 10,
-  width: 28,
-  height: 28,
-  borderRadius: 7,
-  background: "rgba(255,255,255,.92)",
-  border: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#0d2240",
-  cursor: "pointer",
-  padding: 0,
+const clamp2: React.CSSProperties = {
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
 };
 
 export default function ProjectCard({ project: p }: { project: StaffProject }) {
   const router = useRouter();
-  const [hover, setHover] = useState(false);
-  const meta = lcMeta(p.lc);
-  const cat = CAT_META[p.cat];
-  const unread = p.public.length + p.privateMsgs.length;
+  const { recordView } = useTownshipRecentlyViewed();
+  const [cardHovered, setCardHovered] = useState(false);
+  const [editHovered, setEditHovered] = useState(false);
 
-  const open = () => router.push(`/township/project/${p.id}?tab=details`);
+  const open = () => {
+    recordView(p.id);
+    router.push(`/township/project/${p.id}?tab=details`);
+  };
 
   return (
     <div
       onClick={open}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onMouseEnter={() => setCardHovered(true)}
+      onMouseLeave={() => {
+        setCardHovered(false);
+        setEditHovered(false);
+      }}
       style={{
-        background: CARD_BG[p.lc] ?? "#fff",
-        border: `1px solid ${p.spotlight ? "#BFDBFE" : "#e5e7eb"}`,
+        position: "relative",
+        background: "#ffffff",
+        border: `1px solid ${cardHovered ? "#2563eb" : "#e5e7eb"}`,
         borderRadius: 12,
+        marginBottom: 16,
         overflow: "hidden",
         cursor: "pointer",
-        opacity: p.lc === "archived" ? 0.82 : 1,
-        boxShadow: hover ? "0 4px 12px rgba(0,0,0,0.12)" : "none",
-        transition: "box-shadow 0.15s ease",
+        boxShadow: cardHovered
+          ? "0 6px 12px -3px rgba(0, 0, 0, 0.08), 0 3px 5px -2px rgba(0, 0, 0, 0.04)"
+          : "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+        transition:
+          "background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* Hero strip */}
-      <div style={{ position: "relative", height: 96, background: cat.bg, flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", height: 160, background: "#f3f4f6" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={catHeroImage(p.cat, p.id)}
           alt=""
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
-        {p.spotlight && (
-          <span
-            title={`Spotlighted through ${p.spotlight.end} by ${p.spotlight.by}`}
+
+        {/* Hover overlay – dims only the photo area */}
+        {cardHovered && (
+          <div
             style={{
-              ...overlayChip,
-              left: 10,
-              width: 26,
-              height: 26,
-              background: "rgba(255,255,255,.94)",
-              color: "#2563eb",
-              cursor: "default",
+              position: "absolute",
+              inset: 0,
+              zIndex: 5,
+              background: "rgba(13, 34, 64, 0.55)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: 12,
+              paddingRight: 12,
             }}
           >
-            <StarFilledIcon size={15} />
-          </span>
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 400,
+                color: "#ffffff",
+                textAlign: "center",
+                letterSpacing: 0.3,
+                opacity: 0.6,
+              }}
+            >
+              Click To View Project Detail
+            </span>
+          </div>
         )}
-        <a
-          href="/proposal"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Preview as resident"
-          aria-label="Preview as resident"
-          onClick={(e) => e.stopPropagation()}
-          style={{ ...overlayChip, right: 44 }}
-        >
-          <EyeIcon size={15} />
-        </a>
-        <button
-          title="Manage project"
-          aria-label="Manage project"
-          onClick={(e) => {
-            e.stopPropagation();
-            open();
-          }}
-          style={{ ...overlayChip, right: 10 }}
-        >
-          <PencilIcon size={14} />
-        </button>
       </div>
 
-      {/* Body */}
-      <div
-        style={{
-          padding: "14px 15px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 7,
-          flex: 1,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: cat.color,
-              background: cat.bg,
-              padding: "2px 7px",
-              borderRadius: 5,
-            }}
-          >
-            {p.cat}
-          </span>
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 500,
-              color: "#475569",
-              background: "#F1F5F9",
-              padding: "2px 7px",
-              borderRadius: 5,
-            }}
-          >
-            {p.deptShort}
-          </span>
-        </div>
-
-        <div style={{ fontSize: 12, color: "#94A3B8" }}>Last edited {p.edited}</div>
-
-        <div style={{ fontSize: 15, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>
-          {p.title}
-        </div>
-
-        <div
-          style={{
-            fontSize: 12.5,
-            color: "#475569",
-            lineHeight: 1.45,
-            height: 36,
-            overflow: "hidden",
-          }}
-        >
-          {p.desc}
-        </div>
-
+      <div style={{ padding: 14, flex: 1 }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
             flexWrap: "wrap",
-            marginTop: "auto",
+            marginBottom: 6,
           }}
         >
+          <span style={{ fontSize: 11, fontWeight: 600, color: "#2563eb" }}>
+            {catFull(p.cat)}
+          </span>
+          <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 6, marginRight: 6 }}>·</span>
           <span
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
               fontSize: 11,
-              fontWeight: 600,
-              color: meta.c,
-              background: meta.bg,
-              padding: "2px 9px 2px 7px",
-              borderRadius: 20,
+              fontWeight: 500,
+              color: "#6b7280",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              flexShrink: 1,
             }}
           >
-            <LcGlyph lc={p.lc} size={11} />
-            {meta.label}
+            {p.deptShort}
           </span>
-          {p.spotlight && (
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#2563eb",
-                background: "#EFF6FF",
-                padding: "2px 8px",
-                borderRadius: 20,
-              }}
-            >
-              Spotlighted
-            </span>
-          )}
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 12,
-              color: "#475569",
-              marginLeft: "auto",
-            }}
-          >
-            <CommentBubbleIcon size={13} style={{ color: "#94A3B8" }} />
-            {unread}
-          </span>
+          <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 6, marginRight: 6 }}>·</span>
+          <span style={{ fontSize: 11, color: "#9ca3af" }}>{updatedLabel(p.edited)}</span>
         </div>
 
+        <div
+          style={{
+            ...clamp2,
+            fontSize: 15,
+            fontWeight: 600,
+            color: "#111827",
+            lineHeight: "20px",
+            marginBottom: 6,
+          }}
+        >
+          {p.title}
+        </div>
+
+        <div style={{ ...clamp2, fontSize: 13, color: "#6b7280", lineHeight: "18px" }}>
+          {p.desc}
+        </div>
+      </div>
+
+      {/* Edit pill – Follow button position, tokens, and hover behavior */}
+      {cardHovered && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             open();
           }}
+          onMouseEnter={() => setEditHovered(true)}
+          onMouseLeave={() => setEditHovered(false)}
+          aria-label="Edit project"
           style={{
-            width: "100%",
-            height: 36,
-            background: "#F8FAFC",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            fontSize: 13,
+            position: "absolute",
+            top: 10,
+            right: 10,
+            zIndex: 10,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            borderRadius: 9999,
+            padding: "6px 14px",
+            border: `1px solid ${editHovered ? "#2563eb" : "#e5e7eb"}`,
+            background: editHovered ? "#eff6ff" : "#ffffff",
+            fontSize: 12,
             fontWeight: 600,
-            color: "#0d2240",
+            color: editHovered ? "#2563eb" : "#111827",
             cursor: "pointer",
-            marginTop: 5,
-            transition: "background 0.15s ease",
+            transition: "background-color 0.15s ease, border-color 0.15s ease",
           }}
         >
-          Manage Project
+          <PencilIcon size={12} />
+          Edit
         </button>
-      </div>
+      )}
     </div>
   );
 }

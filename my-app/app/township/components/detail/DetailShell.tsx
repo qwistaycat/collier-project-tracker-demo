@@ -17,7 +17,14 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MoreIcon } from "@/app/components/icons";
 import { useTownship } from "../../TownshipContext";
-import { CAT_META, lcMeta, STAFF_NAME, type StaffProject } from "../../data";
+import {
+  CAT_META,
+  catFull,
+  catHeroImage,
+  lcMeta,
+  STAFF_NAME,
+  type StaffProject,
+} from "../../data";
 import {
   ghostBtn,
   primaryBtn,
@@ -58,6 +65,9 @@ interface Snapshot {
   duration: string;
   neighborhoods: string;
 }
+
+// Session-unique suffix for duplicated-project ids
+let dupCounter = 0;
 
 export default function DetailShell() {
   const params = useParams<{ id: string }>();
@@ -234,7 +244,7 @@ export default function DetailShell() {
   };
 
   const duplicateProject = () => {
-    const copyId = "dup-" + Date.now();
+    const copyId = `dup-${++dupCounter}`;
     const copy = {
       ...project,
       id: copyId,
@@ -485,16 +495,41 @@ export default function DetailShell() {
         </button>
       </div>
 
-      {/* Hero strip — flat category tint (no gradients) */}
+      {/* Hero strip — project imagery over the category tint, echoing
+          the resident detail page's hero */}
       <div
         style={{
           margin: "12px 28px 0",
-          height: 80,
+          height: 120,
           borderRadius: 12,
           background: cat.bg,
           borderLeft: `4px solid ${cat.color}`,
+          overflow: "hidden",
+          position: "relative",
         }}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={catHeroImage(project.cat, project.id)}
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+        <span
+          style={{
+            position: "absolute",
+            left: 14,
+            bottom: 10,
+            background: "rgba(255, 255, 255, 0.92)",
+            color: cat.color,
+            fontSize: 11,
+            fontWeight: 600,
+            padding: "3px 10px",
+            borderRadius: 9999,
+          }}
+        >
+          {catFull(project.cat)}
+        </span>
+      </div>
 
       {/* Sticky header */}
       <div

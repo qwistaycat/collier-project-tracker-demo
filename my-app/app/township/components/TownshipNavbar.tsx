@@ -7,15 +7,20 @@
 //  the AI Assistance toggle, and a profile dropdown with the
 //  department switcher and Trash entry.
 //
-//  Search matches the resident app's header search: typing +
-//  Enter lands on the projects gallery with a ?q= keyword filter.
+//  Search reuses the resident header-search architecture: clicking
+//  the icon or focusing the input expands TownshipSearchDropdownPanel
+//  (quick Category/Department/Status shortcuts + Recently Viewed);
+//  Enter commits the keyword and lands on /township/search, where
+//  TownshipFilterSidebar owns full faceted filtering.
 // ================================================================
 
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BellIcon, SearchIcon, CloseIcon, EyeIcon } from "@/app/components/icons";
 import { useTownship } from "../TownshipContext";
+import { useTownshipSearchFilter } from "../TownshipSearchFilterContext";
+import TownshipSearchDropdownPanel from "./search/TownshipSearchDropdownPanel";
 import { STAFF_NAME, STAFF_DEPARTMENTS, initialsOf } from "../data";
 
 const NAV_ITEMS = [
@@ -28,28 +33,46 @@ const NAV_ITEMS = [
 export default function TownshipNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { aiMode, setAiMode, dept, setDept, projects, toast } = useTownship();
+  const { committedFilters, setKeyword } = useTownshipSearchFilter();
 
-  const committedQ = pathname === "/township/projects" ? (searchParams.get("q") ?? "") : "";
-  const [inputValue, setInputValue] = useState(committedQ);
-  const [syncedQ, setSyncedQ] = useState(committedQ);
-  if (syncedQ !== committedQ) {
-    setSyncedQ(committedQ);
-    setInputValue(committedQ);
+  // Local typing state, resynced from the committed keyword whenever it
+  // changes elsewhere (e.g. a chip removal or Reset on /township/search
+  // clears it) — synced during render, the repo's pattern for adjusting
+  // state when a prop-like value changes.
+  const [inputValue, setInputValue] = useState(committedFilters.keyword);
+  const [syncedKeyword, setSyncedKeyword] = useState(committedFilters.keyword);
+  if (syncedKeyword !== committedFilters.keyword) {
+    setSyncedKeyword(committedFilters.keyword);
+    setInputValue(committedFilters.keyword);
   }
+
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const closePanel = () => setIsPanelOpen(false);
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [deptSwitchOpen, setDeptSwitchOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown on navigation — synced during render, the
-  // repo's pattern for adjusting state when a prop-like value changes.
+  // Close the dropdowns on navigation (Home link, a pill/card inside
+  // the search panel, Enter-to-search — all of these navigate).
   const [prevPath, setPrevPath] = useState(pathname);
   if (prevPath !== pathname) {
     setPrevPath(pathname);
     if (profileOpen) setProfileOpen(false);
+    if (isPanelOpen) setIsPanelOpen(false);
   }
+
+  // Escape closes the search panel even when focus isn't on the input
+  // itself (e.g. after clicking into the panel body).
+  useEffect(() => {
+    if (!isPanelOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsPanelOpen(false);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isPanelOpen]);
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -65,14 +88,18 @@ export default function TownshipNavbar() {
   const trashCount = projects.filter((p) => p.lc === "trash").length;
 
   const runSearch = () => {
-    const q = inputValue.trim();
-    router.push(q ? `/township/projects?q=${encodeURIComponent(q)}` : "/township/projects");
+    setKeyword(inputValue.trim());
+    router.push("/township/search");
+    closePanel();
   };
 
   const clearInput = () => {
     setInputValue("");
-    if (pathname === "/township/projects" && committedQ) {
-      router.push("/township/projects");
+    // If we're already on the search page, clear immediately (same "no
+    // Apply needed" behavior as removing a chip) instead of leaving
+    // stale results up until the next Enter press.
+    if (pathname === "/township/search") {
+      setKeyword("");
     }
   };
 
@@ -164,11 +191,12 @@ export default function TownshipNavbar() {
 
       <div style={{ flex: 1 }} />
 
-      {/* Search — same pill input as the resident header */}
+      {/* Search — same pill input + dropdown panel as the resident header */}
       <div style={{ width: 260, position: "relative", flexShrink: 1, minWidth: 150 }}>
         <button
-          onClick={runSearch}
+          onClick={() => setIsPanelOpen((v) => !v)}
           aria-label="Search"
+          aria-expanded={isPanelOpen}
           style={{
             position: "absolute",
             top: 0,
@@ -188,10 +216,12 @@ export default function TownshipNavbar() {
         <input
           type="text"
           value={inputValue}
-          placeholder="Search projects"
+          placeholder="Search projects by name or keyword"
           onChange={(e) => setInputValue(e.target.value)}
+          onFocus={() => setIsPanelOpen(true)}
           onKeyDown={(e) => {
             if (e.key === "Enter") runSearch();
+            if (e.key === "Escape") closePanel();
           }}
           className="focus:outline-none focus:ring-2 focus:ring-blue-500"
           style={{
@@ -418,6 +448,25 @@ export default function TownshipNavbar() {
           </div>
         )}
       </div>
+
+      {isPanelOpen && (
+        <>
+          {/* Dimmed backdrop — sits below the header, above the page; click to close */}
+          <div
+            onClick={closePanel}
+            style={{
+              position: "fixed",
+              top: 56,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 40,
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+            }}
+          />
+          <TownshipSearchDropdownPanel onClose={closePanel} />
+        </>
+      )}
 
       {/* Department switcher modal */}
       {deptSwitchOpen && (

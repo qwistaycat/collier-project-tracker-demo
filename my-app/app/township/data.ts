@@ -43,6 +43,19 @@ export function catFull(c: StaffCategory | "All"): string {
   return m[c] || c;
 }
 
+/**
+ * Card meta-line label for StaffProject.edited: relative forms get the
+ * resident-style "Updated" prefix; pre-labeled forms ("completed Dec
+ * 2024") pass through capitalized instead of reading "Updated completed…".
+ */
+export function updatedLabel(edited: string): string {
+  if (!edited || edited === "—") return "Not yet edited";
+  if (/^(completed|deleted)/.test(edited)) {
+    return edited.charAt(0).toUpperCase() + edited.slice(1);
+  }
+  return `Updated ${edited}`;
+}
+
 /** Flat imagery per category — replaces the prototype's gradients.  */
 export function catHeroImage(cat: StaffCategory, id: string): string {
   return `https://picsum.photos/seed/${id || CAT_META[cat].heroSeed}/600/340`;

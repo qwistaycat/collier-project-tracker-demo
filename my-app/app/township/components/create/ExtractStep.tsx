@@ -121,24 +121,21 @@ export default function ExtractStep({
     });
   };
 
-  // Confetti positions are random — generated in an effect since
-  // Math.random() must not run during render.
-  const [confetti, setConfetti] = useState<ConfettiBit[] | null>(null);
-  useEffect(() => {
-    if (!(run.done && !run.skipped)) {
-      setConfetti(null);
-      return;
-    }
+  // Confetti scatter — deterministic pseudo-random from the index so
+  // the computation stays pure (render-safe) while still looking
+  // scattered.
+  const confetti = useMemo<ConfettiBit[] | null>(() => {
+    if (!(run.done && !run.skipped)) return null;
     const colors = ["#7C3AED", "#16A34A", "#2563EB", "#D97706", "#EC4899", "#A78BFA"];
-    setConfetti(
-      Array.from({ length: 38 }, (_, i) => ({
-        left: Math.random() * 100,
-        w: 6 + Math.random() * 7,
-        color: colors[i % colors.length],
-        durS: 1 + Math.random() * 0.9,
-        delayS: Math.random() * 0.5,
-      }))
-    );
+    const rnd = (i: number, salt: number) =>
+      (((i + 1) * 9301 + salt * 49297) % 233280) / 233280;
+    return Array.from({ length: 38 }, (_, i) => ({
+      left: rnd(i, 1) * 100,
+      w: 6 + rnd(i, 2) * 7,
+      color: colors[i % colors.length],
+      durS: 1 + rnd(i, 3) * 0.9,
+      delayS: rnd(i, 4) * 0.5,
+    }));
   }, [run.done, run.skipped]);
 
   const curPage =
