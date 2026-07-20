@@ -111,8 +111,7 @@ export default function SourceModal({
         <div
           style={{
             background: "#FFFBEB",
-            borderLeft: "3px solid #F5D97A",
-            borderRadius: "0 8px 8px 0",
+            borderRadius: 8,
             padding: "10px 14px",
             fontSize: 13,
             fontStyle: "italic",
