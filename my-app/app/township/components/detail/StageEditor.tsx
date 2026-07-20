@@ -14,7 +14,6 @@
 // ================================================================
 
 import { useEffect, useState } from "react";
-import { EyeIcon } from "@/app/components/icons";
 import { useTownship } from "../../TownshipContext";
 import { simulateAi, STAFF_NAME, type StaffProject, type StaffStage } from "../../data";
 import {
@@ -30,11 +29,9 @@ import {
   UploadIcon,
   Spinner,
   type StageDraft,
-  type StageState,
   type XProject,
   type XStage,
 } from "./shared";
-import StagePreviewDrawer from "./StagePreviewDrawer";
 import StageAiUploadModal, { SAMPLE_DOC, type AiApplyResult } from "./StageAiUploadModal";
 
 export interface StageEditorHandle {
@@ -74,7 +71,6 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
   const [draft, setDraft] = useState<StageDraft>(() => cleanDraft(stage));
   const [saving, setSaving] = useState(false);
   const [rewriting, setRewriting] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [aiUpload, setAiUpload] = useState<null | { files: string[] }>(null);
   const [confirmDel, setConfirmDel] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
@@ -178,21 +174,6 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
     toast(`AI filled ${r.filled.length} field${r.filled.length === 1 ? "" : "s"} — review before saving`);
   };
 
-  // "Saving: {changes}" summary
-  const changes: string[] = [];
-  if (draft.title !== clean.title) changes.push("title");
-  if (draft.dates !== clean.dates) changes.push("timeframe");
-  if (draft.desc !== clean.desc) changes.push("summary");
-  if (draft.bullets.join("\u0001") !== clean.bullets.join("\u0001"))
-    changes.push(`${draft.bullets.length} bullet(s)`);
-  if (draft.state !== clean.state) changes.push("status");
-
-  const STATES: { key: StageState; c: string; bg: string }[] = [
-    { key: "Draft", c: "#0d2240", bg: "#E2E8F0" },
-    { key: "Published", c: "#16A34A", bg: "#DCFCE7" },
-    { key: "Hidden", c: "#DC2626", bg: "#FEE2E2" },
-  ];
-
   return (
     <div
       style={{
@@ -226,10 +207,6 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
           </span>
         )}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setPreviewOpen(true)} style={ghostBtn(30)}>
-          <EyeIcon size={14} />
-          Preview this stage
-        </button>
         <label
           style={{
             display: "inline-flex",
@@ -371,11 +348,8 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
         </button>
       </div>
 
-      {/* Publish status */}
+      {/* AI upload panel — global AI mode only */}
       <div style={{ marginBottom: 4 }}>
-        <div style={fieldLabel}>Publish status</div>
-
-        {/* AI upload panel — global AI mode only */}
         {aiMode && (
           <div
             style={{
@@ -424,42 +398,6 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
             </div>
           </div>
         )}
-
-        <div
-          style={{
-            display: "flex",
-            gap: 4,
-            background: "#F1F5F9",
-            borderRadius: 9,
-            padding: 4,
-            maxWidth: 320,
-          }}
-        >
-          {STATES.map((s) => {
-            const on = draft.state === s.key;
-            return (
-              <button
-                key={s.key}
-                onClick={() => patch({ state: s.key })}
-                style={{
-                  flex: 1,
-                  height: 32,
-                  borderRadius: 7,
-                  border: "none",
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  background: on ? s.bg : "transparent",
-                  color: on ? s.c : "#64748B",
-                  transition: "background 0.15s ease, color 0.15s ease",
-                }}
-              >
-                {s.key}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Actions row */}
@@ -497,9 +435,7 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
             zIndex: 5,
           }}
         >
-          <span style={{ fontSize: 12, color: "#64748B", flex: 1 }}>
-            {changes.length ? `Saving: ${changes.join(", ")}` : "No changes yet"}
-          </span>
+          <div style={{ flex: 1 }} />
           <button onClick={() => setConfirmDiscard(true)} style={ghostBtn(36)}>
             Discard changes
           </button>
@@ -510,16 +446,7 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
         </div>
       )}
 
-      {/* Modals & drawers */}
-      {previewOpen && (
-        <StagePreviewDrawer
-          draft={draft}
-          isCurrent={isCurrent}
-          dirty={dirty}
-          onClose={() => setPreviewOpen(false)}
-        />
-      )}
-
+      {/* Modals */}
       {aiUpload && (
         <StageAiUploadModal
           stage={stage}

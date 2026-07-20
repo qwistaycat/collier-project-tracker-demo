@@ -11,7 +11,7 @@
 //  selection, and the dirty/nav-guard plumbing.
 // ================================================================
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTownship } from "../../TownshipContext";
 import { catHeroImage, catFull, CAT_META, type StaffCategory } from "../../data";
 import {
@@ -20,6 +20,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ExternalLinkIcon,
+  SearchIcon,
+  CloseIcon,
 } from "@/app/components/icons";
 import {
   cardStyle,
@@ -30,6 +32,7 @@ import {
   patchProject,
   FileIcon,
   NEIGHBORHOOD_DEFAULT,
+  type MapArea,
   type XProject,
   type XStage,
 } from "./shared";
@@ -82,16 +85,123 @@ const linkPill: React.CSSProperties = {
   fontFamily: "inherit",
 };
 
+// Canned place results for the location search — real Collier
+// Township landmarks, with deterministic map positions (percent).
+const PLACES: { name: string; address: string; x: number; y: number }[] = [
+  { name: "Collier Township Municipal Building", address: "2418 Hilltop Rd, Presto, PA 15142", x: 46, y: 38 },
+  { name: "Hilltop Park", address: "Nevillewood Dr, Presto, PA 15142", x: 58, y: 30 },
+  { name: "Rennerdale Volunteer Fire Dept", address: "131 Noblestown Rd, Rennerdale, PA 15071", x: 30, y: 52 },
+  { name: "Kirwan Heights", address: "Washington Pike, Bridgeville, PA 15017", x: 68, y: 66 },
+  { name: "Walkers Mill", address: "Walkers Mill Rd, Carnegie, PA 15106", x: 24, y: 26 },
+  { name: "Presto-Sygan Road", address: "Presto, PA 15142", x: 52, y: 58 },
+  { name: "Nevillewood", address: "The Club at Nevillewood, Presto, PA 15142", x: 62, y: 44 },
+];
+
+type PlaceMode = null | "pin" | "area";
+
 // ── Info + Map/Photos card — the resident ProjectMapCard layout
-//    with the info column editable in edit-all mode ───────────────
+//    with the info column editable and staff location tools
+//    (address search, drop-a-pin, highlight-an-area) on the map ────
 
 function FactsMapCard({ project: p, editAll }: { project: XProject; editAll: boolean }) {
-  const { updateProject } = useTownship();
+  const { updateProject, toast } = useTownship();
   const apEdit = (fields: Partial<XProject>) => patchProject(updateProject, p.id, fields);
 
   const [view, setView] = useState<"map" | "photos">("map");
   const [photoIndex, setPhotoIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
+
+  // Location tools
+  const [mode, setMode] = useState<PlaceMode>(null);
+  const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [dragRect, setDragRect] = useState<MapArea | null>(null);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
+
+  const pins = p.pins ?? [];
+  const area = p.area ?? null;
+
+  // Escape cancels an active placement mode.
+  useEffect(() => {
+    if (!mode) return;
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMode(null);
+        setDragRect(null);
+        dragStart.current = null;
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [mode]);
+
+  const panePct = (e: { clientX: number; clientY: number }) => {
+    const r = paneRef.current?.getBoundingClientRect();
+    if (!r) return { x: 50, y: 50 };
+    return {
+      x: Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)),
+      y: Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)),
+    };
+  };
+
+  const addPin = (x: number, y: number, label?: string) => {
+    apEdit({ pins: [...pins, { x, y, label }] });
+    toast(label ? `Pin added — ${label}` : "Pin dropped — click a pin to remove it");
+  };
+
+  const removePin = (i: number) => {
+    apEdit({ pins: pins.filter((_, j) => j !== i) });
+  };
+
+  const results = query.trim()
+    ? PLACES.filter((pl) =>
+        `${pl.name} ${pl.address}`.toLowerCase().includes(query.trim().toLowerCase())
+      ).slice(0, 5)
+    : PLACES.slice(0, 5);
+
+  const pickPlace = (pl: (typeof PLACES)[number]) => {
+    addPin(pl.x, pl.y, pl.name);
+    setQuery("");
+    setSearchOpen(false);
+  };
+
+  const overlayClick = (e: React.MouseEvent) => {
+    if (mode !== "pin") return;
+    const pt = panePct(e);
+    addPin(pt.x, pt.y);
+    setMode(null);
+  };
+
+  const overlayPointerDown = (e: React.PointerEvent) => {
+    if (mode !== "area") return;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragStart.current = panePct(e);
+    setDragRect(null);
+  };
+
+  const overlayPointerMove = (e: React.PointerEvent) => {
+    if (mode !== "area" || !dragStart.current) return;
+    const cur = panePct(e);
+    const s = dragStart.current;
+    setDragRect({
+      x: Math.min(s.x, cur.x),
+      y: Math.min(s.y, cur.y),
+      w: Math.abs(cur.x - s.x),
+      h: Math.abs(cur.y - s.y),
+    });
+  };
+
+  const overlayPointerUp = () => {
+    if (mode !== "area") return;
+    if (dragRect && dragRect.w >= 2 && dragRect.h >= 2) {
+      apEdit({ area: dragRect });
+      toast("Area highlighted on the map");
+    }
+    dragStart.current = null;
+    setDragRect(null);
+    setMode(null);
+  };
 
   const photos = ["a", "b", "c", "d"].map(
     (s) => `https://picsum.photos/seed/${p.id}-${s}/900/600`
@@ -198,13 +308,316 @@ function FactsMapCard({ project: p, editAll }: { project: XProject; editAll: boo
       </div>
 
       {/* Right map / photo carousel panel */}
-      <div style={{ flex: 1, position: "relative", background: "#f3f4f6" }}>
+      <div ref={paneRef} style={{ flex: 1, position: "relative", background: "#f3f4f6" }}>
         {view === "map" ? (
-          <iframe
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-80.18%2C40.32%2C-79.98%2C40.42&layer=mapnik"
-            style={{ width: "100%", height: "100%", minHeight: 360, border: "none", display: "block" }}
-            title="Project Location Map"
-          />
+          <>
+            <iframe
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-80.18%2C40.32%2C-79.98%2C40.42&layer=mapnik"
+              style={{ width: "100%", height: "100%", minHeight: 360, border: "none", display: "block" }}
+              title="Project Location Map"
+            />
+
+            {/* Highlighted area */}
+            {area && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${area.x}%`,
+                  top: `${area.y}%`,
+                  width: `${area.w}%`,
+                  height: `${area.h}%`,
+                  border: "2px solid #2563eb",
+                  background: "rgba(37, 99, 235, 0.12)",
+                  borderRadius: 4,
+                  pointerEvents: "none",
+                }}
+              >
+                <button
+                  onClick={() => apEdit({ area: null })}
+                  aria-label="Remove highlighted area"
+                  title="Remove highlighted area"
+                  style={{
+                    position: "absolute",
+                    top: -10,
+                    right: -10,
+                    width: 20,
+                    height: 20,
+                    borderRadius: "50%",
+                    border: "1px solid #e5e7eb",
+                    background: "#fff",
+                    color: "#475569",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    pointerEvents: "auto",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
+                  }}
+                >
+                  <CloseIcon size={9} />
+                </button>
+              </div>
+            )}
+
+            {/* Drag preview while selecting an area */}
+            {dragRect && (
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  left: `${dragRect.x}%`,
+                  top: `${dragRect.y}%`,
+                  width: `${dragRect.w}%`,
+                  height: `${dragRect.h}%`,
+                  border: "2px dashed #2563eb",
+                  background: "rgba(37, 99, 235, 0.08)",
+                  borderRadius: 4,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+
+            {/* Dropped pins — click to remove */}
+            {pins.map((pin, i) => (
+              <button
+                key={i}
+                onClick={() => removePin(i)}
+                aria-label={`Remove pin${pin.label ? `: ${pin.label}` : ""}`}
+                title="Remove pin"
+                style={{
+                  position: "absolute",
+                  left: `${pin.x}%`,
+                  top: `${pin.y}%`,
+                  transform: "translate(-50%, -100%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ color: "#DC2626", display: "flex" }}>
+                  <MapPinIcon size={26} />
+                </span>
+                {pin.label && (
+                  <span
+                    style={{
+                      marginTop: 2,
+                      background: "rgba(255,255,255,0.94)",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 6,
+                      padding: "2px 8px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#111827",
+                      whiteSpace: "nowrap",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
+                    }}
+                  >
+                    {pin.label}
+                  </span>
+                )}
+              </button>
+            ))}
+
+            {/* Placement capture layer */}
+            {mode && (
+              <div
+                onClick={overlayClick}
+                onPointerDown={overlayPointerDown}
+                onPointerMove={overlayPointerMove}
+                onPointerUp={overlayPointerUp}
+                style={{ position: "absolute", inset: 0, cursor: "crosshair", zIndex: 6 }}
+              />
+            )}
+
+            {/* Floating search + placement tools */}
+            <div
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                right: 10,
+                zIndex: 7,
+                display: "flex",
+                gap: 8,
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ position: "relative", width: 250 }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    color: "#6b7280",
+                  }}
+                >
+                  <SearchIcon size={13} />
+                </span>
+                <input
+                  value={query}
+                  placeholder="Search an address or place"
+                  aria-label="Search an address or place"
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSearchOpen(false);
+                    if (e.key === "Enter" && results.length) pickPlace(results[0]);
+                  }}
+                  style={{
+                    width: "100%",
+                    height: 34,
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 8,
+                    padding: "0 10px 0 30px",
+                    fontSize: 12.5,
+                    background: "#fff",
+                    fontFamily: "inherit",
+                    boxShadow: "0 2px 8px rgba(2,12,27,.10)",
+                  }}
+                />
+                {searchOpen && results.length > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 38,
+                      left: 0,
+                      right: 0,
+                      background: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                      boxShadow: "0 8px 24px rgba(2,12,27,.14)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {results.map((pl) => (
+                      <button
+                        key={pl.name}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => pickPlace(pl)}
+                        className="township-place-result"
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 8,
+                          width: "100%",
+                          textAlign: "left",
+                          background: "none",
+                          border: "none",
+                          borderBottom: "1px solid #F1F5F9",
+                          padding: "8px 10px",
+                          cursor: "pointer",
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        <span style={{ color: "#94A3B8", marginTop: 1, display: "flex" }}>
+                          <MapPinIcon size={13} />
+                        </span>
+                        <span style={{ minWidth: 0 }}>
+                          <span
+                            style={{
+                              display: "block",
+                              fontSize: 12.5,
+                              fontWeight: 600,
+                              color: "#111827",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {pl.name}
+                          </span>
+                          <span
+                            style={{
+                              display: "block",
+                              fontSize: 11,
+                              color: "#6b7280",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {pl.address}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => setMode(mode === "pin" ? null : "pin")}
+                aria-pressed={mode === "pin"}
+                style={{
+                  ...ghostBtn(34),
+                  gap: 6,
+                  boxShadow: "0 2px 8px rgba(2,12,27,.10)",
+                  ...(mode === "pin"
+                    ? { background: "#0d2240", border: "1px solid #0d2240", color: "#fff" }
+                    : null),
+                }}
+              >
+                <MapPinIcon size={13} />
+                Drop pin
+              </button>
+              <button
+                onClick={() => setMode(mode === "area" ? null : "area")}
+                aria-pressed={mode === "area"}
+                style={{
+                  ...ghostBtn(34),
+                  gap: 6,
+                  boxShadow: "0 2px 8px rgba(2,12,27,.10)",
+                  ...(mode === "area"
+                    ? { background: "#0d2240", border: "1px solid #0d2240", color: "#fff" }
+                    : null),
+                }}
+              >
+                <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeDasharray="4 3">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                </svg>
+                Select area
+              </button>
+            </div>
+
+            {/* Mode hint */}
+            {mode && (
+              <div
+                role="status"
+                style={{
+                  position: "absolute",
+                  bottom: 12,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 7,
+                  background: "#0d2240",
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  borderRadius: 9999,
+                  padding: "6px 14px",
+                  whiteSpace: "nowrap",
+                  boxShadow: "0 2px 8px rgba(2,12,27,.2)",
+                  pointerEvents: "none",
+                }}
+              >
+                {mode === "pin"
+                  ? "Click the map to drop a pin — Esc to cancel"
+                  : "Drag on the map to highlight an area — Esc to cancel"}
+              </div>
+            )}
+          </>
         ) : (
           <div
             style={{ position: "relative", width: "100%", height: "100%", minHeight: 360 }}
@@ -532,9 +945,6 @@ export default function DetailsTab({
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {project.stages.map((s) => {
                 const sel = s.n === selStage;
-                const st = s.state as string;
-                const dotColor =
-                  st === "Hidden" ? "#94A3B8" : st === "Published" ? "#16A34A" : "#D97706";
                 return (
                   <button
                     key={s.n}
@@ -588,18 +998,18 @@ export default function DetailsTab({
                         {s.dates}
                       </span>
                     </span>
-                    <span style={{ display: "flex", gap: 5, flexShrink: 0 }}>
-                      {sel && stageDirty && (
-                        <span
-                          title="Unsaved changes"
-                          style={{ width: 8, height: 8, borderRadius: "50%", background: "#D97706" }}
-                        />
-                      )}
+                    {sel && stageDirty && (
                       <span
-                        title={st}
-                        style={{ width: 8, height: 8, borderRadius: "50%", background: dotColor }}
+                        title="Unsaved changes"
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: "#D97706",
+                          flexShrink: 0,
+                        }}
                       />
-                    </span>
+                    )}
                   </button>
                 );
               })}

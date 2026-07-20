@@ -49,16 +49,14 @@ function toProposalDetail(p: XProject): ProposalDetail {
 }
 
 function toTimelineStages(p: XProject): TimelineStage[] {
-  return p.stages
-    .filter((s) => s.state === "Published")
-    .map((s) => ({
-      label: s.title,
-      status:
-        s.n < p.current ? "completed" : s.n === p.current ? "current" : "future",
-      date: s.dates,
-      description: s.desc,
-      bullets: s.bullets,
-    }));
+  return p.stages.map((s) => ({
+    label: s.title,
+    status:
+      s.n < p.current ? "completed" : s.n === p.current ? "current" : "future",
+    date: s.dates,
+    description: s.desc,
+    bullets: s.bullets,
+  }));
 }
 
 function toDiscussionData(p: XProject): DiscussionData {
@@ -124,8 +122,8 @@ export default function ResidentPreview({ project: p }: { project: XProject }) {
         <EyeIcon size={14} />
         <span>
           <strong>Resident Preview.</strong>{" "}
-          This is the project as residents see it — draft stages and staff tools
-          are hidden, and interactions here aren&apos;t saved.
+          This is the project as residents see it — staff tools are hidden, and
+          interactions here aren&apos;t saved.
         </span>
       </div>
 
@@ -214,17 +212,17 @@ export default function ResidentPreview({ project: p }: { project: XProject }) {
           </div>
         </div>
 
-        {/* Project info + Map/Photos card */}
-        <ProjectMapCard p={detail} />
+        {/* Project info + Map/Photos card, with any highlighted locations */}
+        <ProjectMapCard p={detail} pins={p.pins} area={p.area} />
 
-        {/* Timeline — published stages only */}
+        {/* Timeline */}
         <div style={{ marginTop: "2.5rem" }}>
           {stages.length > 0 ? (
             <Timeline stages={stages} />
           ) : (
             <p style={{ fontSize: 13, fontStyle: "italic", color: "#9ca3af" }}>
-              No published stages yet — residents won&apos;t see a timeline until a
-              stage is published.
+              No stages yet — residents will see the project timeline here once
+              stages are added.
             </p>
           )}
         </div>
