@@ -301,3 +301,35 @@ select {
     font-size: 17px;
   }
 }
+/* ── Township (Staff) ── */
+.township-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #111827;
+  transition: background 0.15s ease;
+}
+
+.township-menu-item:hover {
+  background: #f1f5f9;
+}
+
+.township-toast {
+  animation: townshipToastIn 0.25s ease both;
+}
+
+@keyframes townshipToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
