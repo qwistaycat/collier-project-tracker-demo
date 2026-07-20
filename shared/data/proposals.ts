@@ -541,8 +541,8 @@ export const timelineStages: TimelineStage[] = [
 export const discussionData: DiscussionData = {
   private: {
     descriptions: [
-      "Every comment and question will be read by the township. Any replies you receive will be visible under your comment, in your notifications, and in your profile.",
-      "The township will weigh comments into decision making.",
+      "Alongside poll results, community discussion comments, and in-person statements at public meetings, the township will weigh comments into decision-making. Any replies you receive will be visible under your comment, in your notifications, and in your profile.",
+      "",
     ],
     placeholder: "Leave a message...",
     buttonLabel: "Submit Private Feedback",
