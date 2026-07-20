@@ -24,9 +24,26 @@ export interface ReviewFeedback {
   when: string;
 }
 
+/** A dropped map marker; x/y are percentages of the map pane. */
+export interface MapPin {
+  x: number;
+  y: number;
+  label?: string;
+}
+
+/** A highlighted map region; all values are percentages of the map pane. */
+export interface MapArea {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface ProjectExtras {
   docs?: string[];
   neighborhoods?: string;
+  pins?: MapPin[];
+  area?: MapArea | null;
   reviewFeedback?: ReviewFeedback | null;
   rejectedSub?: boolean;
   prevPublishedDate?: string;

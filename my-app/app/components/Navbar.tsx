@@ -20,9 +20,11 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { BellIcon, HomeIcon, SearchIcon, CloseIcon } from "./icons";
+import { SearchIcon, CloseIcon } from "./icons";
 import { useSearchFilter } from "@/app/context/SearchFilterContext";
+import NotificationBell from "./NotificationBell";
 import SearchDropdownPanel from "./search/SearchDropdownPanel";
+import Image from "next/image";
 
 export default function Navbar() {
   const router = useRouter();
@@ -45,10 +47,13 @@ export default function Navbar() {
   const closePanel = () => setIsPanelOpen(false);
 
   // Close the panel on any route change (Home link, a pill/card inside
-  // the panel, Enter-to-search — all of these navigate).
-  useEffect(() => {
-    setIsPanelOpen(false);
-  }, [pathname]);
+  // the panel, Enter-to-search — all of these navigate). Synced during
+  // render like the keyword above, and like TownshipNavbar does.
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    if (isPanelOpen) setIsPanelOpen(false);
+  }
 
   // Escape closes the panel even when focus isn't on the input itself
   // (e.g. after clicking into the panel body).
@@ -91,7 +96,7 @@ export default function Navbar() {
         zIndex: 30,
       }}
     >
-      {/* Left: logo icon + site name */}
+      {/* Left: brand mark + site name */}
       <Link
         href="/dashboard"
         style={{
@@ -99,14 +104,14 @@ export default function Navbar() {
           textDecoration: "none",
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          fontSize: 14,
+          gap: 9,
+          fontSize: 15,
           fontWeight: 600,
           flexShrink: 0,
         }}
       >
-        <HomeIcon />
-        <span>Home</span>
+        <Image src="/logo-light.png" alt="Collier Blueprint Logo" width={28} height={28} style={{ height: "auto" }} />
+        <span>Collier Blueprint</span>
       </Link>
 
       {/* Right: search entry + bell + avatar */}
@@ -174,29 +179,7 @@ export default function Navbar() {
           )}
         </div>
 
-        <button
-          style={{
-            position: "relative",
-            color: "white",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-          }}
-        >
-          <BellIcon />
-          <span
-            style={{
-              position: "absolute",
-              top: -2,
-              right: -2,
-              width: 8,
-              height: 8,
-              background: "#ef4444",
-              borderRadius: "50%",
-            }}
-          />
-        </button>
+        <NotificationBell />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div

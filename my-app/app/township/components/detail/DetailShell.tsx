@@ -15,16 +15,9 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { MoreIcon } from "@/app/components/icons";
+import { MoreIcon, EyeIcon } from "@/app/components/icons";
 import { useTownship } from "../../TownshipContext";
-import {
-  CAT_META,
-  catFull,
-  catHeroImage,
-  lcMeta,
-  STAFF_NAME,
-  type StaffProject,
-} from "../../data";
+import { lcMeta, STAFF_NAME, type StaffProject } from "../../data";
 import {
   ghostBtn,
   primaryBtn,
@@ -44,6 +37,7 @@ import {
   type XProject,
 } from "./shared";
 import DetailsTab from "./DetailsTab";
+import ResidentPreview from "./ResidentPreview";
 import FeedbackTab from "./FeedbackTab";
 import PollsTab from "./PollsTab";
 import type { StageEditorHandle } from "./StageEditor";
@@ -94,6 +88,10 @@ export default function DetailShell() {
 
   const [editAll, setEditAll] = useState(false);
   const snapRef = useRef<Snapshot | null>(null);
+
+  // Editing ↔ Resident Preview toggle for the Details tab. Preview
+  // renders the resident page in place (no navigation away).
+  const [preview, setPreview] = useState(false);
 
   const [selStage, setSelStage] = useState<number>(() => {
     const s = Number(search.get("stage"));
@@ -156,7 +154,6 @@ export default function DetailShell() {
 
   const lc = project.lc;
   const lcM = lcMeta(lc);
-  const cat = CAT_META[project.cat];
 
   const patch = (fields: Partial<XProject>, logText?: string) =>
     patchProject(updateProject, id, fields, logText);
@@ -169,7 +166,22 @@ export default function DetailShell() {
   };
 
   const setTab = (t: TabKey) =>
-    requestNav(() => router.replace(`/township/project/${id}?tab=${t}`, { scroll: false }));
+    requestNav(() => {
+      if (t !== "details") setPreview(false);
+      router.replace(`/township/project/${id}?tab=${t}`, { scroll: false });
+    });
+
+  // ── Editing ↔ Resident Preview ─────────────────────────────────
+  const enterPreview = () =>
+    requestNav(() => {
+      if (tab !== "details") router.replace(`/township/project/${id}?tab=details`, { scroll: false });
+      setPreview(true);
+    });
+
+  const exitPreview = () => {
+    if (tab !== "details") router.replace(`/township/project/${id}?tab=details`, { scroll: false });
+    setPreview(false);
+  };
 
   // ── Edit All ───────────────────────────────────────────────────
   const enterEditAll = () => {
@@ -187,6 +199,7 @@ export default function DetailShell() {
   const editHeader = () =>
     requestNav(() => {
       router.replace(`/township/project/${id}?tab=details`, { scroll: false });
+      setPreview(false);
       enterEditAll();
     });
 
@@ -440,7 +453,6 @@ export default function DetailShell() {
 
   // ── Kebab items ────────────────────────────────────────────────
   const kebabItems: { label: string; danger?: boolean; onClick: () => void }[] = [
-    { label: "Preview as Resident", onClick: () => window.open("/proposal", "_blank") },
     { label: "View Edit History", onClick: () => setHistOpen(true) },
   ];
   if (lc === "draft") {
@@ -493,42 +505,6 @@ export default function DetailShell() {
         >
           ← Back to Projects
         </button>
-      </div>
-
-      {/* Hero strip — project imagery over the category tint, echoing
-          the resident detail page's hero */}
-      <div
-        style={{
-          margin: "12px 28px 0",
-          height: 120,
-          borderRadius: 12,
-          background: cat.bg,
-          borderLeft: `4px solid ${cat.color}`,
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={catHeroImage(project.cat, project.id)}
-          alt=""
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-        />
-        <span
-          style={{
-            position: "absolute",
-            left: 14,
-            bottom: 10,
-            background: "rgba(255, 255, 255, 0.92)",
-            color: cat.color,
-            fontSize: 11,
-            fontWeight: 600,
-            padding: "3px 10px",
-            borderRadius: 9999,
-          }}
-        >
-          {catFull(project.cat)}
-        </span>
       </div>
 
       {/* Sticky header */}
@@ -641,14 +617,58 @@ export default function DetailShell() {
               <PeopleIcon size={14} color="#94A3B8" />
               {project.followers} following
             </span>
-            <a
-              href="/proposal"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ ...ghostBtn(34), textDecoration: "none" }}
+            {/* Editing ↔ Resident Preview segmented toggle */}
+            <div
+              role="group"
+              aria-label="View mode"
+              style={{
+                display: "inline-flex",
+                background: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: 9999,
+                padding: 3,
+                gap: 2,
+              }}
             >
-              Preview as Resident
-            </a>
+              {(
+                [
+                  { on: !preview, label: "Editing", onClick: exitPreview, icon: null },
+                  {
+                    on: preview,
+                    label: "Resident Preview",
+                    onClick: enterPreview,
+                    icon: <EyeIcon size={13} />,
+                  },
+                ] as const
+              ).map((seg) => (
+                <button
+                  key={seg.label}
+                  onClick={seg.onClick}
+                  aria-pressed={seg.on}
+                  className="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    height: 28,
+                    padding: "0 12px",
+                    borderRadius: 9999,
+                    border: "none",
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    fontFamily: "inherit",
+                    background: seg.on ? "#0d2240" : "transparent",
+                    color: seg.on ? "#fff" : "#475569",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "background 0.15s ease, color 0.15s ease",
+                  }}
+                >
+                  {seg.icon}
+                  {seg.label}
+                </button>
+              ))}
+            </div>
             <button onClick={editHeader} style={ghostBtn(34)}>
               Edit Header
             </button>
@@ -889,7 +909,8 @@ export default function DetailShell() {
         )}
 
         {/* Tab bodies */}
-        {tab === "details" && (
+        {tab === "details" && preview && <ResidentPreview project={project} />}
+        {tab === "details" && !preview && (
           <DetailsTab
             project={project}
             editAll={editAll}

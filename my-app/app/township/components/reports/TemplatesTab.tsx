@@ -460,7 +460,7 @@ export default function TemplatesTab() {
                   {citations.slice(0, s.count).map((c) => (
                     <div
                       key={c.id}
-                      style={{ borderLeft: "3px solid #CBD5E1", paddingLeft: 14 }}
+                      style={{ borderLeft: "1px solid #e5e7eb", paddingLeft: 14 }}
                     >
                       <div
                         style={{

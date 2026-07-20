@@ -5,7 +5,7 @@ import { TownshipRecentlyViewedProvider } from "./TownshipRecentlyViewedContext"
 import Toasts from "./components/Toasts";
 
 export const metadata: Metadata = {
-  title: "Collier Connect — Township",
+  title: "Collier Blueprint — Township",
   description:
     "Staff-facing management tools for Collier Township projects, feedback, insights, and reports.",
 };

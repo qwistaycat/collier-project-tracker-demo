@@ -333,3 +333,11 @@ select {
     transform: none;
   }
 }
+
+.township-place-result {
+  transition: background 0.15s ease;
+}
+
+.township-place-result:hover {
+  background: #f8fafc;
+}

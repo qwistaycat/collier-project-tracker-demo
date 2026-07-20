@@ -11,11 +11,33 @@ import {
 
 type ViewMode = "map" | "photos";
 
+/** Optional read-only location highlights layered over the map view.
+ *  Coordinates are percentages of the map pane. */
+export interface MapHighlightPin {
+  x: number;
+  y: number;
+  label?: string;
+}
+export interface MapHighlightArea {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 function findMeta(p: ProposalDetail, match: (label: string) => boolean) {
   return p.metadata.find((m) => match(m.label.toLowerCase()))?.value ?? "";
 }
 
-export default function ProjectMapCard({ p }: { p: ProposalDetail }) {
+export default function ProjectMapCard({
+  p,
+  pins,
+  area,
+}: {
+  p: ProposalDetail;
+  pins?: MapHighlightPin[];
+  area?: MapHighlightArea | null;
+}) {
   const [view, setView] = useState<ViewMode>("map");
   const [photoIndex, setPhotoIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -165,17 +187,72 @@ export default function ProjectMapCard({ p }: { p: ProposalDetail }) {
       {/* Right map / photo carousel panel */}
       <div style={{ flex: 1, position: "relative", background: "#f3f4f6" }}>
         {view === "map" ? (
-          <iframe
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-80.18%2C40.32%2C-79.98%2C40.42&layer=mapnik"
-            style={{
-              width: "100%",
-              height: "100%",
-              minHeight: 360,
-              border: "none",
-              display: "block",
-            }}
-            title="Project Location Map"
-          />
+          <>
+            <iframe
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-80.18%2C40.32%2C-79.98%2C40.42&layer=mapnik"
+              style={{
+                width: "100%",
+                height: "100%",
+                minHeight: 360,
+                border: "none",
+                display: "block",
+              }}
+              title="Project Location Map"
+            />
+            {area && (
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  left: `${area.x}%`,
+                  top: `${area.y}%`,
+                  width: `${area.w}%`,
+                  height: `${area.h}%`,
+                  border: "2px solid #2563eb",
+                  background: "rgba(37, 99, 235, 0.12)",
+                  borderRadius: 4,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+            {(pins ?? []).map((pin, i) => (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: `${pin.x}%`,
+                  top: `${pin.y}%`,
+                  transform: "translate(-50%, -100%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <span style={{ color: "#DC2626", display: "flex" }}>
+                  <MapPinIcon size={26} />
+                </span>
+                {pin.label && (
+                  <span
+                    style={{
+                      marginTop: 2,
+                      background: "rgba(255,255,255,0.94)",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 6,
+                      padding: "2px 8px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#111827",
+                      whiteSpace: "nowrap",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
+                    }}
+                  >
+                    {pin.label}
+                  </span>
+                )}
+              </div>
+            ))}
+          </>
         ) : (
           <div
             style={{ position: "relative", width: "100%", height: "100%", minHeight: 360 }}

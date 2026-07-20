@@ -30,9 +30,8 @@ function InsightCard({ text, onDismiss }: { text: string; onDismiss: () => void 
         gap: 10,
         background: "#fff",
         border: "1px solid #e5e7eb",
-        borderLeft: "3px solid #7C3AED",
         borderRadius: 12,
-        padding: "12px 12px 12px 14px",
+        padding: 12,
       }}
     >
       <div

@@ -80,7 +80,6 @@ export default function PendingReviewBand({
                 flex: "0 0 300px",
                 background: "#fff",
                 border: "1px solid #e5e7eb",
-                borderLeft: "3px solid #F59E0B",
                 borderRadius: 8,
                 padding: 16,
                 cursor: "pointer",

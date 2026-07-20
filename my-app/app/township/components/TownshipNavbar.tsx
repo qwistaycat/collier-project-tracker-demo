@@ -17,7 +17,9 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BellIcon, SearchIcon, CloseIcon, EyeIcon } from "@/app/components/icons";
+import { SearchIcon, CloseIcon, EyeIcon } from "@/app/components/icons";
+import Image from "next/image";
+import NotificationBell from "@/app/components/NotificationBell";
 import { useTownship } from "../TownshipContext";
 import { useTownshipSearchFilter } from "../TownshipSearchFilterContext";
 import TownshipSearchDropdownPanel from "./search/TownshipSearchDropdownPanel";
@@ -140,24 +142,9 @@ export default function TownshipNavbar() {
           flexShrink: 0,
         }}
       >
-        <span
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 7,
-            background: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#0d2240",
-            fontWeight: 700,
-            fontSize: 13,
-          }}
-        >
-          CT
-        </span>
+        <Image src="/logo-light.png" alt="Collier Blueprint Logo" width={28} height={28} style={{ height: "auto" }} />
         <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap" }}>
-          Collier Connect <span style={{ color: "#94a3b8", fontWeight: 400 }}>| Township</span>
+          Collier Blueprint <span style={{ color: "#94a3b8", fontWeight: 400 }}>| Township</span>
         </span>
       </Link>
 
@@ -315,37 +302,8 @@ export default function TownshipNavbar() {
         AI Assistance: {aiMode ? "ON" : "OFF"}
       </button>
 
-      {/* Bell */}
-      <button
-        aria-label="Notifications"
-        style={{
-          position: "relative",
-          color: "white",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          flexShrink: 0,
-        }}
-      >
-        <BellIcon size={20} />
-        <span
-          style={{
-            position: "absolute",
-            top: -5,
-            right: -7,
-            background: "#ef4444",
-            color: "#fff",
-            fontSize: 10,
-            fontWeight: 700,
-            borderRadius: 9,
-            padding: "1px 5px",
-            border: "2px solid #0d2240",
-          }}
-        >
-          4
-        </span>
-      </button>
+      {/* Bell — shared with the resident navbar so both look identical */}
+      <NotificationBell />
 
       {/* Profile */}
       <div ref={profileRef} style={{ position: "relative", flexShrink: 0 }}>
