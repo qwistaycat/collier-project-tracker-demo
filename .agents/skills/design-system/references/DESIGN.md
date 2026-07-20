@@ -38,6 +38,12 @@ The Collier Township Project Tracker renders government information as clean, tr
 | Avatar Blue | `#60a5fa` | `--color-avatar-blue` | User avatar in Navbar (profile circle) |
 | Demo Blue | `#003d7a` | `--color-demo-blue` | Choose-demo landing page background, demo card heading text, arrow indicator color |
 | Demo Card Light | `#e8edf4` | `--color-demo-card` | Demo card surface on landing page — warm blue-gray |
+| Staff Navy | `#1e3a5f` | `--color-staff-navy` | Township portal top navigation bar background |
+| AI Purple | `#7c3aed` | `--color-ai-purple` | Purple accent for active AI Assistant features, toggles, badges, and suggested items |
+| AI Light Wash | `#f5f3ff` (purple-50) | `--color-ai-wash` | Soft lavender background wash for AI alerts, summaries, and suggestions |
+| AI Border Light | `#ddd6fe` (purple-200) | `--color-ai-border-light` | Light purple borders for AI-completed boxes |
+| AI Border Dark | `#c4b5fd` (purple-300) | `--color-ai-border-dark` | Active border for AI toggle button |
+| AI Text Deep | `#5b21b6` (purple-800) | `--color-ai-text-deep` | Deep purple text for AI-generated notes and summaries |
 
 ## Tokens — Typography
 
@@ -251,13 +257,38 @@ Pill shape (9999px radius), 1px `#e5e7eb` border, white background, `#6b7280` te
 
 Background white, 1px `#e2e8f0` border (mobile) or `#e5e7eb` (web), 6-8px radius. Placeholder in `#94a3b8` (mobile) or `#9ca3af` (web). Text: 13px Poppins 400 in `#1e293b`. Focus state: no visual change beyond browser/platform default.
 
+### Staff Navbar (Web)
+**Role:** Top-level navigation and utility header for the Township Staff portal
+
+Background `#1e3a5f`, height 58px, z-index 40, sticky top, with a `0 1px 0 rgba(255,255,255,.06)` bottom border. Left: "Collier Connect | Staff" with white text. Center: Nav tabs (Projects, Feedback, Insights, Reports) styled as 34px buttons with 13px padding, active tab has `rgba(255,255,255,.14)` fill and white text, inactive has transparent background and `#CBD5E1` text. Right group: "Preview Resident View" button (34px, 20px radius, transparent fill, `#ffffff` border/text), "AI Assistance" toggle button (active = purple fill/border, inactive = transparent fill, white text), notification bell with red unread badge ("4"), and profile pill showing "Amy Medway" with blue initials circle (AM) and department. Profile click opens a 230px dropdown menu (`border-gray-900/10`, white background, `shadow-xl`).
+
+### AI Assistance Toggle
+**Role:** Portal-wide switch that toggles the AI-assisted sentiment analysis and summaries
+
+Active state: background `#7C3AED` (solid purple), border `#7C3AED`, white text, lavender dot (`#C4B5FD`). Inactive state: background `rgba(255,255,255,.06)`, border `rgba(255,255,255,.2)`, white text, slate dot (`#64748B`). Layout: height 34px, 14px padding, 20px radius, 12.5px font size, 600 weight. Transitions: background/border 0.3s.
+
+### Insights Dashboard (Staff)
+**Role:** Analytics portal for monitoring resident engagement volumes and sentiments
+
+Contains two views driven by the AI Assistance Toggle:
+1. **AI Assistance OFF:** Sentiment column in projects table shows grey progress bars indicating relative comment volume; Overall Sentiment shows "Not classified" gray label; Top Theme column shows "AI Assistance required" with warning icon.
+2. **AI Assistance ON:** Sentiment column shows green (`#16a34a`), orange (`#d97706`), and red (`#dc2626`) segmented bars representing supportive, mixed, and concerns percentages; Overall Sentiment shows color-coded text (Supportive, Mixed, Concerns, or Split); Top theme displays AI-generated summary sentence.
+Page also features: (1) Filter dropdowns (Timeframe, Scope, Status) with white backgrounds and `#E2E8F0` borders, (2) Metrics bar (Projects, Comments, Residents, Overall Sentiment segments, Response Rate), and (3) Sorted projects grid table.
+
+### Reports Panel (Staff)
+**Role:** engagement compiler to compile resident feedback for township board reporting and grant support
+
+Two-column layout under Reports tab. Search input with leading SearchIcon (18px, `#94A3B8`), text input `#0F172A` on white background, and category/type filter chips. **AI summary of results** card sits above results (when AI is ON) styled with a lavender-purple gradient background, purple star icon (`#7c3aed`), and deep purple text (`#5b21b6`). Export button (DownloadIcon + "Export") triggers CSV file generation. List of templates includes Road Paving, Park Improvement, Zoning Amendment, Building Renovation, and Comprehensive Plan.
+
 ## Do's and Don'ts
 
 ### Do
-- Use `#0d2240` as the sole dark surface for navigation bars, primary action buttons, and active tab fills — never introduce a second dark surface tone.
+- Use `#0d2240` as the sole dark navy surface for the public/resident portal.
+- Use `#1e3a5f` as the dark navy surface for the staff/township portal header — keeping the portals visually distinct at first glance.
 - Set all headings in Poppins 700, all labels/buttons in Poppins 600, all body text in Poppins 400 — the weight IS the hierarchy; never rely on size alone.
-- Use `#2563eb` as the single interactive accent for links, hover states, follow buttons, and official badges — never promote it to a surface fill.
-- Apply `#e2e8f0` (mobile) or `#e5e7eb` (web) as the universal hairline border — never use colored borders except for follow button states.
+- Use `#2563eb` as the single interactive accent for public portal links, hover states, follow buttons, and official badges.
+- Use `#7c3aed` (solid purple) and `#f5f3ff` (lavender wash) exclusively for AI features, toggles, summaries, and AI-suggested fields.
+- Apply `#e2e8f0` (mobile) or `#e5e7eb` (web) as the universal hairline border — never use colored borders except for follow buttons and active AI states.
 - Build card elevation from tonal contrast (white card on slate/gray background) rather than shadow — shadows are reserved for hover feedback and floating panels.
 - Use pill radius (9999px) for all action buttons and external link badges; use 12px for content cards; use 15px for demo cards; use 6-8px for inputs and comment bubbles.
 - Transition interactive states at 0.15s ease — this is the system's signature timing.
@@ -268,9 +299,10 @@ Background white, 1px `#e2e8f0` border (mobile) or `#e5e7eb` (web), 6-8px radius
 ### Don't
 - Do not introduce additional typefaces — Poppins is the only font. No serif, no monospace, no display faces.
 - Do not use pure `#000000` for text — the system uses warm near-blacks (#111827, #171717, #0f2d59) and grays (#334155, #374151).
-- Do not add gradients to any surface or button — the system is flat with tonal contrast.
+- Do not add gradients to any surface or button — the system is flat with tonal contrast (with the exception of AI wash overlays and category headers in staff view).
 - Do not use elevation/shadow as the primary card separation method — reserve shadows for hover states and floating overlays only.
-- Do not place interactive blue (#2563eb) as a background fill — it is text/border/icon only; `#0d2240` is the filled action color.
+- Do not place interactive blue (#2563eb) or AI purple (#7c3aed) as a general page background — they are reserved for interactive and AI accents respectively.
+- Do not mix the resident dark navy (#0d2240) and the staff navy (#1e3a5f) in the same layout.
 - Do not use `useNativeDriver: true` in Animated calls when running on Expo web — it logs a console warning. The codebase keeps it for native compatibility but accept the web warning.
 - Do not nest replies more than one level deep in comment threads — the system enforces single-depth threading.
 - Do not use CSS `:hover` for cross-element highlight effects — use React state (e.g. `hoveredIdx`) to synchronize hover across disconnected DOM elements (timeline left/right sync).
@@ -435,6 +467,12 @@ Example Component Prompts:
   --color-avatar-blue: #60a5fa;
   --color-demo-blue: #003d7a;
   --color-demo-card: #e8edf4;
+  --color-staff-navy: #1e3a5f;
+  --color-ai-purple: #7c3aed;
+  --color-ai-wash: #f5f3ff;
+  --color-ai-border-light: #ddd6fe;
+  --color-ai-border-dark: #c4b5fd;
+  --color-ai-text-deep: #5b21b6;
 
   /* Typography */
   --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -506,6 +544,12 @@ const tokens = {
     avatarBlue: "#60a5fa",
     demoBlue: "#003d7a",
     demoCard: "#e8edf4",
+    staffNavy: "#1e3a5f",
+    aiPurple: "#7c3aed",
+    aiWash: "#f5f3ff",
+    aiBorderLight: "#ddd6fe",
+    aiBorderDark: "#c4b5fd",
+    aiTextDeep: "#5b21b6",
   },
   fonts: {
     regular: "Poppins_400Regular",
