@@ -334,14 +334,6 @@ export default function CreateWizard() {
     }
   };
 
-  const rejectSource = () => {
-    if (source?.fieldKey) {
-      updField(source.fieldKey, "");
-      toast("Suggestion cleared — add this field manually.");
-    }
-    setSource(null);
-  };
-
   // ── Render ─────────────────────────────────────────────────────
 
   const wrapWidth = success ? 900 : step === 5 ? 1240 : step === 2 ? 1180 : 900;
@@ -409,7 +401,7 @@ export default function CreateWizard() {
       )}
 
       {/* View-source modal */}
-      {source && <SourceModal sv={source} onClose={() => setSource(null)} onReject={rejectSource} />}
+      {source && <SourceModal sv={source} onClose={() => setSource(null)} />}
 
       {/* Discard modal */}
       {discardOpen && (

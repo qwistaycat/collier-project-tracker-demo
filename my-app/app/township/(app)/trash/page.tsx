@@ -155,9 +155,9 @@ export default function TrashPage() {
             />
             <PillButton
               label="Delete permanently"
-              color="#DC2626"
-              border="#FECACA"
-              hoverBg="#FEF2F2"
+              color="#CD481B"
+              border="#F2C6B3"
+              hoverBg="#FBF0EA"
               onClick={() => purge(p.id)}
             />
           </div>

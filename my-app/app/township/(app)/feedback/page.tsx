@@ -495,15 +495,15 @@ function FeedbackContent() {
                   height: 30,
                   padding: "0 14px",
                   background: "#fff",
-                  color: "#DC2626",
-                  border: "1px solid #FECACA",
+                  color: "#CD481B",
+                  border: "1px solid #F2C6B3",
                   borderRadius: 9999,
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
                   transition: "background 0.15s ease",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#fef2f2")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#FBF0EA")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
               >
                 Delete

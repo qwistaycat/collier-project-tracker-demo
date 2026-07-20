@@ -146,7 +146,7 @@ export default function ModerationQueue({
               key={c.id}
               style={{
                 background: "white",
-                border: `1px solid ${awaiting ? "#FDE68A" : "#FECACA"}`,
+                border: `1px solid ${awaiting ? "#FFD5AA" : "#F2C6B3"}`,
                 borderRadius: 11,
                 padding: "14px 16px",
                 opacity: awaiting ? 1 : 0.72,
@@ -188,7 +188,7 @@ export default function ModerationQueue({
                       fontSize: 11.5,
                       fontWeight: 500,
                       color: "#B45309",
-                      background: "#FEF3C7",
+                      background: "#FFEEDD",
                       padding: "2px 8px",
                       borderRadius: 6,
                     }}
@@ -200,8 +200,8 @@ export default function ModerationQueue({
                     style={{
                       fontSize: 11.5,
                       fontWeight: 600,
-                      color: "#DC2626",
-                      background: "#FEE2E2",
+                      color: "#CD481B",
+                      background: "#F9E3D8",
                       padding: "2px 8px",
                       borderRadius: 6,
                     }}

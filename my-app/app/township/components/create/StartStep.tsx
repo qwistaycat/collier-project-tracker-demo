@@ -32,9 +32,9 @@ export default function StartStep({ onChoose }: { onChoose: (k: StartKey) => voi
               textAlign: "left",
               padding: 22,
               borderRadius: 12,
-              background: "#F5F3FF",
-              border: "1px solid #C4B5FD",
-              boxShadow: "0 8px 24px rgba(124,58,237,.1)",
+              background: "#EFF6FF",
+              border: "1px solid #BFDBFE",
+              boxShadow: "0 8px 24px rgba(2,12,27,.08)",
               cursor: "pointer",
               fontFamily: "inherit",
               transition: "all 0.15s ease",
@@ -44,20 +44,20 @@ export default function StartStep({ onChoose }: { onChoose: (k: StartKey) => voi
             }}
           >
             <span style={{ position: "absolute", top: 14, right: 14 }}>
-              <SparkleIcon size={18} color="#7C3AED" />
+              <SparkleIcon size={18} color="#2563eb" />
             </span>
             <span
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: 12,
-                background: "#EDE9FE",
+                background: "#DBEAFE",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <UploadTrayIcon size={26} color="#7C3AED" />
+              <UploadTrayIcon size={26} color="#2563eb" />
             </span>
             <span style={{ fontSize: 16, fontWeight: 600, color: "#0d2240" }}>
               Upload documents
@@ -72,7 +72,7 @@ export default function StartStep({ onChoose }: { onChoose: (k: StartKey) => voi
                   display: "inline-block",
                   fontSize: 10.5,
                   fontWeight: 700,
-                  background: "#7C3AED",
+                  background: "#0d2240",
                   color: "#fff",
                   padding: "3px 10px",
                   borderRadius: 9999,

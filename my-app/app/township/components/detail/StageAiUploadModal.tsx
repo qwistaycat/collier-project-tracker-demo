@@ -355,12 +355,12 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
               <p style={{ margin: "0 0 8px" }}>
                 Commissioner Reilly moved to approve the award of the paving contract as recommended
                 by the Township Engineer. Commissioner Hess seconded.{" "}
-                <span style={{ background: "#FEF3C7" }}>The motion carried by a vote of 5–0.</span>{" "}
-                <span style={{ background: "#FEF3C7" }}>
+                <span style={{ background: "#FFEEDD" }}>The motion carried by a vote of 5–0.</span>{" "}
+                <span style={{ background: "#FFEEDD" }}>
                   The contract was awarded to the lowest responsible bidder
                 </span>{" "}
                 following review of three sealed bids. The Manager was directed to{" "}
-                <span style={{ background: "#FEF3C7" }}>
+                <span style={{ background: "#FFEEDD" }}>
                   issue the notice to proceed to the contractor
                 </span>{" "}
                 upon receipt of bonds and insurance.

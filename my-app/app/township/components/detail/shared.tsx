@@ -42,6 +42,9 @@ export interface MapArea {
 export interface ProjectExtras {
   docs?: string[];
   neighborhoods?: string;
+  /** External link pills; undefined = demo default ("#"), null = removed. */
+  projectLink?: string | null;
+  meetingLink?: string | null;
   pins?: MapPin[];
   area?: MapArea | null;
   reviewFeedback?: ReviewFeedback | null;
@@ -147,15 +150,15 @@ export function primaryBtn(h = 36): React.CSSProperties {
 }
 
 export function dangerBtn(h = 36): React.CSSProperties {
-  return { ...ghostBtn(h), background: "#DC2626", border: "1px solid #DC2626", color: "#fff" };
+  return { ...ghostBtn(h), background: "#CD481B", border: "1px solid #CD481B", color: "#fff" };
 }
 
 export function dangerOutlineBtn(h = 34): React.CSSProperties {
-  return { ...ghostBtn(h), border: "1px solid #FECACA", color: "#DC2626" };
+  return { ...ghostBtn(h), border: "1px solid #F2C6B3", color: "#CD481B" };
 }
 
 export function amberOutlineBtn(h = 34): React.CSSProperties {
-  return { ...ghostBtn(h), border: "1px solid #FDE68A", color: "#B45309" };
+  return { ...ghostBtn(h), border: "1px solid #FFD5AA", color: "#B45309" };
 }
 
 export function aiChipBtn(h = 32): React.CSSProperties {

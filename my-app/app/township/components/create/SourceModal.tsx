@@ -3,13 +3,12 @@
 // ================================================================
 //  View-source modal — shows where an AI-extracted field or stage
 //  came from: document/page/section, confidence, and the quoted
-//  passage. "Reject this suggestion" clears the field (wizard owns
-//  that mutation + toast).
+//  passage. To change a suggestion, staff simply edit the field
+//  text directly — there is deliberately no reject action here.
 // ================================================================
 
 import { useTownship } from "../../TownshipContext";
 import {
-  btnDangerOutline,
   btnSecondary,
   FileTextIcon,
   overlayStyle,
@@ -19,18 +18,16 @@ import {
 
 const CONF_BOX: Record<Conf, { bg: string; border: string; color: string; label: string }> = {
   high: { bg: "#F0FDF4", border: "#BBF7D0", color: "#15803D", label: "High confidence" },
-  low: { bg: "#FFFBEB", border: "#FDE68A", color: "#B45309", label: "Lower confidence — review carefully" },
+  low: { bg: "#FFF6EC", border: "#FFD5AA", color: "#B45309", label: "Lower confidence — review carefully" },
   med: { bg: "#F8FAFC", border: "#E2E8F0", color: "#475569", label: "Medium confidence" },
 };
 
 export default function SourceModal({
   sv,
   onClose,
-  onReject,
 }: {
   sv: SourceView;
   onClose: () => void;
-  onReject: () => void;
 }) {
   const { toast } = useTownship();
   const box = CONF_BOX[sv.conf];
@@ -74,7 +71,7 @@ export default function SourceModal({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#475569", marginBottom: 14 }}>
-          <FileTextIcon size={13} color="#7C3AED" />
+          <FileTextIcon size={13} color="#2563eb" />
           <span>
             <span style={{ fontWeight: 700 }}>{sv.doc}</span> · Page {sv.page} · {sv.section}
           </span>
@@ -110,7 +107,7 @@ export default function SourceModal({
         </div>
         <div
           style={{
-            background: "#FFFBEB",
+            background: "#FFF6EC",
             borderRadius: 8,
             padding: "10px 14px",
             fontSize: 13,
@@ -125,10 +122,7 @@ export default function SourceModal({
           {"”"}
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-          <button onClick={onReject} style={btnDangerOutline}>
-            Reject this suggestion
-          </button>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
           <button
             onClick={() => {
               toast("Opening document at this section…");

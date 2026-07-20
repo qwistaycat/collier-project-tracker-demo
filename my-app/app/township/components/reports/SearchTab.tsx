@@ -58,7 +58,7 @@ function HighlightedText({ text, q }: { text: string; q: string }) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark style={{ background: "#FEF08A", color: "inherit", borderRadius: 2, padding: "0 1px" }}>
+      <mark style={{ background: "#FFD5AA", color: "inherit", borderRadius: 2, padding: "0 1px" }}>
         {text.slice(idx, idx + q.length)}
       </mark>
       {text.slice(idx + q.length)}

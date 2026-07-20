@@ -83,7 +83,73 @@ const linkPill: React.CSSProperties = {
   background: "white",
   cursor: "pointer",
   fontFamily: "inherit",
+  textDecoration: "none",
 };
+
+// One editable external-link row in edit-all mode: URL input +
+// Remove; a removed link shows a "+ Add …" affordance instead.
+function LinkEditRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  if (value === null) {
+    return (
+      <button
+        onClick={() => onChange("")}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          textAlign: "left",
+          fontSize: 12.5,
+          fontWeight: 600,
+          color: "#2563eb",
+          cursor: "pointer",
+          fontFamily: "inherit",
+        }}
+      >
+        + Add {label.toLowerCase()}
+      </button>
+    );
+  }
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          fontSize: 12.5,
+          fontWeight: 600,
+          color: "#334155",
+          width: 170,
+          flexShrink: 0,
+        }}
+      >
+        <ExternalLinkIcon size={14} /> {label}
+      </span>
+      <input
+        value={value === "#" ? "" : value}
+        placeholder="https://…"
+        aria-label={`${label} URL`}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ ...fieldInput(true, 34), width: "auto", flex: 1, minWidth: 180, fontSize: 12.5 }}
+      />
+      <button
+        onClick={() => onChange(null)}
+        aria-label={`Remove ${label}`}
+        style={{ ...ghostBtn(30), color: "#CD481B", fontSize: 12 }}
+      >
+        Remove
+      </button>
+    </div>
+  );
+}
 
 // Canned place results for the location search — real Collier
 // Township landmarks, with deterministic map positions (percent).
@@ -398,7 +464,7 @@ function FactsMapCard({ project: p, editAll }: { project: XProject; editAll: boo
                   cursor: "pointer",
                 }}
               >
-                <span style={{ color: "#DC2626", display: "flex" }}>
+                <span style={{ color: "#CD481B", display: "flex" }}>
                   <MapPinIcon size={26} />
                 </span>
                 {pin.label && (
@@ -691,6 +757,9 @@ export default function DetailsTab({
   const docs = project.docs ?? [];
   const stage = project.stages.find((s) => s.n === selStage) as XStage | undefined;
   const cat = CAT_META[project.cat];
+  // undefined = demo default ("#"), null = removed by staff
+  const projectLink = project.projectLink === null ? null : (project.projectLink ?? "#");
+  const meetingLink = project.meetingLink === null ? null : (project.meetingLink ?? "#");
 
   return (
     <div>
@@ -720,9 +789,26 @@ export default function DetailsTab({
       </div>
 
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <h1 className="text-2xl font-bold text-gray-900" style={{ margin: "28px 0 0 0" }}>
-          {project.title}
-        </h1>
+        {editAll ? (
+          <input
+            value={project.title}
+            aria-label="Project title"
+            placeholder="Project title"
+            onChange={(e) => apEdit({ title: e.target.value })}
+            style={{
+              ...fieldInput(true, 48),
+              marginTop: 28,
+              fontSize: 24,
+              fontWeight: 700,
+              color: "#111827",
+              fontFamily: "inherit",
+            }}
+          />
+        ) : (
+          <h1 className="text-2xl font-bold text-gray-900" style={{ margin: "28px 0 0 0" }}>
+            {project.title}
+          </h1>
+        )}
 
         {/* Action row — sits where the resident Follow row sits */}
         <div
@@ -801,14 +887,45 @@ export default function DetailsTab({
                 {project.funding}
               </p>
             )}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => toast("Opening project link picker…")} style={linkPill}>
-                <ExternalLinkIcon size={15} /> Link to Project
-              </button>
-              <button onClick={() => toast("Opening meeting notes picker…")} style={linkPill}>
-                <ExternalLinkIcon size={15} /> Link to Meeting Notes
-              </button>
-            </div>
+            {editAll ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <LinkEditRow
+                  label="Link to Project"
+                  value={projectLink}
+                  onChange={(v) => apEdit({ projectLink: v })}
+                />
+                <LinkEditRow
+                  label="Link to Meeting Notes"
+                  value={meetingLink}
+                  onChange={(v) => apEdit({ meetingLink: v })}
+                />
+              </div>
+            ) : (
+              (projectLink !== null || meetingLink !== null) && (
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {projectLink !== null && (
+                    <a
+                      href={projectLink || "#"}
+                      target={projectLink && projectLink !== "#" ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      style={linkPill}
+                    >
+                      <ExternalLinkIcon size={15} /> Link to Project
+                    </a>
+                  )}
+                  {meetingLink !== null && (
+                    <a
+                      href={meetingLink || "#"}
+                      target={meetingLink && meetingLink !== "#" ? "_blank" : undefined}
+                      rel="noopener noreferrer"
+                      style={linkPill}
+                    >
+                      <ExternalLinkIcon size={15} /> Link to Meeting Notes
+                    </a>
+                  )}
+                </div>
+              )
+            )}
           </div>
         </div>
 
@@ -1005,7 +1122,7 @@ export default function DetailsTab({
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          background: "#D97706",
+                          background: "#FFAA55",
                           flexShrink: 0,
                         }}
                       />

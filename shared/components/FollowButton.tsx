@@ -115,10 +115,10 @@ const styles = StyleSheet.create({
   },
   // Unfollow State on Hover (✕ Unfollow)
   unfollowHover: {
-    backgroundColor: "#fef2f2", // Soft rose/red shade
-    borderColor: "#dc2626",     // Red border
+    backgroundColor: "#FBF0EA", // Soft rose/red shade
+    borderColor: "#CD481B",     // Red border
   },
   unfollowHoverText: {
-    color: "#dc2626",           // Red text
+    color: "#CD481B",           // Red text
   },
 });

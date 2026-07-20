@@ -12,7 +12,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PROC_MSGS } from "../../data";
 import {
   AiChip,
-  btnSecondary,
   ConfidenceDot,
   FIELD_LABELS,
   FIELD_ORDER,
@@ -107,26 +106,12 @@ export default function ExtractStep({
     if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [run.glow]);
 
-  const skip = () => {
-    skippedRef.current = true;
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setRun({
-      curIdx: events.length - 1,
-      fieldsShown: FIELD_ORDER.length,
-      stagesShown: extract.stages.length,
-      pct: 100,
-      glow: null,
-      done: true,
-      skipped: true,
-    });
-  };
-
   // Confetti scatter — deterministic pseudo-random from the index so
   // the computation stays pure (render-safe) while still looking
   // scattered.
   const confetti = useMemo<ConfettiBit[] | null>(() => {
     if (!(run.done && !run.skipped)) return null;
-    const colors = ["#7C3AED", "#16A34A", "#2563EB", "#D97706", "#EC4899", "#A78BFA"];
+    const colors = ["#2563eb", "#16A34A", "#2563EB", "#FFAA55", "#0d2240", "#60a5fa"];
     const rnd = (i: number, salt: number) =>
       (((i + 1) * 9301 + salt * 49297) % 233280) / 233280;
     return Array.from({ length: 38 }, (_, i) => ({
@@ -178,14 +163,14 @@ export default function ExtractStep({
             width: 34,
             height: 34,
             borderRadius: 9,
-            background: "#EDE9FE",
+            background: "#DBEAFE",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
           }}
         >
-          <SparkleIcon size={18} color="#7C3AED" />
+          <SparkleIcon size={18} color="#2563eb" />
         </span>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f2d59", margin: 0 }}>
           {run.done ? "Extraction complete — review below" : "Extracting project details"}
@@ -193,24 +178,24 @@ export default function ExtractStep({
       </div>
 
       {/* Progress */}
-      <div style={{ height: 8, background: "#EDE9FE", borderRadius: 9999, overflow: "hidden" }}>
+      <div style={{ height: 8, background: "#DBEAFE", borderRadius: 9999, overflow: "hidden" }}>
         <div
           style={{
             height: "100%",
             width: `${run.pct}%`,
-            background: "#7C3AED",
+            background: "#0d2240",
             borderRadius: 9999,
             transition: "width 0.55s ease",
           }}
         />
       </div>
-      <div style={{ fontSize: 12.5, color: "#7C6FA6", margin: "7px 0 2px" }}>
+      <div style={{ fontSize: 12.5, color: "#64748B", margin: "7px 0 2px" }}>
         {run.done
           ? `AI read all ${events.length} sections across ${extract.docs.length} document${extract.docs.length === 1 ? "" : "s"}.`
           : `AI has read ${Math.max(0, run.curIdx + 1)} of ${events.length} sections · about ${remain}s remaining`}
       </div>
       {!run.done && (
-        <div style={{ fontSize: 11.5, fontWeight: 600, color: "#5B21B6", marginBottom: 14 }}>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: "#1E40AF", marginBottom: 14 }}>
           {PROC_MSGS[msgIdx]}
         </div>
       )}
@@ -239,7 +224,7 @@ export default function ExtractStep({
               borderBottom: "1px solid #e5e7eb",
             }}
           >
-            <FileTextIcon size={14} color="#7C3AED" />
+            <FileTextIcon size={14} color="#2563eb" />
             <span style={{ fontSize: 12, fontWeight: 600, color: "#475569", flex: 1 }}>
               {run.done
                 ? "Extraction complete"
@@ -253,9 +238,9 @@ export default function ExtractStep({
                   gap: 6,
                   fontSize: 11,
                   fontWeight: 700,
-                  color: "#7C3AED",
-                  background: "#F5F3FF",
-                  border: "1px solid #DDD6FE",
+                  color: "#2563eb",
+                  background: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
                   borderRadius: 9999,
                   padding: "3px 10px",
                 }}
@@ -265,7 +250,7 @@ export default function ExtractStep({
                     width: 7,
                     height: 7,
                     borderRadius: "50%",
-                    background: "#7C3AED",
+                    background: "#2563eb",
                     animation: "twCreatePulse 1.1s ease infinite",
                   }}
                 />
@@ -283,7 +268,7 @@ export default function ExtractStep({
                   borderRadius: 6,
                   marginBottom: p.kind === "h1" ? 10 : 8,
                   ...(run.glow === p.id
-                    ? { background: "#F3EEFF", animation: "twCreateGlow 1.2s ease infinite" }
+                    ? { background: "#EFF3F8", animation: "twCreateGlow 1.2s ease infinite" }
                     : {}),
                   ...(p.kind === "h1"
                     ? { fontSize: 16, fontWeight: 700, color: "#0F172A" }
@@ -293,7 +278,7 @@ export default function ExtractStep({
                           fontWeight: 700,
                           textTransform: "uppercase" as const,
                           letterSpacing: 0.6,
-                          color: "#7C3AED",
+                          color: "#2563eb",
                           marginTop: 6,
                         }
                       : { fontSize: 13, color: "#334155", lineHeight: 1.62 }),
@@ -348,7 +333,7 @@ export default function ExtractStep({
                       width: "72%",
                       borderRadius: 6,
                       background:
-                        "linear-gradient(90deg,#F1F5F9 25%,#EDE9FE 50%,#F1F5F9 75%)",
+                        "linear-gradient(90deg,#F1F5F9 25%,#DBEAFE 50%,#F1F5F9 75%)",
                       backgroundSize: "320px 100%",
                       animation: "twCreateShimmer 1.4s linear infinite",
                     }}
@@ -401,8 +386,8 @@ export default function ExtractStep({
           {stageSectionVisible && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 6 }}>
-                <SparkleIcon size={12} color="#5B21B6" />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#5B21B6" }}>
+                <SparkleIcon size={12} color="#1E40AF" />
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#1E40AF" }}>
                   {run.done
                     ? `AI identified ${extract.stages.length} stages. Review each below.`
                     : `AI is identifying stages in your document… (${run.stagesShown} of ${extract.stages.length})`}
@@ -476,11 +461,6 @@ export default function ExtractStep({
           marginTop: 18,
         }}
       >
-        {!run.done && (
-          <button onClick={skip} style={btnSecondary}>
-            Skip animation
-          </button>
-        )}
         {run.done ? (
           <button
             onClick={onContinue}
@@ -488,8 +468,8 @@ export default function ExtractStep({
               height: 42,
               padding: "0 22px",
               borderRadius: 9999,
-              background: "#7C3AED",
-              border: "1px solid #7C3AED",
+              background: "#0d2240",
+              border: "1px solid #0d2240",
               color: "#fff",
               fontSize: 13,
               fontWeight: 600,
@@ -507,9 +487,9 @@ export default function ExtractStep({
               height: 42,
               padding: "0 22px",
               borderRadius: 9999,
-              background: "#EDE9FE",
-              border: "1px solid #EDE9FE",
-              color: "#B4A2E0",
+              background: "#E2E8F0",
+              border: "1px solid #E2E8F0",
+              color: "#94A3B8",
               fontSize: 13,
               fontWeight: 600,
               cursor: "not-allowed",

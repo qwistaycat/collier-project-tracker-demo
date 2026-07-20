@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import {
   proposalData,
   timelineStages,
@@ -32,23 +32,30 @@ function setFollowed(id: string, follow: boolean) {
   if (follow && idx === -1) list.push(id);
   if (!follow && idx !== -1) list.splice(idx, 1);
   localStorage.setItem(FOLLOW_KEY, JSON.stringify(list));
+  followListeners.forEach((l) => l());
+}
+
+// Follow state is read via useSyncExternalStore (server snapshot:
+// not following) — no hydrate-in-effect pass needed.
+const followListeners = new Set<() => void>();
+function subscribeFollow(listener: () => void) {
+  followListeners.add(listener);
+  return () => followListeners.delete(listener);
 }
 
 // ── Component ───────────────────────────────────────────────────
 
 export default function ProposalDetailContent() {
-  const [following, setFollowing] = useState(false);
+  const following = useSyncExternalStore(
+    subscribeFollow,
+    () => getFollowedIds().includes(proposalData.id),
+    () => false
+  );
   const [hovering, setHovering] = useState(false);
   const discussionRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setFollowing(getFollowedIds().includes(proposalData.id));
-  }, []);
-
   const toggleFollow = () => {
-    const next = !following;
-    setFollowed(proposalData.id, next);
-    setFollowing(next);
+    setFollowed(proposalData.id, !following);
   };
 
   const p = proposalData;
@@ -117,19 +124,19 @@ export default function ProposalDetailContent() {
                       transition: "background 0.15s, color 0.15s",
                       background: following
                         ? hovering
-                          ? "#fef2f2"
+                          ? "#FBF0EA"
                           : "#0d2240"
                         : hovering
                           ? "#eff6ff"
                           : "white",
                       color: following
                         ? hovering
-                          ? "#dc2626"
+                          ? "#CD481B"
                           : "white"
                         : "#2563eb",
                       border: following
                         ? hovering
-                          ? "2px solid #dc2626"
+                          ? "2px solid #CD481B"
                           : "2px solid #0d2240"
                         : "2px solid #2563eb",
                       boxShadow:
@@ -276,15 +283,16 @@ export default function ProposalDetailContent() {
               {/* Project info + Map/Photos card */}
               <ProjectMapCard p={p} />
 
-              {/* Timeline */}
-              <div style={{ marginTop: "2.5rem" }}>
+              {/* Timeline — anchor target for stage notifications */}
+              <div id="timeline" style={{ marginTop: "2.5rem", scrollMarginTop: 70 }}>
                 <Timeline stages={timelineStages} />
               </div>
 
-              {/* Discussion */}
+              {/* Discussion — anchor target for reply notifications */}
               <div
+                id="discussion"
                 ref={discussionRef}
-                style={{ marginTop: "2rem", marginBottom: "2rem" }}
+                style={{ marginTop: "2rem", marginBottom: "2rem", scrollMarginTop: 70 }}
               >
                 <Discussion data={discussionData} />
               </div>

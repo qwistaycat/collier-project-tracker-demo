@@ -52,12 +52,15 @@ import {
 type TabKey = "details" | "feedback" | "polls";
 
 interface Snapshot {
+  title: string;
   desc: string;
   funding: string;
   cost: string;
   sponsor: string;
   duration: string;
   neighborhoods: string;
+  projectLink: string | null;
+  meetingLink: string | null;
 }
 
 // Session-unique suffix for duplicated-project ids
@@ -186,12 +189,15 @@ export default function DetailShell() {
   // ── Edit All ───────────────────────────────────────────────────
   const enterEditAll = () => {
     snapRef.current = {
+      title: project.title,
       desc: project.desc,
       funding: project.funding,
       cost: project.cost,
       sponsor: project.sponsor,
       duration: project.duration,
       neighborhoods: project.neighborhoods ?? NEIGHBORHOOD_DEFAULT,
+      projectLink: project.projectLink === null ? null : (project.projectLink ?? "#"),
+      meetingLink: project.meetingLink === null ? null : (project.meetingLink ?? "#"),
     };
     setEditAll(true);
   };
@@ -210,7 +216,13 @@ export default function DetailShell() {
   };
 
   const saveEditAll = () => {
-    patch({ edited: "just now" }, "Edited project details");
+    const fixes: Partial<XProject> = { edited: "just now" };
+    // A project can't save with a blank title — quietly restore it.
+    if (!project.title.trim() && snapRef.current) fixes.title = snapRef.current.title;
+    // A link left empty falls back to the demo placeholder URL.
+    if (project.projectLink === "") fixes.projectLink = "#";
+    if (project.meetingLink === "") fixes.meetingLink = "#";
+    patch(fixes, "Edited project details");
     setEditAll(false);
     toast("All changes saved");
   };
@@ -587,7 +599,7 @@ export default function DetailShell() {
                     fontSize: 10.5,
                     fontWeight: 700,
                     color: "#B45309",
-                    background: "#FEF3C7",
+                    background: "#FFEEDD",
                     borderRadius: 20,
                     padding: "2px 8px",
                   }}
@@ -699,7 +711,7 @@ export default function DetailShell() {
                     <button
                       key={item.label}
                       className="township-menu-item"
-                      style={item.danger ? { color: "#DC2626" } : { color: "#0F172A" }}
+                      style={item.danger ? { color: "#CD481B" } : { color: "#0F172A" }}
                       onClick={() => {
                         setMenuOpen(false);
                         item.onClick();
@@ -743,7 +755,7 @@ export default function DetailShell() {
                 {t.key === "feedback" && needsResp > 0 && (
                   <span
                     style={{
-                      background: "#DC2626",
+                      background: "#CD481B",
                       color: "#fff",
                       fontSize: 10.5,
                       fontWeight: 700,
@@ -783,8 +795,8 @@ export default function DetailShell() {
         {reviewMode && lc === "pending" && (
           <div
             style={{
-              background: "#FFFBEB",
-              border: "1px solid #FDE68A",
+              background: "#FFF6EC",
+              border: "1px solid #FFD5AA",
               borderRadius: 12,
               padding: "16px 18px",
               marginBottom: 16,
@@ -826,14 +838,14 @@ export default function DetailShell() {
         {lc === "pending" && !reviewMode && (
           <div
             style={{
-              background: "#FFFDF7",
-              border: "1px solid #FDE68A",
+              background: "#FFFAF4",
+              border: "1px solid #FFD5AA",
               borderRadius: 12,
               padding: "16px 18px",
               marginBottom: 16,
             }}
           >
-            <div style={{ fontSize: 14, fontWeight: 700, color: project.rejectedSub ? "#B91C1C" : "#92400E" }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: project.rejectedSub ? "#CD481B" : "#92400E" }}>
               {project.rejectedSub
                 ? "This submission was not approved"
                 : `This project is with ${project.reviewer ?? "a reviewer"} for review`}
@@ -846,7 +858,7 @@ export default function DetailShell() {
               <div
                 style={{
                   background: "#fff",
-                  border: "1px solid #FED7AA",
+                  border: "1px solid #FFD5AA",
                   borderRadius: 8,
                   padding: "9px 12px",
                   fontSize: 12.5,
@@ -867,17 +879,17 @@ export default function DetailShell() {
         {lc === "draft" && project.reviewFeedback && (
           <div
             style={{
-              background: "#FEF2F2",
-              border: "1px solid #FECACA",
+              background: "#FBF0EA",
+              border: "1px solid #F2C6B3",
               borderRadius: 12,
               padding: "14px 16px",
               marginBottom: 16,
             }}
           >
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: "#B91C1C" }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: "#CD481B" }}>
               Changes requested by {project.reviewFeedback.by}
             </div>
-            <div style={{ fontSize: 13, color: "#7F1D1D", marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: "#CD481B", marginTop: 3 }}>
               “{project.reviewFeedback.note}”
             </div>
           </div>

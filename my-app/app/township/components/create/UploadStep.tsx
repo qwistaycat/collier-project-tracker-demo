@@ -53,7 +53,7 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
       <div
         onClick={addSampleFiles}
         style={{
-          border: "2px dashed #DDD6FE",
+          border: "2px dashed #BFDBFE",
           background: "#FAFAFF",
           borderRadius: 12,
           minHeight: 200,
@@ -68,7 +68,7 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
           transition: "all 0.15s ease",
         }}
       >
-        <UploadTrayIcon size={42} color="#7C3AED" />
+        <UploadTrayIcon size={42} color="#2563eb" />
         <div style={{ fontSize: 15, fontWeight: 600, color: "#334155" }}>
           Drop your documents here, or click to browse
         </div>
@@ -104,8 +104,8 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
                 padding: "0 14px",
                 borderRadius: 9999,
                 background: "#fff",
-                border: "1px solid #DDD6FE",
-                color: "#7C3AED",
+                border: "1px solid #BFDBFE",
+                color: "#2563eb",
                 fontSize: 12.5,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -113,7 +113,7 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
                 transition: "all 0.15s ease",
               }}
             >
-              <SparkleIcon size={11} color="#7C3AED" />
+              <SparkleIcon size={11} color="#2563eb" />
               {s.label}
             </button>
           ))}
@@ -149,7 +149,7 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
                   padding: "10px 13px",
                 }}
               >
-                <FileTextIcon size={17} color="#7C3AED" />
+                <FileTextIcon size={17} color="#2563eb" />
                 <span
                   style={{
                     fontSize: 13,
@@ -167,8 +167,8 @@ export default function UploadStep({ files, setFiles, onBack, onRead }: Props) {
                   style={{
                     fontSize: 10.5,
                     fontWeight: 600,
-                    background: "#EDE9FE",
-                    color: "#7C3AED",
+                    background: "#DBEAFE",
+                    color: "#2563eb",
                     padding: "2px 8px",
                     borderRadius: 5,
                     whiteSpace: "nowrap",

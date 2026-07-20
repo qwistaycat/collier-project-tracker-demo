@@ -46,7 +46,7 @@ export function insHash(s: string): number {
 
 /** Response-rate threshold color. */
 export function rColor(pct: number): string {
-  return pct >= 80 ? "#16A34A" : pct >= 50 ? "#D97706" : "#DC2626";
+  return pct >= 80 ? "#16A34A" : pct >= 50 ? "#FFAA55" : "#CD481B";
 }
 
 /** Dominant-sentiment verdict for a project. */
@@ -55,9 +55,9 @@ export function domOf(sent: { supportive: number; mixed: number; concerns: numbe
   color: string;
 } {
   if (sent.supportive > 60) return { word: "Supportive", color: "#16A34A" };
-  if (sent.concerns > 60) return { word: "Concerns", color: "#DC2626" };
+  if (sent.concerns > 60) return { word: "Concerns", color: "#CD481B" };
   if (Math.abs(sent.supportive - sent.concerns) <= 10) return { word: "Split", color: "#64748B" };
-  return { word: "Mixed", color: "#D97706" };
+  return { word: "Mixed", color: "#B45309" };
 }
 
 /** Canned AI theme sentences (verbatim from the prototype). */
@@ -219,7 +219,7 @@ const cD = {
 export const ENGAGEMENT_SERIES: EngagementSeries[] = [
   { key: "comments", name: "Comments", color: "#2563EB", pts: cD.comments.slice(-SLICE) },
   { key: "follows", name: "Follows", color: "#16A34A", pts: cD.follows.slice(-SLICE) },
-  { key: "votes", name: "Poll votes", color: "#D97706", pts: cD.votes.slice(-SLICE) },
+  { key: "votes", name: "Poll votes", color: "#FFAA55", pts: cD.votes.slice(-SLICE) },
   { key: "dms", name: "DMs", color: "#7C3AED", pts: cD.dms.slice(-SLICE) },
 ];
 

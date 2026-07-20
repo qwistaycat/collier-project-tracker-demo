@@ -62,7 +62,7 @@ export default function ConfirmDialog({
               height: 40,
               padding: "0 18px",
               borderRadius: 8,
-              background: variant === "danger" ? "#DC2626" : "#0d2240",
+              background: variant === "danger" ? "#CD481B" : "#0d2240",
               border: "none",
               color: "white",
               fontSize: 13,

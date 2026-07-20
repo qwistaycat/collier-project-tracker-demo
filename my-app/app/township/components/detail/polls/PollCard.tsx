@@ -34,11 +34,11 @@ export function SmallBtn({
         height: 30,
         padding: "0 12px",
         background: hover ? "#f9fafb" : "#fff",
-        border: `1px solid ${danger ? "#FECACA" : "#e5e7eb"}`,
+        border: `1px solid ${danger ? "#F2C6B3" : "#e5e7eb"}`,
         borderRadius: 7,
         fontSize: 12,
         fontWeight: 600,
-        color: danger ? "#DC2626" : "#374151",
+        color: danger ? "#CD481B" : "#374151",
         cursor: "pointer",
         transition: "background 0.15s ease, border-color 0.15s ease",
         whiteSpace: "nowrap",
@@ -156,7 +156,7 @@ export default function PollCard({
           <PollDonut
             segments={[
               { value: support, color: "#16A34A" },
-              { value: oppose, color: "#DC2626" },
+              { value: oppose, color: "#CD481B" },
               { value: neutral, color: "#94A3B8" },
             ]}
             size={150}
@@ -178,7 +178,7 @@ export default function PollCard({
             />
             <StatBlock
               value={oppose}
-              color="#DC2626"
+              color="#CD481B"
               label={`Oppose · ${pctOf(oppose, total)}`}
             />
             <StatBlock

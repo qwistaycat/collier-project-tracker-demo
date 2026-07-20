@@ -395,7 +395,7 @@ export default function TownshipNavbar() {
             </button>
             <button
               className="township-menu-item"
-              style={{ color: "#dc2626" }}
+              style={{ color: "#CD481B" }}
               onClick={() => {
                 setProfileOpen(false);
                 router.push("/township");

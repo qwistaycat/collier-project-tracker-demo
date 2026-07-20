@@ -249,7 +249,7 @@ export default function PollsTab({ projectId }: { projectId: string }) {
           <div
             style={{
               background: "#FFF7ED",
-              border: "1px solid #FED7AA",
+              border: "1px solid #FFD5AA",
               borderRadius: 12,
               padding: "16px 18px",
             }}
