@@ -12,6 +12,32 @@ interface IconProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Collier Blueprint shield mark (see the branding guide): a shield
+ * with a right-half inset. "light" is the pale-blue variant for dark
+ * surfaces (the navy navbars); "dark" is for light surfaces.
+ */
+export function BlueprintShieldIcon({
+  size = 24,
+  className,
+  variant = "light",
+}: IconProps & { variant?: "light" | "dark" }) {
+  const outer = variant === "dark" ? "#0d2240" : "#bfdbfe";
+  const inner = variant === "dark" ? "#2563eb" : "#60a5fa";
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M4.5 3.6 Q12 6.2 19.5 3.6 V11.2 C19.5 15.9 16.7 19.3 12 21.8 C7.3 19.3 4.5 15.9 4.5 11.2 Z"
+        fill={outer}
+      />
+      <path
+        d="M13 7.2 C14.6 7.1 16.1 6.7 17.3 6.2 V11.4 C17.3 14.6 15.9 16.9 13 18.6 Z"
+        fill={inner}
+      />
+    </svg>
+  );
+}
+
 export function BuildingIcon({ size = 24, className }: IconProps) {
   return (
     <svg

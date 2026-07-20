@@ -9,6 +9,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 import { STAFF_EMAIL } from "./data";
 
 export default function TownshipLoginPage() {
@@ -63,25 +64,11 @@ export default function TownshipLoginPage() {
             marginBottom: 26,
           }}
         >
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "#0d2240",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 20,
-              letterSpacing: 0.5,
-            }}
-          >
-            CT
+          <div style={{ marginBottom: 12 }}>
+            <Image src="/logo.png" alt="Collier Blueprint Logo" width={56} height={56} />
           </div>
           <div style={{ fontSize: 20, fontWeight: 700, color: "#0f2d59" }}>
-            Collier Connect Township
+            Collier Blueprint Township
           </div>
         </div>
 
