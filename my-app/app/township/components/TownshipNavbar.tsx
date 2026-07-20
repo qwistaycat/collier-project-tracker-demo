@@ -142,7 +142,7 @@ export default function TownshipNavbar() {
           flexShrink: 0,
         }}
       >
-        <Image src="/logo.png" alt="Collier Blueprint Logo" width={28} height={28} />
+        <Image src="/logo-light.png" alt="Collier Blueprint Logo" width={28} height={28} style={{ height: "auto" }} />
         <span style={{ color: "#fff", fontWeight: 600, fontSize: 15, whiteSpace: "nowrap" }}>
           Collier Blueprint <span style={{ color: "#94a3b8", fontWeight: 400 }}>| Township</span>
         </span>

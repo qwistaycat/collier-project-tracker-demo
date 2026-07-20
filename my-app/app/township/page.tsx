@@ -65,7 +65,7 @@ export default function TownshipLoginPage() {
           }}
         >
           <div style={{ marginBottom: 12 }}>
-            <Image src="/logo.png" alt="Collier Blueprint Logo" width={56} height={56} />
+            <Image src="/logo.png" alt="Collier Blueprint Logo" width={56} height={56} style={{ height: "auto" }} />
           </div>
           <div style={{ fontSize: 20, fontWeight: 700, color: "#0f2d59" }}>
             Collier Blueprint Township

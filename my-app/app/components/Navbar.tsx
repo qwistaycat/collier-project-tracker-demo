@@ -110,7 +110,7 @@ export default function Navbar() {
           flexShrink: 0,
         }}
       >
-        <Image src="/logo.png" alt="Collier Blueprint Logo" width={28} height={28} />
+        <Image src="/logo-light.png" alt="Collier Blueprint Logo" width={28} height={28} style={{ height: "auto" }} />
         <span>Collier Blueprint</span>
       </Link>
 
