@@ -13,8 +13,10 @@
 //  search input) and matches title/description case-insensitively.
 // ================================================================
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { PlusIcon } from "@/app/components/icons";
 import { useTownship } from "../../TownshipContext";
 import {
   catFull,
@@ -80,7 +82,29 @@ export default function GalleryContent() {
 
   return (
     <main style={{ maxWidth: 1240, margin: "0 auto", padding: "26px 28px 60px" }}>
-
+      {/* Add Project — opens the create flow (AI upload or manual entry) */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 18 }}>
+        <Link
+          href="/township/create"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            height: 38,
+            padding: "0 18px",
+            borderRadius: 9999,
+            background: "#0d2240",
+            color: "#fff",
+            fontSize: 13.5,
+            fontWeight: 600,
+            textDecoration: "none",
+            transition: "background 0.15s ease",
+          }}
+        >
+          <PlusIcon size={13} />
+          Add Project
+        </Link>
+      </div>
 
       {/* Pending Review band */}
       {showPendingRow && (
