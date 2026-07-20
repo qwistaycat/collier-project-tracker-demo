@@ -3,10 +3,13 @@
 import {
   proposalRegistry,
   dashboardSections,
+  getFeaturedBannerCards,
   type ProposalCard as ProposalCardType,
   type DashboardSection,
 } from "@/app/data/proposals";
 import ProposalCard from "./ProposalCard";
+import HomeBanner from "./HomeBanner";
+import MiniProjectCard from "./MiniProjectCard";
 import { useFollowedProjects } from "@/app/hooks/useFollowedProjects";
 import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 
@@ -19,6 +22,7 @@ import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
 export default function DashboardContent() {
   const { followedIds, toggleFollow } = useFollowedProjects();
   const { recordView } = useRecentlyViewed();
+  const featuredCards = getFeaturedBannerCards();
 
   const renderSection = (section: DashboardSection, idx: number) => {
     const cards: ProposalCardType[] = section.dynamic
@@ -40,6 +44,36 @@ export default function DashboardContent() {
         );
       }
       return null;
+    }
+
+    // "Your Followed Projects" gets a banded treatment: a tinted container
+    // (same outer width as the plain section grids below — it's just
+    // another direct child of <main>, no extra max-width of its own) that
+    // holds a single row of compact photo cards. That row never wraps:
+    // however many projects someone follows, they stay on one line and
+    // overflow into horizontal scroll instead of pushing the container
+    // taller with a second row.
+    if (section.dynamic) {
+      return (
+        <section key={idx} className="mb-10">
+          <div className="bg-blue-50 rounded-xl p-4">
+            <h2 className="text-base font-bold text-gray-900 mb-3">
+              {section.title}
+            </h2>
+            <div className="flex flex-nowrap gap-4 overflow-x-auto pb-1">
+              {cards.map((card) => (
+                <MiniProjectCard
+                  key={card.id}
+                  card={card}
+                  showFollowingBadge
+                  onOpen={() => recordView(card.id)}
+                  className="w-[190px] flex-shrink-0"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      );
     }
 
     return (
@@ -64,9 +98,7 @@ export default function DashboardContent() {
 
   return (
     <main className="flex-1 max-w-5xl w-full mx-auto px-8 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-7">
-        Project Tracking
-      </h1>
+      <HomeBanner cards={featuredCards} />
 
       {dashboardSections.map((section, idx) => renderSection(section, idx))}
     </main>

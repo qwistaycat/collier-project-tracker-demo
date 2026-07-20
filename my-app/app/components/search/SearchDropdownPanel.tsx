@@ -21,7 +21,6 @@
 // ================================================================
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   FUNCTIONAL_CATEGORIES,
   DEPARTMENTS,
@@ -33,6 +32,7 @@ import {
 } from "@/app/data/proposals";
 import { useSearchFilter, EMPTY_FILTERS } from "@/app/context/SearchFilterContext";
 import { useRecentlyViewed } from "@/app/context/RecentlyViewedContext";
+import MiniProjectCard from "@/app/components/MiniProjectCard";
 
 type Facet = "category" | "department" | "region";
 
@@ -51,7 +51,7 @@ function TextList({
 }) {
   return (
     <div>
-      <div className="text-[12px] font-bold text-gray-900/45 uppercase tracking-wide mb-2">
+      <div className="text-[12.5px] font-bold text-gray-900 uppercase tracking-wider mb-2.5 pb-2 border-b border-gray-200">
         {title}
       </div>
       <div className="flex flex-col">
@@ -59,7 +59,7 @@ function TextList({
           <button
             key={option}
             onClick={() => onPick(option)}
-            className="text-left py-1.5 text-[13.5px] text-gray-700 hover:text-blue-600 transition-colors"
+            className="text-left py-1.5 text-[14px] font-normal text-gray-500 hover:text-blue-600 transition-colors"
           >
             {option}
           </button>
@@ -92,7 +92,7 @@ export default function SearchDropdownPanel({ onClose }: SearchDropdownPanelProp
   const recentCards = recentIds
     .map((id) => proposalRegistry[id])
     .filter(Boolean)
-    .slice(0, 3);
+    .slice(0, 6);
 
   return (
     <div
@@ -125,15 +125,15 @@ export default function SearchDropdownPanel({ onClose }: SearchDropdownPanelProp
 
         {/* Right: recently viewed */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[12px] font-bold text-gray-900/45 uppercase tracking-wide">
+          <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-gray-200">
+            <h3 className="text-[12.5px] font-bold text-gray-900 uppercase tracking-wider">
               Recently Viewed Projects
             </h3>
             <button
               onClick={viewAll}
               className="text-[13px] font-semibold text-blue-600 hover:text-blue-700"
             >
-              View all
+              View all projects
             </button>
           </div>
 
@@ -144,33 +144,14 @@ export default function SearchDropdownPanel({ onClose }: SearchDropdownPanelProp
           ) : (
             <div className="grid grid-cols-3 gap-4">
               {recentCards.map((card) => (
-                <Link
+                <MiniProjectCard
                   key={card.id}
-                  href={card.link}
-                  onClick={() => {
+                  card={card}
+                  onOpen={() => {
                     recordView(card.id);
                     onClose();
                   }}
-                  className="group block rounded-lg overflow-hidden border border-gray-900/10 hover:border-blue-300 hover:shadow-sm transition-all"
-                >
-                  <div className="h-24 w-full overflow-hidden bg-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={card.image}
-                      alt=""
-                      className="h-full w-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  </div>
-                  <div className="p-2.5">
-                    <div className="text-[10.5px] font-semibold text-blue-600 mb-1 truncate">
-                      {card.functionalCategory}
-                    </div>
-                    <div className="text-[12.5px] font-semibold text-gray-900 leading-snug line-clamp-2 mb-1">
-                      {card.title}
-                    </div>
-                    <div className="text-[10.5px] text-gray-400">{card.updated}</div>
-                  </div>
-                </Link>
+                />
               ))}
             </div>
           )}

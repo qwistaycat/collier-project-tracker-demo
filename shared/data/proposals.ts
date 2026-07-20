@@ -87,6 +87,14 @@ export interface ProposalCard {
   description: string;
   image: string;
   link: string;
+  /**
+   * ISO date (YYYY-MM-DD) the public comment period closes. Placeholder
+   * values only — staggered ~1-4 weeks out from each other, not tied to
+   * real township meeting dates. Drives the homepage banner's featured
+   * selection and "Closing Soon" badge (see isClosingSoon/getFeaturedBannerCards
+   * below).
+   */
+  commentDeadline: string;
 }
 
 export interface DashboardSection {
@@ -189,6 +197,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Resurfacing six residential streets: Maclaine Dr, Turnberry Dr, Sunnyside Ave, Columbia Ave, Highlandview Dr, and Walker Ave.",
     image: "https://picsum.photos/seed/roadpaving/600/340",
     link: "/proposal",
+    commentDeadline: "2026-07-22",
   },
   "lobaugh-drive": {
     id: "lobaugh-drive",
@@ -202,6 +211,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Addressing maintenance obligations and cost-sharing for Lobaugh Drive, a privately owned road within the township.",
     image: "https://picsum.photos/seed/lobaughdrive/600/340",
     link: "/proposal",
+    commentDeadline: "2026-07-24",
   },
   // ── Parks & Green Spaces ─────────────────────────────────────────
   "collier-park-upgrades": {
@@ -216,6 +226,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Renovating athletic fields and recreational facilities at Collier Township Park, including dugout improvements and field drainage.",
     image: "https://picsum.photos/seed/ballfield/600/340",
     link: "/proposal",
+    commentDeadline: "2026-07-26",
   },
   "hilltop-park": {
     id: "hilltop-park",
@@ -229,6 +240,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "This project improves Hilltop Park by adding new recreation space and permanent facilities. It focuses on access, safety, and capacity during high-use times.",
     image: "https://picsum.photos/seed/hilltoppark/600/340",
     link: "/proposal",
+    commentDeadline: "2026-07-28",
   },
   // ── Infrastructure & Facilities ──────────────────────────────────
   "police-remodeling": {
@@ -243,6 +255,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Renovating and modernizing the Collier Township Police Department building to improve operational capacity and staff facilities.",
     image: "https://picsum.photos/seed/policedept/600/340",
     link: "/proposal",
+    commentDeadline: "2026-07-30",
   },
   "fire-station-presto": {
     id: "fire-station-presto",
@@ -256,6 +269,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Capital improvements to the Presto Volunteer Fire Department station, including structural repairs and equipment storage upgrades.",
     image: "https://picsum.photos/seed/firestationpresto/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-01",
   },
   "fire-station-rennerdale": {
     id: "fire-station-rennerdale",
@@ -269,6 +283,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Capital improvements to the Rennerdale Volunteer Fire Department station, including bay expansion and safety system upgrades.",
     image: "https://picsum.photos/seed/firestationrennerdale/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-03",
   },
   "community-center-parking": {
     id: "community-center-parking",
@@ -282,6 +297,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Resurfacing and restriping the parking lot at Collier Township Community Center to improve safety and capacity.",
     image: "https://picsum.photos/seed/parkinglot/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-05",
   },
   "ms4-stormwater": {
     id: "ms4-stormwater",
@@ -295,6 +311,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Municipal Separate Storm Sewer System compliance projects to manage stormwater runoff and meet DEP permit requirements.",
     image: "https://picsum.photos/seed/stormwater/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-07",
   },
   // ── Plan, Development & Sustainability ───────────────────────────
   "new-development": {
@@ -309,6 +326,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Review and processing of new residential and commercial development applications under current township land use ordinances.",
     image: "https://picsum.photos/seed/newdevelopment/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-09",
   },
   "ordinance-updates": {
     id: "ordinance-updates",
@@ -322,6 +340,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Revision of township ordinances to reflect current zoning standards, land use policy, and state regulatory requirements.",
     image: "https://picsum.photos/seed/ordinance/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-10",
   },
   // ── Public Safety ────────────────────────────────────────────────
   "fire-dept-consolidation": {
@@ -336,6 +355,7 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Evaluating consolidation options among Collier's three volunteer fire departments to improve emergency response and reduce operational costs.",
     image: "https://picsum.photos/seed/fireconsolidate/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-11",
   },
   "ems-grants": {
     id: "ems-grants",
@@ -349,8 +369,32 @@ export const proposalRegistry: Record<string, ProposalCard> = {
       "Pursuing state and federal grant funding to support emergency medical services equipment, training, and personnel across the township.",
     image: "https://picsum.photos/seed/emsgrants/600/340",
     link: "/proposal",
+    commentDeadline: "2026-08-12",
   },
 };
+
+// ── Homepage Banner ──────────────────────────────────────────────
+// The homepage banner spotlights the proposals whose public comment
+// period is closing soonest, so residents see what needs their input
+// right now. "Closing soon" is a rolling window off today's date, not
+// a stored flag, so it stays accurate without any manual upkeep.
+
+/** True if `deadline` is today or within `days` days from now (default 14). */
+export function isClosingSoon(deadline: string, days: number = 14): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(deadline + "T00:00:00");
+  const diffDays = (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= days;
+}
+
+/** Proposals sorted by soonest commentDeadline first, capped at `count` (default 5). */
+export function getFeaturedBannerCards(count: number = 5): ProposalCard[] {
+  return Object.values(proposalRegistry)
+    .slice()
+    .sort((a, b) => a.commentDeadline.localeCompare(b.commentDeadline))
+    .slice(0, count);
+}
 
 // ── Dashboard Sections ───────────────────────────────────────────
 // Resident-facing dashboard: one section per functional category,

@@ -470,6 +470,24 @@ export function ImageIcon({ size = 16, className }: IconProps) {
   );
 }
 
+export function ClockIcon({ size = 14, className }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+      style={{ flexShrink: 0 }}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3.5 2" />
+    </svg>
+  );
+}
+
 export function DragHandleIcon({ size = 16, className }: IconProps) {
   return (
     <svg
