@@ -97,8 +97,8 @@ export default function SentimentPanel({
             }}
           >
             <div style={{ width: `${s.supportive}%`, background: "#16A34A" }} />
-            <div style={{ width: `${s.mixed}%`, background: "#D97706" }} />
-            <div style={{ width: `${s.concerns}%`, background: "#DC2626" }} />
+            <div style={{ width: `${s.mixed}%`, background: "#FFAA55" }} />
+            <div style={{ width: `${s.concerns}%`, background: "#CD481B" }} />
           </div>
           <div
             style={{
@@ -114,10 +114,10 @@ export default function SentimentPanel({
               <span style={{ color: "#16A34A" }}>●</span> {s.supportive}% supportive
             </span>
             <span>
-              <span style={{ color: "#D97706" }}>●</span> {s.mixed}% mixed
+              <span style={{ color: "#FFAA55" }}>●</span> {s.mixed}% mixed
             </span>
             <span>
-              <span style={{ color: "#DC2626" }}>●</span> {s.concerns}% concerns
+              <span style={{ color: "#CD481B" }}>●</span> {s.concerns}% concerns
             </span>
           </div>
 

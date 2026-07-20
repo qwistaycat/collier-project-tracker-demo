@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
   },
   // Shown on the Following button when hovered, previewing "Unfollow".
   followingHover: {
-    backgroundColor: "#dc2626",
-    borderColor: "#dc2626",
+    backgroundColor: "#CD481B",
+    borderColor: "#CD481B",
   },
   // Shown on the Follow button when hovered, previewing the follow action.
   unfollowingHover: {

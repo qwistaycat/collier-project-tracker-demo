@@ -318,16 +318,16 @@ export const btnPrimary: React.CSSProperties = {
 
 export const btnPurple: React.CSSProperties = {
   ...btnSecondary,
-  background: "#7C3AED",
-  border: "1px solid #7C3AED",
+  background: "#0d2240",
+  border: "1px solid #0d2240",
   color: "#fff",
   height: 42,
 };
 
 export const btnDangerOutline: React.CSSProperties = {
   ...btnSecondary,
-  border: "1px solid #FECACA",
-  color: "#DC2626",
+  border: "1px solid #F2C6B3",
+  color: "#CD481B",
 };
 
 export const inputStyle: React.CSSProperties = {
@@ -414,7 +414,7 @@ interface LIconProps {
   strokeWidth?: number;
 }
 
-export function SparkleIcon({ size = 14, color = "#7C3AED" }: LIconProps) {
+export function SparkleIcon({ size = 14, color = "#2563eb" }: LIconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden>
       <path d="M12 2l1.9 5.8L20 9l-5.8 1.9L12 17l-1.9-5.8L4 9l5.8-1.2z" />
@@ -422,7 +422,7 @@ export function SparkleIcon({ size = 14, color = "#7C3AED" }: LIconProps) {
   );
 }
 
-export function FileTextIcon({ size = 15, color = "#7C3AED", strokeWidth = 2 }: LIconProps) {
+export function FileTextIcon({ size = 15, color = "#2563eb", strokeWidth = 2 }: LIconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -433,7 +433,7 @@ export function FileTextIcon({ size = 15, color = "#7C3AED", strokeWidth = 2 }: 
   );
 }
 
-export function UploadTrayIcon({ size = 26, color = "#7C3AED", strokeWidth = 2 }: LIconProps) {
+export function UploadTrayIcon({ size = 26, color = "#2563eb", strokeWidth = 2 }: LIconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -453,7 +453,7 @@ export function InfoCircleIcon({ size = 15, color = "#64748B", strokeWidth = 2 }
   );
 }
 
-export function WarnTriangleIcon({ size = 16, color = "#D97706", strokeWidth = 2 }: LIconProps) {
+export function WarnTriangleIcon({ size = 16, color = "#B45309", strokeWidth = 2 }: LIconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -472,7 +472,7 @@ export function CopyDocIcon({ size = 22, color = "#64748B", strokeWidth = 2 }: L
   );
 }
 
-export function SpinnerRing({ size = 14, color = "#7C3AED" }: LIconProps) {
+export function SpinnerRing({ size = 14, color = "#2563eb" }: LIconProps) {
   return (
     <span
       style={{
@@ -500,15 +500,15 @@ export function AiChip({ label = "AI-suggested", fontSize = 9.5 }: { label?: str
         gap: 4,
         fontSize,
         fontWeight: 700,
-        background: "#EDE9FE",
-        color: "#7C3AED",
+        background: "#DBEAFE",
+        color: "#2563eb",
         padding: "2px 8px",
         borderRadius: 9999,
         whiteSpace: "nowrap",
         flexShrink: 0,
       }}
     >
-      <SparkleIcon size={9} color="#7C3AED" />
+      <SparkleIcon size={9} color="#2563eb" />
       {label}
     </span>
   );
@@ -531,7 +531,7 @@ export function ConfidenceDot({ conf, fieldTip }: { conf?: Conf; fieldTip?: bool
         width: 14,
         height: 14,
         borderRadius: "50%",
-        background: high ? "#DCFCE7" : "#FEF3C7",
+        background: high ? "#DCFCE7" : "#FFEEDD",
         color: high ? "#16A34A" : "#B45309",
         display: "inline-flex",
         alignItems: "center",

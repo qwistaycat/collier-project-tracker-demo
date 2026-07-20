@@ -171,15 +171,15 @@ export default function PublishStep({
                   display: "flex",
                   alignItems: "flex-start",
                   gap: 9,
-                  background: "#FFFBEB",
-                  border: "1px solid #FDE68A",
+                  background: "#FFF6EC",
+                  border: "1px solid #FFD5AA",
                   borderRadius: 10,
                   padding: "10px 13px",
                   marginBottom: 14,
                 }}
               >
                 <span style={{ marginTop: 1 }}>
-                  <WarnTriangleIcon size={15} color="#D97706" />
+                  <WarnTriangleIcon size={15} color="#B45309" />
                 </span>
                 <span style={{ fontSize: 12.5, color: "#92400E", lineHeight: 1.5 }}>
                   {"This project contains AI-suggested content that hasn't been reviewed. Open each stage and confirm its content before publishing."}
@@ -370,7 +370,7 @@ export default function PublishStep({
                         borderRadius: 4,
                       }}
                     />
-                    <span style={{ position: "absolute", top: 34, left: "38%", color: "#DC2626" }}>
+                    <span style={{ position: "absolute", top: 34, left: "38%", color: "#CD481B" }}>
                       <MapPinIcon size={20} />
                     </span>
                     <span style={{ position: "absolute", bottom: 46, right: "30%", color: "#2563eb" }}>
@@ -529,7 +529,7 @@ export default function PublishStep({
                                   color: "#334155",
                                 }}
                               >
-                                <FileTextIcon size={11} color="#7C3AED" />
+                                <FileTextIcon size={11} color="#2563eb" />
                                 {d.name}
                               </span>
                             ))}

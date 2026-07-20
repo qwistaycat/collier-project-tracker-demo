@@ -44,7 +44,7 @@ interface Props {
 const STATUS_SEGMENTS: { key: StageStatus; label: string; c: string; bg: string }[] = [
   { key: "draft", label: "Draft", c: "#0d2240", bg: "#E2E8F0" },
   { key: "published", label: "Published", c: "#16A34A", bg: "#DCFCE7" },
-  { key: "hidden", label: "Hidden", c: "#DC2626", bg: "#FEE2E2" },
+  { key: "hidden", label: "Hidden", c: "#CD481B", bg: "#F9E3D8" },
 ];
 
 export default function TimelineStep({
@@ -248,7 +248,7 @@ export default function TimelineStep({
                 display: "flex",
                 background: "#fff",
                 borderRadius: 12,
-                border: stageErrors[i] ? "1px solid #FCA5A5" : "1px solid #e5e7eb",
+                border: stageErrors[i] ? "1px solid #F2B49C" : "1px solid #e5e7eb",
                 boxShadow: stageErrors[i] ? "0 0 0 3px rgba(220,38,38,.08)" : "none",
                 overflow: "hidden",
                 transition: "all 0.15s ease",
@@ -315,9 +315,9 @@ export default function TimelineStep({
                       width: 26,
                       height: 26,
                       borderRadius: 7,
-                      border: "1px solid #FECACA",
+                      border: "1px solid #F2C6B3",
                       background: "#fff",
-                      color: "#DC2626",
+                      color: "#CD481B",
                       fontSize: 14,
                       cursor: "pointer",
                       display: "inline-flex",
@@ -332,7 +332,7 @@ export default function TimelineStep({
                 </div>
 
                 {stageErrors[i] && (
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#DC2626", marginBottom: 9 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#CD481B", marginBottom: 9 }}>
                     ⚠ {stageErrors[i]}
                   </div>
                 )}
@@ -582,7 +582,7 @@ export default function TimelineStep({
                             padding: "8px 11px",
                           }}
                         >
-                          <FileTextIcon size={14} color="#7C3AED" />
+                          <FileTextIcon size={14} color="#2563eb" />
                           <span style={{ fontSize: 12.5, color: "#111827", flex: 1 }}>
                             {d.name}
                           </span>
@@ -649,9 +649,9 @@ export default function TimelineStep({
                         height: 30,
                         padding: "0 13px",
                         borderRadius: 9999,
-                        background: "#F5F3FF",
-                        border: "1px solid #DDD6FE",
-                        color: "#7C3AED",
+                        background: "#EFF6FF",
+                        border: "1px solid #BFDBFE",
+                        color: "#2563eb",
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: rewriting[i] ? "wait" : "pointer",
@@ -665,12 +665,12 @@ export default function TimelineStep({
                     >
                       {rewriting[i] ? (
                         <>
-                          <SpinnerRing size={12} color="#7C3AED" />
+                          <SpinnerRing size={12} color="#2563eb" />
                           Rewriting…
                         </>
                       ) : (
                         <>
-                          <SparkleIcon size={12} color="#7C3AED" />
+                          <SparkleIcon size={12} color="#2563eb" />
                           Rewrite in plain language
                         </>
                       )}

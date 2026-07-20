@@ -6,7 +6,6 @@
 //  backs the draft. Department is fixed to the acting department.
 // ================================================================
 
-import { useState } from "react";
 import { EyeIcon } from "@/app/components/icons";
 import { STAFF_CATEGORIES, type StaffCategory } from "../../data";
 import { useTownship } from "../../TownshipContext";
@@ -47,7 +46,6 @@ export default function ReviewStep({
   onContinue,
 }: Props) {
   const { aiMode, dept } = useTownship();
-  const [srcExpanded, setSrcExpanded] = useState(true);
   const aiSrc = aiMode && !!extract;
   const fc = (k: FieldKey) => extract?.fields[k]?.conf;
 
@@ -76,7 +74,7 @@ export default function ReviewStep({
             Review project details
           </h1>
           {aiMode ? (
-            <p style={{ fontSize: 13.5, color: "#7C3AED", margin: "6px 0 0", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13.5, color: "#2563eb", margin: "6px 0 0", lineHeight: 1.5 }}>
               AI drafted the following based on your documents. Every field is editable —
               edit anything that needs changing.
             </p>
@@ -91,8 +89,8 @@ export default function ReviewStep({
             style={{
               fontSize: 10,
               fontWeight: 700,
-              background: "#EDE9FE",
-              color: "#7C3AED",
+              background: "#DBEAFE",
+              color: "#2563eb",
               padding: "4px 11px",
               borderRadius: 9999,
               whiteSpace: "nowrap",
@@ -216,25 +214,20 @@ export default function ReviewStep({
       {sourceDocs.length > 0 && (
         <div style={{ ...cardStyle, marginTop: 20 }}>
           <div
-            onClick={() => setSrcExpanded((v) => !v)}
             style={{
               display: "flex",
               alignItems: "center",
               gap: 9,
               padding: "13px 16px",
-              cursor: "pointer",
             }}
           >
-            <FileTextIcon size={15} color="#7C3AED" />
+            <FileTextIcon size={15} color="#2563eb" />
             <span style={{ fontSize: 13, color: "#64748B", flex: 1 }}>
               <span style={{ fontWeight: 700, color: "#111827" }}>Source Documents</span>
               {" — click any field's “View source” to see where it came from"}
             </span>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: "#7C3AED" }}>
-              {srcExpanded ? "Hide" : "Show"}
-            </span>
           </div>
-          {srcExpanded && (
+          {(
             <div style={{ padding: "0 16px 14px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {sourceDocs.map(([name]) => (
@@ -253,7 +246,7 @@ export default function ReviewStep({
                       maxWidth: 260,
                     }}
                   >
-                    <FileTextIcon size={13} color="#7C3AED" />
+                    <FileTextIcon size={13} color="#2563eb" />
                     <span
                       style={{
                         overflow: "hidden",

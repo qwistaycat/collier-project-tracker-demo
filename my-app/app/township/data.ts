@@ -24,11 +24,11 @@ export const STAFF_CATEGORIES: StaffCategory[] = [
 
 /** Category accent + tint. Data-encoding colors — keep verbatim. */
 export const CAT_META: Record<StaffCategory, { color: string; bg: string; heroSeed: string }> = {
-  Roads: { color: "#D97706", bg: "#FEF3C7", heroSeed: "roadpaving" },
+  Roads: { color: "#B45309", bg: "#FFEEDD", heroSeed: "roadpaving" },
   Parks: { color: "#16A34A", bg: "#DCFCE7", heroSeed: "hilltoppark" },
   Infrastructure: { color: "#2563EB", bg: "#DBEAFE", heroSeed: "stormwater" },
   "Plan/Dev": { color: "#7C3AED", bg: "#EDE9FE", heroSeed: "newdevelopment" },
-  "Public Safety": { color: "#DC2626", bg: "#FEE2E2", heroSeed: "firestationpresto" },
+  "Public Safety": { color: "#CD481B", bg: "#F9E3D8", heroSeed: "firestationpresto" },
 };
 
 export function catFull(c: StaffCategory | "All"): string {
@@ -75,12 +75,12 @@ export type Lifecycle =
 export function lcMeta(lc: Lifecycle): { label: string; c: string; bg: string } {
   const m: Record<Lifecycle, { label: string; c: string; bg: string }> = {
     draft: { label: "Draft", c: "#475569", bg: "#F1F5F9" },
-    pending: { label: "Pending Review", c: "#B45309", bg: "#FEF3C7" },
+    pending: { label: "Pending Review", c: "#B45309", bg: "#FFEEDD" },
     published: { label: "Published", c: "#16A34A", bg: "#DCFCE7" },
     unpublished: { label: "Unpublished", c: "#64748B", bg: "#EEF2F6" },
     completed: { label: "Completed", c: "#2563EB", bg: "#DBEAFE" },
     archived: { label: "Archived", c: "#64748B", bg: "#EEF2F6" },
-    trash: { label: "In Trash", c: "#DC2626", bg: "#FEE2E2" },
+    trash: { label: "In Trash", c: "#CD481B", bg: "#F9E3D8" },
   };
   return m[lc] || m.published;
 }
@@ -90,7 +90,7 @@ export function statusStyleColors(status: string): [string, string] {
     Active: ["#16A34A", "#DCFCE7"],
     Published: ["#16A34A", "#DCFCE7"],
     Draft: ["#475569", "#F1F5F9"],
-    Planning: ["#D97706", "#FEF3C7"],
+    Planning: ["#B45309", "#FFEEDD"],
     "In Review": ["#7C3AED", "#EDE9FE"],
     Completed: ["#2563EB", "#DBEAFE"],
   };
@@ -107,14 +107,14 @@ export function sentColor(s: SentimentCode): [string, string, string] {
   return s === "green"
     ? ["#16A34A", "#DCFCE7", "Supportive"]
     : s === "red"
-      ? ["#DC2626", "#FEE2E2", "Concerns"]
-      : ["#D97706", "#FEF3C7", "Mixed"];
+      ? ["#CD481B", "#F9E3D8", "Concerns"]
+      : ["#B45309", "#FFEEDD", "Mixed"];
 }
 
 export const SENT_WORD_COLOR: Record<SentimentWord, string> = {
   supportive: "#16A34A",
-  mixed: "#D97706",
-  concerns: "#DC2626",
+  mixed: "#B45309",
+  concerns: "#CD481B",
 };
 
 // ── Types ────────────────────────────────────────────────────────
@@ -969,7 +969,7 @@ export function simulateAi(fallback: string, delayMs = 1200): Promise<string> {
   return new Promise((resolve) => setTimeout(() => resolve(fallback), delayMs));
 }
 
-const AVATAR_COLORS = ["#60a5fa", "#22c55e", "#f59e0b", "#a78bfa", "#f472b6", "#67e8f9", "#fb923c"];
+const AVATAR_COLORS = ["#60a5fa", "#22c55e", "#B45309", "#a78bfa", "#f472b6", "#67e8f9", "#fb923c"];
 
 export function avatarColor(name: string): string {
   let h = 0;

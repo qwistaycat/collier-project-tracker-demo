@@ -204,7 +204,7 @@ export function HoverRow({
 /** 6px sentiment dot. */
 export function SentDot({ word, style }: { word: SentimentWord; style?: CSSProperties }) {
   const color =
-    word === "supportive" ? "#16A34A" : word === "concerns" ? "#DC2626" : "#D97706";
+    word === "supportive" ? "#16A34A" : word === "concerns" ? "#CD481B" : "#B45309";
   return (
     <span
       style={{

@@ -331,7 +331,7 @@ function MenuItem({
       style={{
         padding: "8px 14px",
         fontSize: 12,
-        color: danger ? "#dc2626" : "#374151",
+        color: danger ? "#CD481B" : "#374151",
         cursor: "pointer",
         whiteSpace: "nowrap",
       }}

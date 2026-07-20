@@ -19,7 +19,7 @@ const QLABELS = ["Q1 24", "Q2 24", "Q3 24", "Q4 24", "Q1 25", "Q2 25", "Q3 25", 
 const ENG_SERIES = [
   { key: "comments", label: "Comments", color: "#2563EB", pts: [120, 140, 165, 185, 205, 235, 268, 305, 352, 405] },
   { key: "follows", label: "Follows", color: "#16A34A", pts: [80, 92, 108, 128, 150, 172, 196, 222, 251, 286] },
-  { key: "votes", label: "Poll votes", color: "#D97706", pts: [210, 235, 262, 298, 338, 378, 416, 458, 502, 560] },
+  { key: "votes", label: "Poll votes", color: "#FFAA55", pts: [210, 235, 262, 298, 338, 378, 416, 458, 502, 560] },
   { key: "dms", label: "DMs", color: "#7C3AED", pts: [10, 13, 17, 21, 25, 30, 35, 41, 47, 54] },
 ] as const;
 
@@ -41,11 +41,11 @@ const NB_ROWS = [
 ];
 
 const CAT_SERIES = [
-  { name: "Roads", color: "#D97706" },
+  { name: "Roads", color: "#B45309" },
   { name: "Parks", color: "#16A34A" },
   { name: "Infrastructure", color: "#2563EB" },
   { name: "Plan/Dev", color: "#7C3AED" },
-  { name: "Public Safety", color: "#DC2626" },
+  { name: "Public Safety", color: "#CD481B" },
 ];
 const CAT_ROWS = [
   [40, 30, 18, 14, 10], [46, 34, 20, 16, 12], [54, 40, 24, 20, 14], [62, 46, 28, 22, 16], [72, 54, 33, 26, 19],
@@ -384,8 +384,8 @@ export default function TrendsTab() {
             <SquareLegend
               items={[
                 { name: "Supportive", color: "#16A34A" },
-                { name: "Mixed", color: "#D97706" },
-                { name: "Concerns", color: "#DC2626" },
+                { name: "Mixed", color: "#FFAA55" },
+                { name: "Concerns", color: "#CD481B" },
               ]}
             />
           </div>

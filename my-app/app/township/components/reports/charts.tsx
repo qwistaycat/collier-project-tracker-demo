@@ -159,8 +159,8 @@ export function AreaStackChart({
       style={{ width: "100%", height, display: "block" }}
     >
       <polygon points={band(y1, xs.map(() => height))} fill="#16A34A" opacity={0.85} />
-      <polygon points={band(y2, y1)} fill="#D97706" opacity={0.85} />
-      <polygon points={band(xs.map(() => 0), y2)} fill="#DC2626" opacity={0.85} />
+      <polygon points={band(y2, y1)} fill="#FFAA55" opacity={0.85} />
+      <polygon points={band(xs.map(() => 0), y2)} fill="#CD481B" opacity={0.85} />
     </svg>
   );
 }

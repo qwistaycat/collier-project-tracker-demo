@@ -175,7 +175,7 @@ const ACTIVITY_COLORS: Record<ActivityType, [string, string]> = {
   comment: ["#2563EB", "#DBEAFE"],
   update: ["#16A34A", "#DCFCE7"],
   poll: ["#7C3AED", "#EDE9FE"],
-  follow: ["#D97706", "#FEF3C7"],
+  follow: ["#B45309", "#FFEEDD"],
 };
 
 // ── AI insights / reminders (verbatim) ───────────────────────────
@@ -230,7 +230,7 @@ export default function PriorityPanels() {
         curTitle: p.stages[p.current - 1]?.title ?? "",
         nextStage: p.stages[p.current],
         when: days <= 1 ? (days === 1 ? "Tomorrow" : "Today") : `In ${days} days`,
-        dot: days <= 1 ? "#DC2626" : days <= 5 ? "#D97706" : "#94A3B8",
+        dot: days <= 1 ? "#CD481B" : days <= 5 ? "#FFAA55" : "#94A3B8",
       };
     });
   const upCount = upcoming.length;
@@ -242,7 +242,7 @@ export default function PriorityPanels() {
     if (!p) return [];
     const dir: "up" | "down" | "flat" =
       e.now > e.prev * 1.2 ? "up" : e.now < e.prev * 0.85 ? "down" : "flat";
-    const color = dir === "up" ? "#16A34A" : dir === "down" ? "#D97706" : "#94A3B8";
+    const color = dir === "up" ? "#16A34A" : dir === "down" ? "#B45309" : "#94A3B8";
     const compare = `${e.now} comments this week · ${
       dir === "up"
         ? `up from ${e.prev}`
@@ -292,7 +292,7 @@ export default function PriorityPanels() {
             topNeeds.map((row) => {
               const [sc, sb, sl] = sentColor(row.c.sent);
               const dot =
-                row.days > 7 ? "#DC2626" : row.days >= 3 ? "#D97706" : "#94A3B8";
+                row.days > 7 ? "#CD481B" : row.days >= 3 ? "#FFAA55" : "#94A3B8";
               const draft = drafts[row.key];
               const snippet =
                 row.c.text.length > 60 ? `${row.c.text.slice(0, 60)}…` : row.c.text;
@@ -520,17 +520,17 @@ export default function PriorityPanels() {
                   }}
                 >
                   <span style={{ width: `${r.p.sentiment.supportive}%`, background: "#16A34A" }} />
-                  <span style={{ width: `${r.p.sentiment.mixed}%`, background: "#D97706" }} />
-                  <span style={{ width: `${r.p.sentiment.concerns}%`, background: "#DC2626" }} />
+                  <span style={{ width: `${r.p.sentiment.mixed}%`, background: "#FFAA55" }} />
+                  <span style={{ width: `${r.p.sentiment.concerns}%`, background: "#CD481B" }} />
                 </div>
                 <div style={{ display: "flex", gap: 8, fontSize: 10, marginTop: 3 }}>
                   <span style={{ color: "#16A34A", fontWeight: 600 }}>
                     {r.p.sentiment.supportive}%
                   </span>
-                  <span style={{ color: "#D97706", fontWeight: 600 }}>
+                  <span style={{ color: "#B45309", fontWeight: 600 }}>
                     {r.p.sentiment.mixed}%
                   </span>
-                  <span style={{ color: "#DC2626", fontWeight: 600 }}>
+                  <span style={{ color: "#CD481B", fontWeight: 600 }}>
                     {r.p.sentiment.concerns}%
                   </span>
                 </div>

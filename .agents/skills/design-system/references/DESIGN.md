@@ -27,9 +27,10 @@ The Collier Township Project Tracker renders government information as clean, tr
 | Heading Black | `#111827` | `--color-heading-black` | Web heading text, metadata values, bold labels, filter sidebar title, card title — near-black for maximum emphasis |
 | Foreground | `#171717` | `--foreground` | Root foreground color — used as the base text color in globals.css |
 | Success Green | `#22c55e` | `--color-success-green` | "I support this" vote button, user avatar accent, "agree" poll bar fill |
-| Danger Red | `#dc2626` | `--color-danger-red` | Unfollow hover button fill and border, "I do not support this" vote button |
-| Notification Red | `#ef4444` | `--color-notification-red` | Notification bell badge dot |
-| Warning Orange | `#f97316` | `--color-warning-orange` | "Disagree" poll result bar fill, opposing vote visualization |
+| Danger Orange | `#CD481B` | `--color-danger-orange` | Replaces all former red usage — destructive buttons, unfollow hover, "I do not support this" vote button, urgent badges, Public Safety category accent. Red hues are retired from the system |
+| Notification Orange | `#CD481B` | `--color-notification-orange` | Notification bell unread dot — same Danger Orange hue |
+| Warning Orange | `#FFAA55` | `--color-warning-orange` | Replaces all former yellow/amber warning usage — pending-review highlights, urgency dots, "Disagree" poll bar, lower-confidence notes, Roads category accent. Yellow hues are retired from the system. **Fills, bars, dots, and borders only — never small text** |
+| Warning Text | `#B45309` (amber-700) | `--color-warning-text` | Dark companion for warning/mixed-sentiment text, chip labels, and warning icons — `#FFAA55` fails WCAG contrast at text sizes |
 | Neutral Teal | `#a8d8ea` | `--color-neutral-teal` | "Neutral / Unsure" poll bar fill — cool pastel against the navy background |
 | Filter Chip Blue | `#dbeafe` (blue-50) | `--color-filter-chip-bg` | Applied filter chip background — light blue wash |
 | Filter Chip Border | `#bfdbfe` (blue-200) | `--color-filter-chip-border` | Applied filter chip border |
@@ -44,6 +45,10 @@ The Collier Township Project Tracker renders government information as clean, tr
 | AI Border Light | `#ddd6fe` (purple-200) | `--color-ai-border-light` | Light purple borders for AI-completed boxes |
 | AI Border Dark | `#c4b5fd` (purple-300) | `--color-ai-border-dark` | Active border for AI toggle button |
 | AI Text Deep | `#5b21b6` (purple-800) | `--color-ai-text-deep` | Deep purple text for AI-generated notes and summaries |
+| Disabled Slate Blue | `#94a3b8` (slate-400) | `--color-disabled-slate` | Text and icons in disabled or processing states — a greyed-out slate blue paired with a `#e2e8f0` fill on disabled buttons. Never use gray-purple (or any purple tint) for disabled/processing states |
+| Processing Wash | `#eff3f8` | `--color-processing-wash` | Soft slate-blue surface highlight for in-progress states (e.g. the AI document-reading glow) and selected rail items |
+| Danger Tints | `#FBF0EA` / `#F9E3D8` / `#F2C6B3` / `#F2B49C` | — | Washes and borders derived from Danger Orange for alert cards, changes-requested banners, and danger-outline buttons |
+| Warning Tints | `#FFFAF4` / `#FFF6EC` / `#FFEEDD` / `#FFD5AA` | — | Washes and borders derived from Warning Orange for pending-review bands, urgency chips, and quoted passages |
 
 ## Tokens — Typography
 
@@ -141,7 +146,7 @@ The Collier Township Project Tracker renders government information as clean, tr
 ### Navbar (Web)
 **Role:** Global header with search entry, navigation, notifications, and profile
 
-Background `#0d2240`, height 56px, `position: relative`, `zIndex: 30`. Left: HomeIcon + "Home" link (14px, 600 weight, white). Right group: search input (300px, pill 9999px radius, white background, 13px placeholder, `focus:ring-2 focus:ring-blue-500`), clear button (CloseIcon when text present), BellIcon with `#ef4444` notification dot (8px circle, absolute top-right), profile avatar (32px circle, `#60a5fa`, white initial, 14px/600). Search input focus or icon click opens `SearchDropdownPanel` mega-menu below header. Typing + Enter navigates to `/search`. Escape or backdrop click closes panel. Dimmed backdrop: `rgba(0, 0, 0, 0.4)`, fixed from top:56 to bottom.
+Background `#0d2240`, height 56px, `position: relative`, `zIndex: 30`. Left: HomeIcon + "Home" link (14px, 600 weight, white). Right group: search input (300px, pill 9999px radius, white background, 13px placeholder, `focus:ring-2 focus:ring-blue-500`), clear button (CloseIcon when text present), BellIcon with `#CD481B` notification dot (8px circle, absolute top-right), profile avatar (32px circle, `#60a5fa`, white initial, 14px/600). Search input focus or icon click opens `SearchDropdownPanel` mega-menu below header. Typing + Enter navigates to `/search`. Escape or backdrop click closes panel. Dimmed backdrop: `rgba(0, 0, 0, 0.4)`, fixed from top:56 to bottom.
 
 ### Navigation Header Bar (Mobile)
 **Role:** Mobile navigation header — branding, notifications, back navigation
@@ -181,7 +186,7 @@ Background `#e8edf4`, border-radius 15px, padding 22px. Heading in Poppins 700 a
 ### Proposal Card (Dashboard)
 **Role:** Clickable project summary cards in the dashboard and search results grids
 
-Shared component from `shared/components/ProposalCard.tsx`. Image container (160px height, `#f3f4f6` placeholder background), body with meta row (category in blue 11px/600 · department in gray 11px/500 · updated in light gray 11px), title (15px/600, `#111827`), description (13px/400, `#6b7280`). Web resting shadow: `0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)`, `border: 1px solid #e5e7eb`. **Hover overlay:** navy-tinted scrim (`rgba(13, 34, 64, 0.55)`) covers image area with centered "Click To View Project Detail" text (14px/400 white, 60% opacity). Card hover border shifts to `#2563eb`, shadow increases. Follow button (pill, absolute top-right): unfollowed = white/gray border, following = `#2563eb` fill/white text, following+hover = `#dc2626` fill ("✕ Unfollow"), unfollowed+hover = `#eff6ff` fill/blue border. Button visibility: only shown when card is hovered or already following. `onPress` callback supports `recordView` for recently-viewed tracking.
+Shared component from `shared/components/ProposalCard.tsx`. Image container (160px height, `#f3f4f6` placeholder background), body with meta row (category in blue 11px/600 · department in gray 11px/500 · updated in light gray 11px), title (15px/600, `#111827`), description (13px/400, `#6b7280`). Web resting shadow: `0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)`, `border: 1px solid #e5e7eb`. **Hover overlay:** navy-tinted scrim (`rgba(13, 34, 64, 0.55)`) covers image area with centered "Click To View Project Detail" text (14px/400 white, 60% opacity). Card hover border shifts to `#2563eb`, shadow increases. Follow button (pill, absolute top-right): unfollowed = white/gray border, following = `#2563eb` fill/white text, following+hover = `#CD481B` fill ("✕ Unfollow"), unfollowed+hover = `#eff6ff` fill/blue border. Button visibility: only shown when card is hovered or already following. `onPress` callback supports `recordView` for recently-viewed tracking.
 
 ### Follow / Following Button
 **Role:** Toggle follow state on proposals
@@ -191,9 +196,9 @@ Two variants exist:
 **Proposal Detail Page (web):** Pill-shaped (9999px), padding 10px 22px, border 2px. Three states:
 1. **Unfollowed:** White background, `#2563eb` text/border, "+ Follow Project" with PlusIcon
 2. **Following:** `#0d2240` background, white text/border, "✓ Following" with CheckIcon, shadow `0 1px 4px rgba(0,0,0,0.18)`
-3. **Unfollow hover:** `#fef2f2` background, `#dc2626` text/border, "✕ Unfollow" with CloseIcon
+3. **Unfollow hover:** `#FBF0EA` background, `#CD481B` text/border, "✕ Unfollow" with CloseIcon
 
-**Proposal Card (shared):** Pill-shaped (9999px), padding 6px 14px, border 1px. Compact labels: "+ Follow" / "✓ Following" / "✕ Unfollow". Colors: unfollowed = white/`#e5e7eb` border, following = `#2563eb` fill, following+hover = `#dc2626` fill, unfollowed+hover = `#eff6ff`/`#2563eb` border. Follow press clears hover to prevent label jump.
+**Proposal Card (shared):** Pill-shaped (9999px), padding 6px 14px, border 1px. Compact labels: "+ Follow" / "✓ Following" / "✕ Unfollow". Colors: unfollowed = white/`#e5e7eb` border, following = `#2563eb` fill, following+hover = `#CD481B` fill, unfollowed+hover = `#eff6ff`/`#2563eb` border. Follow press clears hover to prevent label jump.
 
 Transition: background/color/border 0.15s ease. Custom tooltip on detail page reads "Get notifications and saves to Your Following Projects in home page".
 
@@ -272,7 +277,7 @@ Active state: background `#7C3AED` (solid purple), border `#7C3AED`, white text,
 
 Contains two views driven by the AI Assistance Toggle:
 1. **AI Assistance OFF:** Sentiment column in projects table shows grey progress bars indicating relative comment volume; Overall Sentiment shows "Not classified" gray label; Top Theme column shows "AI Assistance required" with warning icon.
-2. **AI Assistance ON:** Sentiment column shows green (`#16a34a`), orange (`#d97706`), and red (`#dc2626`) segmented bars representing supportive, mixed, and concerns percentages; Overall Sentiment shows color-coded text (Supportive, Mixed, Concerns, or Split); Top theme displays AI-generated summary sentence.
+2. **AI Assistance ON:** Sentiment column shows green (`#16a34a`), orange (`#FFAA55`), and red (`#CD481B`) segmented bars representing supportive, mixed, and concerns percentages; Overall Sentiment shows color-coded text (Supportive, Mixed, Concerns, or Split); Top theme displays AI-generated summary sentence.
 Page also features: (1) Filter dropdowns (Timeframe, Scope, Status) with white backgrounds and `#E2E8F0` borders, (2) Metrics bar (Projects, Comments, Residents, Overall Sentiment segments, Response Rate), and (3) Sorted projects grid table.
 
 ### Reports Panel (Staff)
@@ -456,9 +461,9 @@ Example Component Prompts:
   --color-action-gray: #6b7280;
   --color-heading-black: #111827;
   --color-success-green: #22c55e;
-  --color-danger-red: #dc2626;
-  --color-notification-red: #ef4444;
-  --color-warning-orange: #f97316;
+  --color-danger-orange: #CD481B;
+  --color-notification-orange: #CD481B;
+  --color-warning-orange: #FFAA55;
   --color-neutral-teal: #a8d8ea;
   --color-filter-chip-bg: #dbeafe;
   --color-filter-chip-border: #bfdbfe;
@@ -536,9 +541,9 @@ const tokens = {
     headingBlack: "#111827",
     actionGray: "#6b7280",
     successGreen: "#22c55e",
-    dangerRed: "#dc2626",
-    notificationRed: "#ef4444",
-    warningOrange: "#f97316",
+    dangerOrange: "#CD481B",
+    notificationRed: "#CD481B",
+    warningOrange: "#FFAA55",
     neutralTeal: "#a8d8ea",
     hoverOverlay: "rgba(13, 34, 64, 0.55)",
     avatarBlue: "#60a5fa",

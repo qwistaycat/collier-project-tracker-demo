@@ -134,7 +134,7 @@ export default function VoteBanner({
       label: string;
     }[] = [
         { key: "neutral", color: "#a8d8ea", label: "Neutral / Unsure" },
-        { key: "disagree", color: "#f97316", label: "Disagree" },
+        { key: "disagree", color: "#FFAA55", label: "Disagree" },
         { key: "agree", color: "#22c55e", label: "Agree" },
       ];
 
@@ -409,7 +409,7 @@ export default function VoteBanner({
                 borderRadius: 9999,
                 border: "none",
                 cursor: "pointer",
-                background: "#f87171",
+                background: "#CD481B",
                 color: "white",
                 fontSize: 13,
                 fontWeight: 600,

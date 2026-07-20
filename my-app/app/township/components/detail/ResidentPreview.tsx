@@ -101,6 +101,9 @@ const linkPill: React.CSSProperties = {
 export default function ResidentPreview({ project: p }: { project: XProject }) {
   const detail = toProposalDetail(p);
   const stages = toTimelineStages(p);
+  // undefined = demo default ("#"), null = removed by staff
+  const projectLink = p.projectLink === null ? null : (p.projectLink ?? "#");
+  const meetingLink = p.meetingLink === null ? null : (p.meetingLink ?? "#");
 
   return (
     <div>
@@ -201,14 +204,20 @@ export default function ResidentPreview({ project: p }: { project: XProject }) {
             <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, margin: "0 0 12px 0" }}>
               {p.funding}
             </p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <a href="#" style={linkPill}>
-                <ExternalLinkIcon size={15} /> Link to Project
-              </a>
-              <a href="#" style={linkPill}>
-                <ExternalLinkIcon size={15} /> Link to Meeting Notes
-              </a>
-            </div>
+            {(projectLink !== null || meetingLink !== null) && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {projectLink !== null && (
+                  <a href={projectLink || "#"} style={linkPill}>
+                    <ExternalLinkIcon size={15} /> Link to Project
+                  </a>
+                )}
+                {meetingLink !== null && (
+                  <a href={meetingLink || "#"} style={linkPill}>
+                    <ExternalLinkIcon size={15} /> Link to Meeting Notes
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

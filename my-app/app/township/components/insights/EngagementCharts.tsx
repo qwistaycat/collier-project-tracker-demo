@@ -181,8 +181,8 @@ function StackedColumns() {
 
 const SENT_BANDS = [
   { key: "s", name: "Supportive", color: "#16A34A" },
-  { key: "m", name: "Mixed", color: "#D97706" },
-  { key: "c", name: "Concerns", color: "#DC2626" },
+  { key: "m", name: "Mixed", color: "#FFAA55" },
+  { key: "c", name: "Concerns", color: "#CD481B" },
 ] as const;
 
 function SentimentArea({ aiMode }: { aiMode: boolean }) {

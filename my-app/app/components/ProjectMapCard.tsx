@@ -229,7 +229,7 @@ export default function ProjectMapCard({
                   pointerEvents: "none",
                 }}
               >
-                <span style={{ color: "#DC2626", display: "flex" }}>
+                <span style={{ color: "#CD481B", display: "flex" }}>
                   <MapPinIcon size={26} />
                 </span>
                 {pin.label && (

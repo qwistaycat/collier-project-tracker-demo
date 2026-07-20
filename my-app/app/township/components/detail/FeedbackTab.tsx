@@ -418,11 +418,11 @@ export default function FeedbackTab({ projectId }: { projectId: string }) {
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
         <button type="button" style={chip(effectiveSub === "private")} onClick={() => setSub("private")}>
           Private Messages
-          {privUnread > 0 && badge(privUnread, "#DC2626")}
+          {privUnread > 0 && badge(privUnread, "#CD481B")}
         </button>
         <button type="button" style={chip(effectiveSub === "public")} onClick={() => setSub("public")}>
           Public Forum
-          {pubAwaiting > 0 && badge(pubAwaiting, "#DC2626")}
+          {pubAwaiting > 0 && badge(pubAwaiting, "#CD481B")}
         </button>
         {aiMode && (
           <button

@@ -13,8 +13,8 @@ import { useRouter } from "next/navigation";
 import { CAT_META, type StaffProject } from "../../data";
 
 const URGENCY_COLORS: Record<string, [string, string]> = {
-  High: ["#DC2626", "#FEE2E2"],
-  Standard: ["#D97706", "#FEF3C7"],
+  High: ["#CD481B", "#F9E3D8"],
+  Standard: ["#B45309", "#FFEEDD"],
   Low: ["#64748B", "#F1F5F9"],
 };
 
@@ -32,8 +32,8 @@ export default function PendingReviewBand({
   return (
     <div
       style={{
-        background: "#FEF3C7",
-        border: "1px solid #F59E0B",
+        background: "#FFEEDD",
+        border: "1px solid #FFAA55",
         borderRadius: 8,
         padding: 24,
         marginBottom: 34,

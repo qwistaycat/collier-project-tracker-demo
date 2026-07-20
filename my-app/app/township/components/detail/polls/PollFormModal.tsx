@@ -146,7 +146,7 @@ export default function PollFormModal({
             onChange={(v) => set({ optSupport: v })}
           />
           <OptionRow
-            dot="#DC2626"
+            dot="#CD481B"
             value={form.optOppose}
             onChange={(v) => set({ optOppose: v })}
           />

@@ -71,7 +71,7 @@ export default function FeedbackCommentCard({
                   </button>
                   <button
                     type="button"
-                    style={{ ...btnNeutral(27), border: "1px solid #FECACA", color: "#DC2626" }}
+                    style={{ ...btnNeutral(27), border: "1px solid #F2C6B3", color: "#CD481B" }}
                     onClick={() => onDeleteReply(i)}
                   >
                     Delete

@@ -375,7 +375,7 @@ function BannerSlide({
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "#dc2626",
+              background: "#CD481B",
               color: "white",
               fontSize: 12,
               fontWeight: 700,
