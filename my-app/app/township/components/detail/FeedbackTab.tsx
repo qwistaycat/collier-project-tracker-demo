@@ -332,19 +332,24 @@ export default function FeedbackTab({ projectId }: { projectId: string }) {
   };
 
   // ── Shared bits ────────────────────────────────────────────────
+  // Block tabs matching the resident Discussion component's tab bar
+  // (navy fill on the active tab, white with hairline dividers otherwise).
   const chip = (active: boolean): React.CSSProperties => ({
-    padding: "8px 12px",
-    borderRadius: 8,
+    flex: 1,
+    padding: 14,
+    border: "none",
+    borderLeft: active ? "none" : "1px solid #e5e7eb",
+    cursor: "pointer",
     fontSize: 13,
     fontWeight: 600,
-    background: active ? "#EFF3F8" : "white",
-    color: active ? "#0d2240" : "#64748B",
-    border: active ? "1px solid #0d2240" : "1px solid #e5e7eb",
-    cursor: "pointer",
+    background: active ? "#0d2240" : "white",
+    color: active ? "white" : "#374151",
+    borderRadius: 0,
     fontFamily: "inherit",
-    transition: "all 0.15s ease",
+    transition: "background 0.15s ease, color 0.15s ease",
     display: "inline-flex",
     alignItems: "center",
+    justifyContent: "center",
     gap: 7,
   });
 
@@ -414,8 +419,16 @@ export default function FeedbackTab({ projectId }: { projectId: string }) {
         </div>
       )}
 
-      {/* Sub-tab bar */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+      {/* Sub-tab bar — resident Discussion tab style */}
+      <div
+        style={{
+          display: "flex",
+          border: "1px solid #e5e7eb",
+          borderRadius: 8,
+          overflow: "hidden",
+          marginBottom: 14,
+        }}
+      >
         <button type="button" style={chip(effectiveSub === "private")} onClick={() => setSub("private")}>
           Private Messages
           {privUnread > 0 && badge(privUnread, "#CD481B")}
@@ -431,7 +444,11 @@ export default function FeedbackTab({ projectId }: { projectId: string }) {
             onClick={() => setSub("moderation")}
           >
             Moderation Queue
-            {hidCount > 0 && badge(hidCount, "#7C3AED")}
+            {hidCount > 0 &&
+              badge(
+                hidCount,
+                effectiveSub === "moderation" ? "rgba(255,255,255,.25)" : "#0d2240"
+              )}
           </button>
         )}
       </div>

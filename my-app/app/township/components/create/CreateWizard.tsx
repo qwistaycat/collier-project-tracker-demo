@@ -471,14 +471,14 @@ function SuccessScreen({ title, id }: { title: string; id: string }) {
           width: 78,
           height: 78,
           borderRadius: "50%",
-          background: "#DCFCE7",
+          background: "#E4EDE7",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           margin: "0 auto 18px",
         }}
       >
-        <svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth={2.5} aria-hidden>
+        <svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke="#567A67" strokeWidth={2.5} aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>

@@ -135,7 +135,7 @@ export default function VoteBanner({
     }[] = [
         { key: "neutral", color: "#a8d8ea", label: "Neutral / Unsure" },
         { key: "disagree", color: "#FFAA55", label: "Disagree" },
-        { key: "agree", color: "#22c55e", label: "Agree" },
+        { key: "agree", color: "#567A67", label: "Agree" },
       ];
 
     const toXY = (angleDeg: number, radius: number) => {
@@ -393,7 +393,7 @@ export default function VoteBanner({
                 borderRadius: 9999,
                 border: "none",
                 cursor: "pointer",
-                background: "#22c55e",
+                background: "#567A67",
                 color: "white",
                 fontSize: 13,
                 fontWeight: 600,

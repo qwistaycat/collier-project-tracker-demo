@@ -155,7 +155,7 @@ export default function PollCard({
         <div style={{ display: "flex", justifyContent: "center" }}>
           <PollDonut
             segments={[
-              { value: support, color: "#16A34A" },
+              { value: support, color: "#567A67" },
               { value: oppose, color: "#CD481B" },
               { value: neutral, color: "#94A3B8" },
             ]}
@@ -173,7 +173,7 @@ export default function PollCard({
           >
             <StatBlock
               value={support}
-              color="#16A34A"
+              color="#567A67"
               label={`Support · ${pctOf(support, total)}`}
             />
             <StatBlock

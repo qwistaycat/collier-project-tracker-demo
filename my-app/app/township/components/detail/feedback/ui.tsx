@@ -19,7 +19,7 @@ import {
 
 // ── Local icons ──────────────────────────────────────────────────
 
-export function SparkleIcon({ size = 14, color = "#7C3AED" }: { size?: number; color?: string }) {
+export function SparkleIcon({ size = 14, color = "#2563eb" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
       <path d="M12 2l1.9 5.8L20 9l-5.8 1.9L12 17l-1.9-5.8L4 9l5.8-1.2z" />
@@ -279,7 +279,7 @@ export const btnGreen = (h = 30): React.CSSProperties => ({
   height: h,
   padding: "0 14px",
   borderRadius: 7,
-  background: "#16A34A",
+  background: "#567A67",
   color: "white",
   fontSize: 12,
   fontWeight: 600,

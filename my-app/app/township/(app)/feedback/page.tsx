@@ -132,8 +132,8 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
         padding: "0 5px",
         borderRadius: 4,
         lineHeight: "16px",
-        color: verified ? "#16A34A" : "#94A3B8",
-        background: verified ? "#DCFCE7" : "#F1F5F9",
+        color: verified ? "#567A67" : "#94A3B8",
+        background: verified ? "#E4EDE7" : "#F1F5F9",
         flexShrink: 0,
       }}
     >

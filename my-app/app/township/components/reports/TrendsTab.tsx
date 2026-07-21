@@ -18,9 +18,9 @@ const QLABELS = ["Q1 24", "Q2 24", "Q3 24", "Q4 24", "Q1 25", "Q2 25", "Q3 25", 
 
 const ENG_SERIES = [
   { key: "comments", label: "Comments", color: "#2563EB", pts: [120, 140, 165, 185, 205, 235, 268, 305, 352, 405] },
-  { key: "follows", label: "Follows", color: "#16A34A", pts: [80, 92, 108, 128, 150, 172, 196, 222, 251, 286] },
-  { key: "votes", label: "Poll votes", color: "#FFAA55", pts: [210, 235, 262, 298, 338, 378, 416, 458, 502, 560] },
-  { key: "dms", label: "DMs", color: "#7C3AED", pts: [10, 13, 17, 21, 25, 30, 35, 41, 47, 54] },
+  { key: "follows", label: "Follows", color: "#0891B2", pts: [80, 92, 108, 128, 150, 172, 196, 222, 251, 286] },
+  { key: "votes", label: "Poll votes", color: "#B45309", pts: [210, 235, 262, 298, 338, 378, 416, 458, 502, 560] },
+  { key: "dms", label: "DMs", color: "#0d2240", pts: [10, 13, 17, 21, 25, 30, 35, 41, 47, 54] },
 ] as const;
 
 type EngKey = (typeof ENG_SERIES)[number]["key"];
@@ -33,7 +33,7 @@ const NB_SERIES = [
   { name: "Ewingsville", color: "#2563EB" },
   { name: "Rennerdale", color: "#0891B2" },
   { name: "Beechmont", color: "#0D9488" },
-  { name: "Presto", color: "#7C3AED" },
+  { name: "Presto", color: "#B45309" },
 ];
 const NB_ROWS = [
   [30, 22, 18, 12, 8], [34, 26, 20, 14, 10], [40, 30, 22, 16, 12], [46, 34, 26, 18, 14], [52, 40, 30, 22, 17],
@@ -42,9 +42,9 @@ const NB_ROWS = [
 
 const CAT_SERIES = [
   { name: "Roads", color: "#B45309" },
-  { name: "Parks", color: "#16A34A" },
+  { name: "Parks", color: "#567A67" },
   { name: "Infrastructure", color: "#2563EB" },
-  { name: "Plan/Dev", color: "#7C3AED" },
+  { name: "Plan/Dev", color: "#0891B2" },
   { name: "Public Safety", color: "#CD481B" },
 ];
 const CAT_ROWS = [
@@ -310,7 +310,7 @@ export default function TrendsTab() {
           <span style={{ flex: 1 }} />
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             {[
-              { name: "Response rate (%)", color: "#16A34A" },
+              { name: "Response rate (%)", color: "#567A67" },
               { name: "Avg response time (days)", color: "#2563EB" },
             ].map((it) => (
               <span
@@ -325,7 +325,7 @@ export default function TrendsTab() {
         </div>
         <MultiLineChart
           series={[
-            { color: "#16A34A", pts: cut([...RESP_RATE]) },
+            { color: "#567A67", pts: cut([...RESP_RATE]) },
             { color: "#2563EB", pts: cut([...RESP_TIME]).map((v) => v * 14) },
           ]}
           height={170}
@@ -383,7 +383,7 @@ export default function TrendsTab() {
             <span style={{ flex: 1 }} />
             <SquareLegend
               items={[
-                { name: "Supportive", color: "#16A34A" },
+                { name: "Supportive", color: "#567A67" },
                 { name: "Mixed", color: "#FFAA55" },
                 { name: "Concerns", color: "#CD481B" },
               ]}

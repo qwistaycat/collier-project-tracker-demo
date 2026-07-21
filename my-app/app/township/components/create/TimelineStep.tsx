@@ -43,7 +43,7 @@ interface Props {
 
 const STATUS_SEGMENTS: { key: StageStatus; label: string; c: string; bg: string }[] = [
   { key: "draft", label: "Draft", c: "#0d2240", bg: "#E2E8F0" },
-  { key: "published", label: "Published", c: "#16A34A", bg: "#DCFCE7" },
+  { key: "published", label: "Published", c: "#567A67", bg: "#E4EDE7" },
   { key: "hidden", label: "Hidden", c: "#CD481B", bg: "#F9E3D8" },
 ];
 

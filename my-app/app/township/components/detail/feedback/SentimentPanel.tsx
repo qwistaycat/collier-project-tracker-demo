@@ -33,8 +33,8 @@ export default function SentimentPanel({
   return (
     <div
       style={{
-        background: "#FAF9FF",
-        border: "1px solid #EDE9FE",
+        background: "#F0F7FF",
+        border: "1px solid #DBEAFE",
         borderRadius: 12,
         marginBottom: 18,
       }}
@@ -56,15 +56,15 @@ export default function SentimentPanel({
         }}
       >
         <SparkleIcon size={16} />
-        <span style={{ fontSize: 16, fontWeight: 600, color: "#5B21B6" }}>
+        <span style={{ fontSize: 16, fontWeight: 600, color: "#1E40AF" }}>
           AI Sentiment Analysis
         </span>
         <span
           style={{
             fontSize: 10,
             fontWeight: 700,
-            color: "#7C3AED",
-            background: "#EDE9FE",
+            color: "#2563eb",
+            background: "#DBEAFE",
             padding: "1px 6px",
             borderRadius: 5,
           }}
@@ -96,7 +96,7 @@ export default function SentimentPanel({
               background: "#E2E8F0",
             }}
           >
-            <div style={{ width: `${s.supportive}%`, background: "#16A34A" }} />
+            <div style={{ width: `${s.supportive}%`, background: "#567A67" }} />
             <div style={{ width: `${s.mixed}%`, background: "#FFAA55" }} />
             <div style={{ width: `${s.concerns}%`, background: "#CD481B" }} />
           </div>
@@ -111,7 +111,7 @@ export default function SentimentPanel({
             }}
           >
             <span>
-              <span style={{ color: "#16A34A" }}>●</span> {s.supportive}% supportive
+              <span style={{ color: "#567A67" }}>●</span> {s.supportive}% supportive
             </span>
             <span>
               <span style={{ color: "#FFAA55" }}>●</span> {s.mixed}% mixed
@@ -177,12 +177,12 @@ export default function SentimentPanel({
                           marginTop: 10,
                           height: 30,
                           padding: "0 12px",
-                          background: "#F5F3FF",
-                          border: "1px solid #DDD6FE",
+                          background: "#EFF6FF",
+                          border: "1px solid #BFDBFE",
                           borderRadius: 7,
                           fontSize: 12,
                           fontWeight: 600,
-                          color: "#7C3AED",
+                          color: "#2563eb",
                           cursor: themeBusy !== null ? "default" : "pointer",
                           fontFamily: "inherit",
                           display: "inline-flex",

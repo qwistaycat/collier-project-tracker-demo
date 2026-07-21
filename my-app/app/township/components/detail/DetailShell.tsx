@@ -767,7 +767,7 @@ export default function DetailShell() {
                   </span>
                 )}
                 {t.key === "feedback" && aiMode && project.hidden.length > 0 && (
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#7C3AED" }} />
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#2563eb" }} />
                 )}
                 {t.key === "polls" && pollCount > 0 && (
                   <span
@@ -826,7 +826,7 @@ export default function DetailShell() {
               </button>
               <button
                 onClick={reviewApprove}
-                style={{ ...ghostBtn(36), background: "#16A34A", border: "1px solid #16A34A", color: "#fff" }}
+                style={{ ...ghostBtn(36), background: "#567A67", border: "1px solid #567A67", color: "#fff" }}
               >
                 Approve &amp; Publish
               </button>

@@ -109,12 +109,12 @@ export default function RewriteModal({
                 width: 30,
                 height: 30,
                 borderRadius: "50%",
-                border: "3px solid #EDE9FE",
-                borderTopColor: "#7C3AED",
+                border: "3px solid #DBEAFE",
+                borderTopColor: "#2563eb",
                 animation: "twfbSpin 1s linear infinite",
               }}
             />
-            <div style={{ fontSize: 13, color: "#7C3AED" }}>Rewriting at 8th-grade level…</div>
+            <div style={{ fontSize: 13, color: "#2563eb" }}>Rewriting at 8th-grade level…</div>
           </div>
         )}
 
@@ -125,7 +125,7 @@ export default function RewriteModal({
                 fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: 0.4,
-                color: "#7C3AED",
+                color: "#2563eb",
                 margin: "14px 0 6px",
               }}
             >
@@ -137,7 +137,7 @@ export default function RewriteModal({
               style={{
                 width: "100%",
                 minHeight: 90,
-                border: "1px solid #DDD6FE",
+                border: "1px solid #BFDBFE",
                 borderRadius: 9,
                 padding: "10px 12px",
                 fontSize: 13.5,
@@ -178,7 +178,7 @@ export default function RewriteModal({
                 height: 38,
                 padding: "0 18px",
                 borderRadius: 8,
-                background: "#7C3AED",
+                background: "#0d2240",
                 border: "none",
                 color: "white",
                 fontSize: 13,
