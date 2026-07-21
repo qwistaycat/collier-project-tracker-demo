@@ -227,19 +227,19 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
       {draft.aiFilled && draft.aiFilled.length > 0 && (
         <div
           style={{
-            background: "#F5F3FF",
-            border: "1px solid #DDD6FE",
+            background: "#EFF6FF",
+            border: "1px solid #BFDBFE",
             borderRadius: 10,
             padding: "10px 13px",
             fontSize: 12.5,
-            color: "#5B21B6",
+            color: "#1E40AF",
             display: "flex",
             gap: 8,
             alignItems: "flex-start",
             marginBottom: 14,
           }}
         >
-          <SparkleIcon size={14} color="#7C3AED" />
+          <SparkleIcon size={14} color="#2563eb" />
           <span>
             <strong>AI filled: {draft.aiFilled.join(", ")}.</strong> Review each field before saving the
             stage.
@@ -296,8 +296,8 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
               style={{
                 fontSize: 9.5,
                 fontWeight: 700,
-                color: "#7C3AED",
-                background: "#EDE9FE",
+                color: "#2563eb",
+                background: "#DBEAFE",
                 borderRadius: 5,
                 padding: "1px 6px",
               }}
@@ -353,16 +353,16 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
         {aiMode && (
           <div
             style={{
-              background: "#F5F3FF",
-              border: "1px solid #DDD6FE",
+              background: "#EFF6FF",
+              border: "1px solid #BFDBFE",
               borderRadius: 12,
               padding: 14,
               marginBottom: 12,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <SparkleIcon size={15} color="#7C3AED" />
-              <span style={{ fontSize: 13.5, fontWeight: 700, color: "#5B21B6" }}>
+              <SparkleIcon size={15} color="#2563eb" />
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: "#1E40AF" }}>
                 Use AI to fill this stage from documents
               </span>
             </div>
@@ -374,8 +374,8 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
                 onClick={() => setAiUpload({ files: [] })}
                 style={{
                   ...ghostBtn(36),
-                  border: "1px solid #C4B5FD",
-                  color: "#7C3AED",
+                  border: "1px solid #BFDBFE",
+                  color: "#2563eb",
                 }}
               >
                 <UploadIcon size={14} />
@@ -386,7 +386,7 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
                 style={{
                   background: "none",
                   border: "none",
-                  color: "#7C3AED",
+                  color: "#2563eb",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -404,7 +404,7 @@ export default function StageEditor({ project, stage, onDirtyChange, handleRef }
       {aiMode && (
         <div style={{ borderTop: "1px solid #F1F5F9", marginTop: 14, paddingTop: 12 }}>
           <button onClick={draftRewrite} disabled={rewriting} style={{ ...aiChipBtn(32), opacity: rewriting ? 0.7 : 1 }}>
-            {rewriting ? <Spinner size={12} color="#7C3AED" /> : <SparkleIcon size={13} />}
+            {rewriting ? <Spinner size={12} color="#2563eb" /> : <SparkleIcon size={13} />}
             {rewriting ? "Rewriting…" : "Rewrite in plain language"}
           </button>
         </div>

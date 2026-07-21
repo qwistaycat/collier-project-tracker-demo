@@ -964,7 +964,7 @@ export default function DetailsTab({
                     color: "#334155",
                   }}
                 >
-                  <span style={{ color: "#7C3AED", display: "inline-flex" }}>
+                  <span style={{ color: "#2563eb", display: "inline-flex" }}>
                     <FileIcon size={13} />
                   </span>
                   {d}

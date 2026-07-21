@@ -584,7 +584,7 @@ export const discussionData: DiscussionData = {
     comments: [
       {
         user: "NevillewoodMom",
-        avatarColor: "#22c55e",
+        avatarColor: "#567A67",
         timeAgo: "3 days ago",
         message:
           "Finally! We've been asking about permanent restrooms for years. My kids play here every weekend and having to drive home or go to a gas station is ridiculous. Fully support this.",
@@ -626,7 +626,7 @@ export const discussionData: DiscussionData = {
       },
       {
         user: "Resident_PghSW",
-        avatarColor: "#86efac",
+        avatarColor: "#A9C4B4",
         timeAgo: "2 days ago",
         message:
           "I'm supportive of the improvements but the timing on the bond vote concerns me. November is right around the corner — have there been enough community meetings for residents to actually understand what they're voting on? Feels rushed.",

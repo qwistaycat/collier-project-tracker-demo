@@ -30,7 +30,7 @@ export function SentimentBar({
         background: "#EEF2F6",
       }}
     >
-      <div style={{ width: `${supportive}%`, background: "#16A34A" }} />
+      <div style={{ width: `${supportive}%`, background: "#567A67" }} />
       <div style={{ width: `${mixed}%`, background: "#FFAA55" }} />
       <div style={{ width: `${concerns}%`, background: "#CD481B" }} />
     </div>

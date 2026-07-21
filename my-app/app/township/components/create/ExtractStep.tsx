@@ -111,7 +111,7 @@ export default function ExtractStep({
   // scattered.
   const confetti = useMemo<ConfettiBit[] | null>(() => {
     if (!(run.done && !run.skipped)) return null;
-    const colors = ["#2563eb", "#16A34A", "#2563EB", "#FFAA55", "#0d2240", "#60a5fa"];
+    const colors = ["#2563eb", "#567A67", "#2563EB", "#FFAA55", "#0d2240", "#60a5fa"];
     const rnd = (i: number, salt: number) =>
       (((i + 1) * 9301 + salt * 49297) % 233280) / 233280;
     return Array.from({ length: 38 }, (_, i) => ({

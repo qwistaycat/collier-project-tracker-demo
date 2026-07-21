@@ -141,7 +141,7 @@ export default function PollFormModal({
         <div style={labelStyle}>Answer options</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <OptionRow
-            dot="#16A34A"
+            dot="#567A67"
             value={form.optSupport}
             onChange={(v) => set({ optSupport: v })}
           />

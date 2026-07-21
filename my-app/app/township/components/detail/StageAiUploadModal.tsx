@@ -133,8 +133,8 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
             width: 36,
             height: 36,
             borderRadius: 9,
-            background: "#EDE9FE",
-            color: "#7C3AED",
+            background: "#DBEAFE",
+            color: "#2563eb",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -161,14 +161,14 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
         <div style={{ marginTop: 18 }}>
           <div
             style={{
-              border: "2px dashed #C4B5FD",
+              border: "2px dashed #BFDBFE",
               background: "#FAFAFF",
               borderRadius: 12,
               padding: "28px 20px",
               textAlign: "center",
             }}
           >
-            <span style={{ color: "#7C3AED", display: "inline-block" }}>
+            <span style={{ color: "#2563eb", display: "inline-block" }}>
               <UploadIcon size={26} />
             </span>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#334155", marginTop: 8 }}>
@@ -186,7 +186,7 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
                 style={{
                   background: "none",
                   border: "none",
-                  color: "#7C3AED",
+                  color: "#2563eb",
                   fontSize: 12.5,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -218,7 +218,7 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
                     color: "#334155",
                   }}
                 >
-                  <span style={{ color: "#7C3AED", display: "inline-flex" }}>
+                  <span style={{ color: "#2563eb", display: "inline-flex" }}>
                     <FileIcon size={13} />
                   </span>
                   {f}
@@ -280,8 +280,8 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
               disabled={files.length === 0}
               style={{
                 ...ghostBtn(36),
-                background: files.length ? "#7C3AED" : "#EDE9FE",
-                border: `1px solid ${files.length ? "#7C3AED" : "#EDE9FE"}`,
+                background: files.length ? "#2563eb" : "#DBEAFE",
+                border: `1px solid ${files.length ? "#2563eb" : "#DBEAFE"}`,
                 color: files.length ? "#fff" : "#B4A2E0",
                 cursor: files.length ? "pointer" : "not-allowed",
               }}
@@ -296,12 +296,12 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
       {phase !== "upload" && (
         <div style={{ marginTop: 16 }}>
           {/* Progress bar */}
-          <div style={{ height: 5, borderRadius: 3, background: "#EDE9FE", overflow: "hidden" }}>
+          <div style={{ height: 5, borderRadius: 3, background: "#DBEAFE", overflow: "hidden" }}>
             <div
               style={{
                 height: "100%",
                 width: `${Math.round((revealed / rows.length) * 100)}%`,
-                background: "#7C3AED",
+                background: "#0d2240",
                 transition: "width 0.4s ease",
               }}
             />
@@ -311,19 +311,19 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
             <div
               style={{
                 marginTop: 12,
-                background: "#F5F3FF",
-                border: "1px solid #DDD6FE",
+                background: "#EFF6FF",
+                border: "1px solid #BFDBFE",
                 borderRadius: 10,
                 padding: "10px 13px",
                 fontSize: 12.5,
                 fontWeight: 600,
-                color: "#5B21B6",
+                color: "#1E40AF",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
               }}
             >
-              <SparkleIcon size={14} color="#7C3AED" />
+              <SparkleIcon size={14} color="#2563eb" />
               AI filled {filledCount} field(s). Review each before saving the stage.
             </div>
           )}
@@ -400,8 +400,8 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
                             fontWeight: 700,
                             borderRadius: 5,
                             padding: "1px 6px",
-                            color: row.applies ? "#7C3AED" : "#64748B",
-                            background: row.applies ? "#EDE9FE" : "#F1F5F9",
+                            color: row.applies ? "#2563eb" : "#64748B",
+                            background: row.applies ? "#DBEAFE" : "#F1F5F9",
                             whiteSpace: "nowrap",
                           }}
                         >
@@ -427,7 +427,7 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
           {/* Footer */}
           {phase === "extract" ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16 }}>
-              <Spinner size={14} color="#7C3AED" />
+              <Spinner size={14} color="#2563eb" />
               <span style={{ fontSize: 12.5, color: "#64748B", flex: 1 }}>
                 Reading documents and drafting stage content…
               </span>
@@ -448,7 +448,7 @@ export default function StageAiUploadModal({ stage, stageEmpty, initialFiles, on
               </button>
               <button
                 onClick={apply}
-                style={{ ...ghostBtn(36), background: "#7C3AED", border: "1px solid #7C3AED", color: "#fff" }}
+                style={{ ...ghostBtn(36), background: "#0d2240", border: "1px solid #0d2240", color: "#fff" }}
               >
                 Apply to Stage
               </button>

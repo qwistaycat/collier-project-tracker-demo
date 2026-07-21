@@ -13,7 +13,7 @@ import { AI_INSIGHTS } from "./insightsData";
 /** Sparkle glyph — the AI signifier (local to insights). */
 function SparkleIcon({ size = 15 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth={1.8}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth={1.8}>
       <path strokeLinejoin="round" d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" />
       <path strokeLinejoin="round" d="M19 15l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8.8-1.9z" />
     </svg>
@@ -39,7 +39,7 @@ function InsightCard({ text, onDismiss }: { text: string; onDismiss: () => void 
           width: 26,
           height: 26,
           borderRadius: 8,
-          background: "#EDE9FE",
+          background: "#DBEAFE",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

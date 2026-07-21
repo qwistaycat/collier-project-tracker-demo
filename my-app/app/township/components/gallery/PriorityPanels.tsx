@@ -173,7 +173,7 @@ const ACTIVITY: { text: string; type: ActivityType; pid: string; time: string }[
 
 const ACTIVITY_COLORS: Record<ActivityType, [string, string]> = {
   comment: ["#2563EB", "#DBEAFE"],
-  update: ["#16A34A", "#DCFCE7"],
+  update: ["#567A67", "#E4EDE7"],
   poll: ["#7C3AED", "#EDE9FE"],
   follow: ["#B45309", "#FFEEDD"],
 };
@@ -242,7 +242,7 @@ export default function PriorityPanels() {
     if (!p) return [];
     const dir: "up" | "down" | "flat" =
       e.now > e.prev * 1.2 ? "up" : e.now < e.prev * 0.85 ? "down" : "flat";
-    const color = dir === "up" ? "#16A34A" : dir === "down" ? "#B45309" : "#94A3B8";
+    const color = dir === "up" ? "#567A67" : dir === "down" ? "#B45309" : "#94A3B8";
     const compare = `${e.now} comments this week · ${
       dir === "up"
         ? `up from ${e.prev}`
@@ -330,8 +330,8 @@ export default function PriorityPanels() {
                           fontWeight: 600,
                           borderRadius: 4,
                           padding: "1px 5px",
-                          color: row.c.verified ? "#16A34A" : "#94A3B8",
-                          background: row.c.verified ? "#DCFCE7" : "#F1F5F9",
+                          color: row.c.verified ? "#567A67" : "#94A3B8",
+                          background: row.c.verified ? "#E4EDE7" : "#F1F5F9",
                         }}
                       >
                         {row.c.verified ? "Verified" : "Unverified"}
@@ -519,12 +519,12 @@ export default function PriorityPanels() {
                     background: "#F1F5F9",
                   }}
                 >
-                  <span style={{ width: `${r.p.sentiment.supportive}%`, background: "#16A34A" }} />
+                  <span style={{ width: `${r.p.sentiment.supportive}%`, background: "#567A67" }} />
                   <span style={{ width: `${r.p.sentiment.mixed}%`, background: "#FFAA55" }} />
                   <span style={{ width: `${r.p.sentiment.concerns}%`, background: "#CD481B" }} />
                 </div>
                 <div style={{ display: "flex", gap: 8, fontSize: 10, marginTop: 3 }}>
-                  <span style={{ color: "#16A34A", fontWeight: 600 }}>
+                  <span style={{ color: "#567A67", fontWeight: 600 }}>
                     {r.p.sentiment.supportive}%
                   </span>
                   <span style={{ color: "#B45309", fontWeight: 600 }}>
@@ -647,9 +647,9 @@ export default function PriorityPanels() {
                       width: 14,
                       height: 14,
                       borderRadius: 4,
-                      border: `1.5px solid ${done ? "#16A34A" : "#cbd5e1"}`,
-                      background: done ? "#DCFCE7" : "#fff",
-                      color: "#16A34A",
+                      border: `1.5px solid ${done ? "#567A67" : "#cbd5e1"}`,
+                      background: done ? "#E4EDE7" : "#fff",
+                      color: "#567A67",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",

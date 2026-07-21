@@ -164,9 +164,9 @@ export function amberOutlineBtn(h = 34): React.CSSProperties {
 export function aiChipBtn(h = 32): React.CSSProperties {
   return {
     ...ghostBtn(h),
-    background: "#F5F3FF",
-    border: "1px solid #DDD6FE",
-    color: "#7C3AED",
+    background: "#EFF6FF",
+    border: "1px solid #BFDBFE",
+    color: "#2563eb",
     fontSize: 12,
   };
 }
