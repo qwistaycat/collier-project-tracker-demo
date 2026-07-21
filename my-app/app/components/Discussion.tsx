@@ -17,6 +17,8 @@ type ReplyWithMeta = Reply & {
   _id: string;
   likes: number;
   dislikes: number;
+  /** Posted by the current resident this session (drives edit/delete). */
+  own?: boolean;
   // The comment's _id (replied to the top-level post) or another reply's
   // _id (replied to a specific, currently-visible reply) that this reply
   // was created under. Only used while the thread is collapsed, so the
@@ -30,7 +32,41 @@ type CommentWithMeta = Omit<Comment, "replies"> & {
   likes: number;
   dislikes: number;
   replies: ReplyWithMeta[];
+  /** Posted by the current resident this session (drives edit/delete). */
+  own?: boolean;
 };
+
+// ── Posting identity ──────────────────────────────────────────────
+// Residents choose how they appear on PUBLIC comments: username,
+// initials, or a Google-Docs-style anonymous animal. Private
+// messages to the township always carry the real name and username.
+
+export type PostIdentity = "username" | "initials" | "anonymous";
+
+const RESIDENT_NAME = "Christy Yu";
+const RESIDENT_USERNAME = "Christy";
+const RESIDENT_INITIALS = "C.Y.";
+
+const ANON_ANIMALS = ["Duck", "Ant", "Fox", "Owl", "Beaver", "Heron", "Turtle", "Quail"];
+// Session counter (not Math.random) keeps renders pure.
+let anonCounter = 0;
+function nextAnonName(): string {
+  return `Anonymous ${ANON_ANIMALS[anonCounter++ % ANON_ANIMALS.length]}`;
+}
+
+function identityDisplay(
+  identity: PostIdentity,
+  anonName: string | null
+): { name: string; initial: string; color: string } {
+  if (identity === "initials") {
+    return { name: RESIDENT_INITIALS, initial: "C", color: "#22c55e" };
+  }
+  if (identity === "anonymous") {
+    const name = anonName ?? "Anonymous";
+    return { name, initial: name.split(" ")[1]?.charAt(0) ?? "A", color: "#64748b" };
+  }
+  return { name: RESIDENT_USERNAME, initial: "C", color: "#22c55e" };
+}
 
 function seedPastFeedback(
   items: { time: string; message: string }[]
@@ -442,18 +478,23 @@ function AnimatedCounter({ value }: { value: number }) {
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState<"up" | "down">("up");
 
+  // Kick off the slide the moment `value` changes — adjusted during
+  // render (React's "derive state" pattern); the effect only owns the
+  // settle timer.
+  if (value !== prevValue) {
+    setDirection(value > prevValue ? "up" : "down");
+    setAnimating(true);
+    setPrevValue(value);
+  }
+
   useEffect(() => {
-    if (value !== prevValue) {
-      setDirection(value > prevValue ? "up" : "down");
-      setAnimating(true);
-      const timer = setTimeout(() => {
-        setDisplayValue(value);
-        setAnimating(false);
-      }, 250);
-      setPrevValue(value);
-      return () => clearTimeout(timer);
-    }
-  }, [value, prevValue]);
+    if (!animating) return;
+    const timer = setTimeout(() => {
+      setDisplayValue(value);
+      setAnimating(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [animating, value]);
 
   const slideOut = animating
     ? direction === "up"
@@ -700,7 +741,7 @@ function ReplyItem({
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const isOwn = reply.user === "You";
+  const isOwn = reply.own ?? reply.user === "You";
 
   return (
     <div style={{ marginBottom: 8 }}>
@@ -788,7 +829,7 @@ function CommentThread({
   const [editingComment, setEditingComment] = useState(false);
 
   const isReplyOpen = openThreadIdx === threadIdx;
-  const isOwnComment = comment.user === "You";
+  const isOwnComment = comment.own ?? comment.user === "You";
 
   const allReplies = comment.replies || [];
   const officialReplies = allReplies.filter((r) => r.isOfficial);
@@ -1011,9 +1052,9 @@ function PastFeedbackItem({
   return (
     <div style={{ marginBottom: 16 }}>
       <CommentHeader
-        initial="Y"
+        initial="C"
         avatarColor="#22c55e"
-        name="You"
+        name={RESIDENT_NAME}
         timeAgo={time}
         menu={
           <MoreMenu isOwn onEdit={() => setEditing(true)} onDelete={onDelete} />
@@ -1048,6 +1089,16 @@ interface DiscussionProps {
 
 export default function Discussion({ data }: DiscussionProps) {
   const [activeTab, setActiveTab] = useState<"private" | "public">("private");
+
+  // How the resident appears on public posts. The anonymous animal is
+  // assigned once per session, the first time Anonymous is selected.
+  const [identity, setIdentity] = useState<PostIdentity>("username");
+  const [anonName, setAnonName] = useState<string | null>(null);
+  const pickIdentity = (k: PostIdentity) => {
+    setIdentity(k);
+    if (k === "anonymous" && !anonName) setAnonName(nextAnonName());
+  };
+  const publicId = identityDisplay(identity, anonName);
   const [privateFeedback, setPrivateFeedback] = useState<PastFeedbackWithMeta[]>(
     () => seedPastFeedback(data.private.pastFeedback)
   );
@@ -1135,15 +1186,17 @@ export default function Discussion({ data }: DiscussionProps) {
   };
 
   const submitPublicMessage = (text: string) => {
+    const id = identityDisplay(identity, anonName);
     const newComment: CommentWithMeta = {
-      user: "You",
-      avatarColor: "#22c55e",
+      user: id.name,
+      avatarColor: id.color,
       timeAgo: "just now",
       message: text,
       replies: [],
       _id: `c-new-${Date.now()}`,
       likes: 0,
       dislikes: 0,
+      own: true,
     };
     setPublicComments((prev) => [newComment, ...prev]);
   };
@@ -1156,9 +1209,10 @@ export default function Discussion({ data }: DiscussionProps) {
     const idx = parseThreadIdx(threadIdx);
     if (idx === null) return;
 
+    const id = identityDisplay(identity, anonName);
     const newReply: ReplyWithMeta = {
-      user: "You",
-      avatarColor: "#22c55e",
+      user: id.name,
+      avatarColor: id.color,
       timeAgo: "just now",
       replyTo,
       message,
@@ -1166,6 +1220,7 @@ export default function Discussion({ data }: DiscussionProps) {
       likes: 0,
       dislikes: 0,
       pinnedAfter: openReplyTargetId ?? undefined,
+      own: true,
     };
 
     updateCommentAt(idx, (c) => ({ ...c, replies: [...c.replies, newReply] }));
@@ -1290,12 +1345,18 @@ export default function Discussion({ data }: DiscussionProps) {
             >
               {data.private.descriptions[1]}
             </p>
+            <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 10px 0" }}>
+              Posting as{" "}
+              <strong style={{ color: "#374151" }}>{RESIDENT_NAME}</strong> (@
+              {RESIDENT_USERNAME}) — the township sees your name and username on
+              private messages.
+            </p>
             <MessageComposer
               placeholder={data.private.placeholder}
               submitLabel="Comment"
               onSubmit={submitPrivateMessage}
               collapsible
-              avatarInitial="Y"
+              avatarInitial="C"
               avatarColor="#22c55e"
             />
             <div style={{ marginTop: 24 }}>
@@ -1344,13 +1405,78 @@ export default function Discussion({ data }: DiscussionProps) {
             >
               {data.public.descriptions[1]}
             </p>
+            {/* Public identity picker — username, initials, or anonymous */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                flexWrap: "wrap",
+                margin: "0 0 10px 0",
+              }}
+            >
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: "#374151" }}>
+                Comment as
+              </span>
+              <div
+                role="group"
+                aria-label="Choose how your name appears on public comments"
+                style={{
+                  display: "inline-flex",
+                  background: "#fff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 9999,
+                  padding: 3,
+                  gap: 2,
+                }}
+              >
+                {(
+                  [
+                    { key: "username", label: RESIDENT_USERNAME },
+                    { key: "initials", label: RESIDENT_INITIALS },
+                    { key: "anonymous", label: anonName ?? "Anonymous" },
+                  ] as { key: PostIdentity; label: string }[]
+                ).map((opt) => {
+                  const on = identity === opt.key;
+                  return (
+                    <button
+                      key={opt.key}
+                      onClick={() => pickIdentity(opt.key)}
+                      aria-pressed={on}
+                      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      style={{
+                        height: 26,
+                        padding: "0 12px",
+                        borderRadius: 9999,
+                        border: "none",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "inherit",
+                        background: on ? "#0d2240" : "transparent",
+                        color: on ? "#fff" : "#475569",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        transition: "background 0.15s ease, color 0.15s ease",
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {identity === "anonymous" && (
+                <span style={{ fontSize: 12, color: "#6b7280" }}>
+                  Other residents won&apos;t see who you are.
+                </span>
+              )}
+            </div>
             <MessageComposer
               placeholder={data.public.placeholder}
               submitLabel="Comment"
               onSubmit={submitPublicMessage}
               collapsible
-              avatarInitial="Y"
-              avatarColor="#22c55e"
+              avatarInitial={publicId.initial}
+              avatarColor={publicId.color}
             />
             <div style={{ marginTop: 24 }}>
               <div
