@@ -2,7 +2,7 @@
 
 Track and follow township policy proposals and community projects in Collier Township.
 
-**Live:** [collier-demo.vercel.app](collier-demo.vercel.app)
+**Live:** [collier-demo.vercel.app](https://collier-demo.vercel.app/)
 
 ---
 
