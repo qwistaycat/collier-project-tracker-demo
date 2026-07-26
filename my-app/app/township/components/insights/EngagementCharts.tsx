@@ -180,7 +180,7 @@ function StackedColumns() {
 // ── Normalized stacked sentiment area (AI mode only) ─────────────
 
 const SENT_BANDS = [
-  { key: "s", name: "Supportive", color: "#567A67" },
+  { key: "s", name: "Supportive", color: "#0E7490" },
   { key: "m", name: "Mixed", color: "#FFAA55" },
   { key: "c", name: "Concerns", color: "#CD481B" },
 ] as const;
@@ -322,7 +322,7 @@ function MetricCard({
       >
         {last.toLocaleString()}
       </div>
-      <div style={{ fontSize: 11.5, color: on ? "#567A67" : "#94a3b8", marginTop: 1 }}>
+      <div style={{ fontSize: 11.5, color: on ? "#0E7490" : "#94a3b8", marginTop: 1 }}>
         +{delta}% vs prior quarter
       </div>
     </button>

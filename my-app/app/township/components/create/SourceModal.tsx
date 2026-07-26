@@ -17,7 +17,7 @@ import {
 } from "./shared";
 
 const CONF_BOX: Record<Conf, { bg: string; border: string; color: string; label: string }> = {
-  high: { bg: "#F2F7F4", border: "#C9DAD0", color: "#567A67", label: "High confidence" },
+  high: { bg: "#F0F9FB", border: "#A8D8EA", color: "#0E7490", label: "High confidence" },
   low: { bg: "#FFF6EC", border: "#FFD5AA", color: "#B45309", label: "Lower confidence — review carefully" },
   med: { bg: "#F8FAFC", border: "#E2E8F0", color: "#475569", label: "Medium confidence" },
 };

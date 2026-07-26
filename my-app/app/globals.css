@@ -341,3 +341,27 @@ select {
 .township-place-result:hover {
   background: #f8fafc;
 }
+
+/* Clickable resident name — cyan wash on hover signals the profile affordance */
+.township-name-link {
+  background: none;
+  border: none;
+  padding: 2px 7px;
+  margin: -2px -7px;
+  border-radius: 6px;
+  color: #111827;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.township-name-link:hover {
+  background: #e0f2f7;
+  color: #0e7490;
+}
+
+.township-name-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}

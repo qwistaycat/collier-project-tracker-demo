@@ -26,13 +26,13 @@ The Collier Township Project Tracker renders government information as clean, tr
 | Action Gray | `#6b7280` | `--color-action-gray` | Inline action controls (reply, like, vote icons) in idle state, external link pill text, search icon color, map card toggle inactive |
 | Heading Black | `#111827` | `--color-heading-black` | Web heading text, metadata values, bold labels, filter sidebar title, card title — near-black for maximum emphasis |
 | Foreground | `#171717` | `--foreground` | Root foreground color — used as the base text color in globals.css |
-| Sage Green | `#567A67` | `--color-sage-green` | Replaces all former green usage and decorative accent ambers — "I support this" vote button, supportive sentiment, published/active status, Parks category accent, success checks, avatar accents. Bright greens are retired from the system |
-| Sage Tints | `#F2F7F4` / `#E4EDE7` / `#C9DAD0` | — | Light washes and borders derived from Sage Green for supportive chips, status pills, and confidence notes |
+| Support Cyan | `#0E7490` (cyan-700) | `--color-support-cyan` | The positive accent — "I support this" vote button, supportive sentiment, published/active status, Parks category accent, success checks, avatar accents. Chosen over green/sage because cyan vs Danger Orange survives red-green color-vision deficiency; slightly brighter than the retired sage but still muted, and passes AA as text on white (~5.4:1) |
+| Support Cyan Tints | `#F0F9FB` / `#E0F2F7` / `#A8D8EA` | — | Light washes and borders derived from Support Cyan for supportive chips, status pills, and confidence notes |
 | Danger Orange | `#CD481B` | `--color-danger-orange` | Replaces all former red usage — destructive buttons, unfollow hover, "I do not support this" vote button, urgent badges, Public Safety category accent. Red hues are retired from the system |
 | Notification Orange | `#CD481B` | `--color-notification-orange` | Notification bell unread dot — same Danger Orange hue |
-| Warning Orange | `#FFAA55` | `--color-warning-orange` | Replaces all former yellow/amber warning usage — pending-review highlights, urgency dots, "Disagree" poll bar, lower-confidence notes, Roads category accent. Yellow hues are retired from the system. **Fills, bars, dots, and borders only — never small text** |
+| Warning Orange | `#FFAA55` | `--color-warning-orange` | Replaces all former yellow/amber warning usage — pending-review highlights, urgency dots, "Disagree" poll bar, lower-confidence notes, Roads category accent. Yellow hues are retired from the system. **Fills, bars, dots, and borders only — never small text on light backgrounds.** May serve as a small accent against dark surfaces (navy panels, active tabs) where it clears contrast |
 | Warning Text | `#B45309` (amber-700) | `--color-warning-text` | Dark companion for warning/mixed-sentiment text, chip labels, and warning icons — `#FFAA55` fails WCAG contrast at text sizes |
-| Chart Cyan | `#0891B2` (cyan-600) | `--color-chart-cyan` | Muted cyan for analytics chart series and the Plan/Dev category accent — purple is retired from charts, categories, and statuses (it remains only as the AI-assist signifier) |
+| Chart Cyan | `#0891B2` (cyan-600) | `--color-chart-cyan` | Muted cyan for analytics chart series — purple is retired from charts, categories, and statuses (it remains only as the AI-assist signifier). The Plan/Dev category now wears Deep Navy with a `#EFF3F8` wash so it stays distinct from the cyan positive accent |
 | Cyan Tint | `#E0F2F7` | — | Light cyan wash for Plan/Dev category chips |
 | Neutral Teal | `#a8d8ea` | `--color-neutral-teal` | "Neutral / Unsure" poll bar fill — cool pastel against the navy background |
 | Filter Chip Blue | `#dbeafe` (blue-50) | `--color-filter-chip-bg` | Applied filter chip background — light blue wash |
@@ -280,7 +280,7 @@ Active state: background `#7C3AED` (solid purple), border `#7C3AED`, white text,
 
 Contains two views driven by the AI Assistance Toggle:
 1. **AI Assistance OFF:** Sentiment column in projects table shows grey progress bars indicating relative comment volume; Overall Sentiment shows "Not classified" gray label; Top Theme column shows "AI Assistance required" with warning icon.
-2. **AI Assistance ON:** Sentiment column shows sage (`#567A67`), orange (`#FFAA55`), and red (`#CD481B`) segmented bars representing supportive, mixed, and concerns percentages; Overall Sentiment shows color-coded text (Supportive, Mixed, Concerns, or Split); Top theme displays AI-generated summary sentence.
+2. **AI Assistance ON:** Sentiment column shows cyan (`#0E7490`), orange (`#FFAA55`), and red (`#CD481B`) segmented bars representing supportive, mixed, and concerns percentages; Overall Sentiment shows color-coded text (Supportive, Mixed, Concerns, or Split); Top theme displays AI-generated summary sentence.
 Page also features: (1) Filter dropdowns (Timeframe, Scope, Status) with white backgrounds and `#E2E8F0` borders, (2) Metrics bar (Projects, Comments, Residents, Overall Sentiment segments, Response Rate), and (3) Sorted projects grid table.
 
 ### Reports Panel (Staff)
@@ -463,7 +463,7 @@ Example Component Prompts:
   --color-body-dark: #374151;
   --color-action-gray: #6b7280;
   --color-heading-black: #111827;
-  --color-sage-green: #567A67;
+  --color-support-cyan: #0E7490;
   --color-danger-orange: #CD481B;
   --color-notification-orange: #CD481B;
   --color-warning-orange: #FFAA55;
@@ -543,7 +543,7 @@ const tokens = {
     bodyGray: "#334155",
     headingBlack: "#111827",
     actionGray: "#6b7280",
-    sageGreen: "#567A67",
+    supportCyan: "#0E7490",
     dangerOrange: "#CD481B",
     notificationRed: "#CD481B",
     warningOrange: "#FFAA55",

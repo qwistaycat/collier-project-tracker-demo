@@ -14,7 +14,7 @@
 // ================================================================
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { useTownship } from "../../TownshipContext";
 import {
@@ -25,6 +25,8 @@ import {
   type StaffComment,
   type StaffProject,
 } from "../../data";
+import { NameLink } from "../../components/detail/feedback/ui";
+import ResidentProfileModal from "../../components/detail/feedback/ResidentProfileModal";
 
 // ── Local types ──────────────────────────────────────────────────
 
@@ -123,25 +125,6 @@ function Pill({
   );
 }
 
-function VerifiedBadge({ verified }: { verified: boolean }) {
-  return (
-    <span
-      style={{
-        fontSize: 9.5,
-        fontWeight: 600,
-        padding: "0 5px",
-        borderRadius: 4,
-        lineHeight: "16px",
-        color: verified ? "#567A67" : "#94A3B8",
-        background: verified ? "#E4EDE7" : "#F1F5F9",
-        flexShrink: 0,
-      }}
-    >
-      {verified ? "Verified" : "Unverified"}
-    </span>
-  );
-}
-
 function SentimentChip({ sent }: { sent: StaffComment["sent"] }) {
   const [color, bg, label] = sentColor(sent);
   return (
@@ -206,6 +189,16 @@ function AttrAvatar({ attr, size = 30 }: { attr: AttrKey; size?: number }) {
 function FeedbackContent() {
   const { projects, updateProject, aiMode, dept, toast } = useTownship();
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Resident profile popover — any commenter name opens it.
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const copyVal = (val: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(val).catch(() => {});
+    }
+    toast("Copied to clipboard");
+  };
 
   const paramTab = searchParams.get("tab");
   const initialTab: FeedTab =
@@ -433,10 +426,7 @@ function FeedbackContent() {
                   flexWrap: "wrap",
                 }}
               >
-                <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827" }}>
-                  {row.c.name}
-                </span>
-                <VerifiedBadge verified={row.c.verified} />
+                <NameLink name={row.c.name} onClick={() => setProfileName(row.c.name)} />
                 {aiMode && <SentimentChip sent={row.c.sent} />}
               </div>
               <div
@@ -815,6 +805,19 @@ function FeedbackContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {profileName && (
+        <ResidentProfileModal
+          name={profileName}
+          projects={projects}
+          onClose={() => setProfileName(null)}
+          onOpenProject={(id) => {
+            setProfileName(null);
+            router.push(`/township/project/${id}?tab=feedback`);
+          }}
+          onCopy={copyVal}
+        />
       )}
     </div>
   );

@@ -6,7 +6,7 @@
 
 import React from "react";
 import type { ModMode, StaffComment, StaffProject } from "@/app/township/data";
-import { btnDanger, btnGreen, btnNeutral, pillStyle, ResidentAvatar } from "./ui";
+import { btnDanger, btnGreen, btnNeutral, NameLink, pillStyle, ResidentAvatar } from "./ui";
 
 const MOD_LABEL: Record<ModMode, string> = {
   post: "Post-moderation",
@@ -162,8 +162,8 @@ export default function ModerationQueue({
                   />
                 )}
                 <ResidentAvatar name={c.name} size={28} onClick={() => onOpenProfile(c.name)} />
-                <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827", flex: 1 }}>
-                  {c.name}
+                <span style={{ flex: 1 }}>
+                  <NameLink name={c.name} onClick={() => onOpenProfile(c.name)} />
                 </span>
                 <span style={{ fontSize: 11.5, color: "#94A3B8", flexShrink: 0 }}>{c.time}</span>
               </div>

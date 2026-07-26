@@ -47,7 +47,7 @@ export function insHash(s: string): number {
 /** Response-rate threshold color. */
 export function rColor(pct: number): string {
   // Warning tier uses the dark amber companion — #FFAA55 is too light for text.
-  return pct >= 80 ? "#567A67" : pct >= 50 ? "#B45309" : "#CD481B";
+  return pct >= 80 ? "#0E7490" : pct >= 50 ? "#B45309" : "#CD481B";
 }
 
 /** Dominant-sentiment verdict for a project. */
@@ -55,7 +55,7 @@ export function domOf(sent: { supportive: number; mixed: number; concerns: numbe
   word: string;
   color: string;
 } {
-  if (sent.supportive > 60) return { word: "Supportive", color: "#567A67" };
+  if (sent.supportive > 60) return { word: "Supportive", color: "#0E7490" };
   if (sent.concerns > 60) return { word: "Concerns", color: "#CD481B" };
   if (Math.abs(sent.supportive - sent.concerns) <= 10) return { word: "Split", color: "#64748B" };
   return { word: "Mixed", color: "#B45309" };

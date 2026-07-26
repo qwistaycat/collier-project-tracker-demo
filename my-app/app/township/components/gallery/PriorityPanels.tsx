@@ -22,6 +22,8 @@ import {
   type StaffComment,
   type StaffProject,
 } from "../../data";
+import { NameLink } from "../detail/feedback/ui";
+import ResidentProfileModal from "../detail/feedback/ResidentProfileModal";
 import {
   CommentBubbleIcon,
   SparkleIcon,
@@ -173,7 +175,7 @@ const ACTIVITY: { text: string; type: ActivityType; pid: string; time: string }[
 
 const ACTIVITY_COLORS: Record<ActivityType, [string, string]> = {
   comment: ["#2563EB", "#DBEAFE"],
-  update: ["#567A67", "#E4EDE7"],
+  update: ["#0E7490", "#E0F2F7"],
   poll: ["#7C3AED", "#EDE9FE"],
   follow: ["#B45309", "#FFEEDD"],
 };
@@ -198,9 +200,18 @@ const REMINDERS = [
 
 export default function PriorityPanels() {
   const router = useRouter();
-  const { projects, aiMode, dept } = useTownship();
+  const { projects, aiMode, dept, toast } = useTownship();
   const [drafts, setDrafts] = useState<Record<string, { busy: boolean; text: string }>>({});
   const [doneReminders, setDoneReminders] = useState<number[]>([]);
+
+  // Resident profile popover — any commenter name opens it.
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const copyVal = (val: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(val).catch(() => {});
+    }
+    toast("Copied to clipboard");
+  };
 
   const openProj = (id: string, tab: string, extra = "") =>
     router.push(`/township/project/${id}?tab=${tab}${extra}`);
@@ -242,7 +253,7 @@ export default function PriorityPanels() {
     if (!p) return [];
     const dir: "up" | "down" | "flat" =
       e.now > e.prev * 1.2 ? "up" : e.now < e.prev * 0.85 ? "down" : "flat";
-    const color = dir === "up" ? "#567A67" : dir === "down" ? "#B45309" : "#94A3B8";
+    const color = dir === "up" ? "#0E7490" : dir === "down" ? "#B45309" : "#94A3B8";
     const compare = `${e.now} comments this week · ${
       dir === "up"
         ? `up from ${e.prev}`
@@ -321,21 +332,11 @@ export default function PriorityPanels() {
                         flexWrap: "wrap",
                       }}
                     >
-                      <span style={{ fontSize: 12.5, fontWeight: 600, color: "#111827" }}>
-                        {row.c.name}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 9.5,
-                          fontWeight: 600,
-                          borderRadius: 4,
-                          padding: "1px 5px",
-                          color: row.c.verified ? "#567A67" : "#94A3B8",
-                          background: row.c.verified ? "#E4EDE7" : "#F1F5F9",
-                        }}
-                      >
-                        {row.c.verified ? "Verified" : "Unverified"}
-                      </span>
+                      <NameLink
+                        name={row.c.name}
+                        size={12.5}
+                        onClick={() => setProfileName(row.c.name)}
+                      />
                       <span
                         style={{
                           fontSize: 9.5,
@@ -519,12 +520,12 @@ export default function PriorityPanels() {
                     background: "#F1F5F9",
                   }}
                 >
-                  <span style={{ width: `${r.p.sentiment.supportive}%`, background: "#567A67" }} />
+                  <span style={{ width: `${r.p.sentiment.supportive}%`, background: "#0E7490" }} />
                   <span style={{ width: `${r.p.sentiment.mixed}%`, background: "#FFAA55" }} />
                   <span style={{ width: `${r.p.sentiment.concerns}%`, background: "#CD481B" }} />
                 </div>
                 <div style={{ display: "flex", gap: 8, fontSize: 10, marginTop: 3 }}>
-                  <span style={{ color: "#567A67", fontWeight: 600 }}>
+                  <span style={{ color: "#0E7490", fontWeight: 600 }}>
                     {r.p.sentiment.supportive}%
                   </span>
                   <span style={{ color: "#B45309", fontWeight: 600 }}>
@@ -647,9 +648,9 @@ export default function PriorityPanels() {
                       width: 14,
                       height: 14,
                       borderRadius: 4,
-                      border: `1.5px solid ${done ? "#567A67" : "#cbd5e1"}`,
-                      background: done ? "#E4EDE7" : "#fff",
-                      color: "#567A67",
+                      border: `1.5px solid ${done ? "#0E7490" : "#cbd5e1"}`,
+                      background: done ? "#E0F2F7" : "#fff",
+                      color: "#0E7490",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -678,6 +679,19 @@ export default function PriorityPanels() {
           </Panel>
         )}
       </div>
+
+      {profileName && (
+        <ResidentProfileModal
+          name={profileName}
+          projects={projects}
+          onClose={() => setProfileName(null)}
+          onOpenProject={(id) => {
+            setProfileName(null);
+            openProj(id, "feedback");
+          }}
+          onCopy={copyVal}
+        />
+      )}
     </div>
   );
 }

@@ -25,9 +25,9 @@ export const STAFF_CATEGORIES: StaffCategory[] = [
 /** Category accent + tint. Data-encoding colors — keep verbatim. */
 export const CAT_META: Record<StaffCategory, { color: string; bg: string; heroSeed: string }> = {
   Roads: { color: "#B45309", bg: "#FFEEDD", heroSeed: "roadpaving" },
-  Parks: { color: "#567A67", bg: "#E4EDE7", heroSeed: "hilltoppark" },
+  Parks: { color: "#0E7490", bg: "#E0F2F7", heroSeed: "hilltoppark" },
   Infrastructure: { color: "#2563EB", bg: "#DBEAFE", heroSeed: "stormwater" },
-  "Plan/Dev": { color: "#0891B2", bg: "#E0F2F7", heroSeed: "newdevelopment" },
+  "Plan/Dev": { color: "#0d2240", bg: "#EFF3F8", heroSeed: "newdevelopment" },
   "Public Safety": { color: "#CD481B", bg: "#F9E3D8", heroSeed: "firestationpresto" },
 };
 
@@ -76,7 +76,7 @@ export function lcMeta(lc: Lifecycle): { label: string; c: string; bg: string } 
   const m: Record<Lifecycle, { label: string; c: string; bg: string }> = {
     draft: { label: "Draft", c: "#475569", bg: "#F1F5F9" },
     pending: { label: "Pending Review", c: "#B45309", bg: "#FFEEDD" },
-    published: { label: "Published", c: "#567A67", bg: "#E4EDE7" },
+    published: { label: "Published", c: "#0E7490", bg: "#E0F2F7" },
     unpublished: { label: "Unpublished", c: "#64748B", bg: "#EEF2F6" },
     completed: { label: "Completed", c: "#2563EB", bg: "#DBEAFE" },
     archived: { label: "Archived", c: "#64748B", bg: "#EEF2F6" },
@@ -87,8 +87,8 @@ export function lcMeta(lc: Lifecycle): { label: string; c: string; bg: string } 
 
 export function statusStyleColors(status: string): [string, string] {
   const m: Record<string, [string, string]> = {
-    Active: ["#567A67", "#E4EDE7"],
-    Published: ["#567A67", "#E4EDE7"],
+    Active: ["#0E7490", "#E0F2F7"],
+    Published: ["#0E7490", "#E0F2F7"],
     Draft: ["#475569", "#F1F5F9"],
     Planning: ["#B45309", "#FFEEDD"],
     "In Review": ["#B45309", "#FFEEDD"],
@@ -105,14 +105,14 @@ export type SentimentWord = "supportive" | "mixed" | "concerns";
 /** [accent, tint, label] for a comment sentiment code. */
 export function sentColor(s: SentimentCode): [string, string, string] {
   return s === "green"
-    ? ["#567A67", "#E4EDE7", "Supportive"]
+    ? ["#0E7490", "#E0F2F7", "Supportive"]
     : s === "red"
       ? ["#CD481B", "#F9E3D8", "Concerns"]
       : ["#B45309", "#FFEEDD", "Mixed"];
 }
 
 export const SENT_WORD_COLOR: Record<SentimentWord, string> = {
-  supportive: "#567A67",
+  supportive: "#0E7490",
   mixed: "#B45309",
   concerns: "#CD481B",
 };
@@ -969,7 +969,7 @@ export function simulateAi(fallback: string, delayMs = 1200): Promise<string> {
   return new Promise((resolve) => setTimeout(() => resolve(fallback), delayMs));
 }
 
-const AVATAR_COLORS = ["#60a5fa", "#567A67", "#567A67", "#a78bfa", "#f472b6", "#67e8f9", "#fb923c"];
+const AVATAR_COLORS = ["#60a5fa", "#0E7490", "#0E7490", "#a78bfa", "#f472b6", "#67e8f9", "#fb923c"];
 
 export function avatarColor(name: string): string {
   let h = 0;
@@ -986,4 +986,24 @@ export function initialsOf(name: string): string {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+// Every commenter is a verified resident, so staff can always see who
+// is behind a screen name. Names that already read as real names pass
+// through; handles get a deterministic real name from the pools below.
+const REAL_FIRST = [
+  "Maria", "James", "Linda", "Robert", "Susan", "David",
+  "Karen", "Thomas", "Nancy", "Paul", "Diane", "Mark",
+];
+const REAL_LAST = [
+  "Kowalski", "Reyes", "Novak", "Brennan", "Okafor", "Sullivan",
+  "Marino", "Hughes", "Petrov", "Lang", "Carey", "Bishop",
+];
+
+export function realNameOf(name: string): string {
+  const s = String(name || "").trim();
+  if (/^[A-Z][a-z]+(\s[A-Z][a-zA-Z'.-]+)+$/.test(s) && !/\d/.test(s)) return s;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `${REAL_FIRST[h % REAL_FIRST.length]} ${REAL_LAST[Math.floor(h / 12) % REAL_LAST.length]}`;
 }

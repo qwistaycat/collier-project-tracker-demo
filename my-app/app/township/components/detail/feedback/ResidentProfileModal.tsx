@@ -6,7 +6,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import { ChevronRightIcon, MapPinIcon } from "@/app/components/icons";
-import { avatarColor, initialsOf, type StaffProject } from "@/app/township/data";
+import { avatarColor, initialsOf, realNameOf, type StaffProject } from "@/app/township/data";
 import { CopyIcon, Overlay } from "./ui";
 
 const ZIPS = ["15106", "15142", "15017", "15057", "15071"];
@@ -165,6 +165,9 @@ export default function ResidentProfileModal({
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#111827" }}>{name}</div>
+            {realNameOf(name) !== name && (
+              <div style={{ fontSize: 12.5, color: "#64748B" }}>{realNameOf(name)}</div>
+            )}
             <div style={{ fontSize: 12, color: "#94A3B8" }}>Collier Township resident</div>
           </div>
           <button

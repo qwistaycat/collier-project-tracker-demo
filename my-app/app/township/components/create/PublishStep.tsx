@@ -432,9 +432,9 @@ export default function PublishStep({
                                   borderRadius: "50%",
                                   marginTop: 2,
                                   flexShrink: 0,
-                                  background: done ? "#567A67" : current ? "#2563EB" : "#fff",
+                                  background: done ? "#0E7490" : current ? "#2563EB" : "#fff",
                                   border: done
-                                    ? "2px solid #567A67"
+                                    ? "2px solid #0E7490"
                                     : current
                                       ? "2px solid #2563EB"
                                       : "2px solid #CBD5E1",
@@ -502,7 +502,7 @@ export default function PublishStep({
                                   key={bi}
                                   style={{ display: "flex", alignItems: "flex-start", gap: 7 }}
                                 >
-                                  <span style={{ color: "#567A67", marginTop: 2 }}>
+                                  <span style={{ color: "#0E7490", marginTop: 2 }}>
                                     <CheckIcon size={11} />
                                   </span>
                                   <span style={{ fontSize: 12, color: "#334155", lineHeight: 1.5 }}>
