@@ -59,13 +59,13 @@ function identityDisplay(
   anonName: string | null
 ): { name: string; initial: string; color: string } {
   if (identity === "initials") {
-    return { name: RESIDENT_INITIALS, initial: "C", color: "#567A67" };
+    return { name: RESIDENT_INITIALS, initial: "C", color: "#0E7490" };
   }
   if (identity === "anonymous") {
     const name = anonName ?? "Anonymous";
     return { name, initial: name.split(" ")[1]?.charAt(0) ?? "A", color: "#64748b" };
   }
-  return { name: RESIDENT_USERNAME, initial: "C", color: "#567A67" };
+  return { name: RESIDENT_USERNAME, initial: "C", color: "#0E7490" };
 }
 
 function seedPastFeedback(
@@ -586,7 +586,7 @@ function MessageComposer({
   initialValue = "",
   collapsible = false,
   avatarInitial,
-  avatarColor = "#567A67",
+  avatarColor = "#0E7490",
 }: {
   placeholder: string;
   onSubmit: (text: string) => void;
@@ -1053,7 +1053,7 @@ function PastFeedbackItem({
     <div style={{ marginBottom: 16 }}>
       <CommentHeader
         initial="C"
-        avatarColor="#567A67"
+        avatarColor="#0E7490"
         name={RESIDENT_NAME}
         timeAgo={time}
         menu={
@@ -1357,7 +1357,7 @@ export default function Discussion({ data }: DiscussionProps) {
               onSubmit={submitPrivateMessage}
               collapsible
               avatarInitial="C"
-              avatarColor="#567A67"
+              avatarColor="#0E7490"
             />
             <div style={{ marginTop: 24 }}>
               <h3

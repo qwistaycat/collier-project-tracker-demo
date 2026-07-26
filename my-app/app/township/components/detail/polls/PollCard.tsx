@@ -3,7 +3,7 @@
 // ================================================================
 //  PollCard — one poll: question/meta head row with status pill,
 //  results grid (donut + support/oppose/neutral stat blocks +
-//  verified-resident split), vote trend chart, and the action row
+//  vote trend chart, and the action row
 //  (Edit / Close / Reopen / Export).
 // ================================================================
 
@@ -79,7 +79,7 @@ export default function PollCard({
   onSetStatus: (status: "Active" | "Closed") => void;
   onExport: () => void;
 }) {
-  const { support, oppose, neutral, verified } = poll.poll;
+  const { support, oppose, neutral } = poll.poll;
   const total = support + oppose + neutral;
   const [pillColor, pillBg] = statusStyleColors(
     poll.status === "Closed" ? "Completed" : poll.status
@@ -155,7 +155,7 @@ export default function PollCard({
         <div style={{ display: "flex", justifyContent: "center" }}>
           <PollDonut
             segments={[
-              { value: support, color: "#567A67" },
+              { value: support, color: "#0E7490" },
               { value: oppose, color: "#CD481B" },
               { value: neutral, color: "#94A3B8" },
             ]}
@@ -173,7 +173,7 @@ export default function PollCard({
           >
             <StatBlock
               value={support}
-              color="#567A67"
+              color="#0E7490"
               label={`Support · ${pctOf(support, total)}`}
             />
             <StatBlock
@@ -186,10 +186,6 @@ export default function PollCard({
               color="#94A3B8"
               label={`Neutral · ${pctOf(neutral, total)}`}
             />
-          </div>
-          {/* Verified-voter split */}
-          <div style={{ fontSize: 12, color: "#94a3b8" }}>
-            Verified residents: {verified.s} / {verified.o} / {verified.n}
           </div>
         </div>
       </div>

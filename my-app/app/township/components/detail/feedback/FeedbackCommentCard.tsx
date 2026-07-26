@@ -10,6 +10,7 @@ import {
   btnDanger,
   btnNavy,
   btnNeutral,
+  NameLink,
   OfficialReplyBubble,
   ResidentAvatar,
   SentPill,
@@ -48,7 +49,7 @@ export default function FeedbackCommentCard({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
         <ResidentAvatar name={comment.name} size={30} onClick={() => onOpenProfile(comment.name)} />
-        <span style={{ fontSize: 13.5, fontWeight: 600, color: "#111827" }}>{comment.name}</span>
+        <NameLink name={comment.name} onClick={() => onOpenProfile(comment.name)} />
         {aiMode && <SentPill sent={comment.sent} />}
         <span style={{ flex: 1 }} />
         <span style={{ fontSize: 12, color: "#94A3B8", flexShrink: 0 }}>{comment.time}</span>

@@ -11,11 +11,38 @@ import { ChevronDownIcon } from "@/app/components/icons";
 import {
   avatarColor,
   initialsOf,
+  realNameOf,
   sentColor,
   STAFF_NAME,
   type SentimentCode,
   type StaffReply,
 } from "@/app/township/data";
+
+/** Clickable resident name — opens the profile; hover shows the real
+ *  name and washes the block cyan to signal the affordance. */
+export function NameLink({
+  name,
+  onClick,
+  size = 13.5,
+  style,
+}: {
+  name: string;
+  onClick: () => void;
+  size?: number;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <button
+      type="button"
+      className="township-name-link"
+      onClick={onClick}
+      title={realNameOf(name)}
+      style={{ fontSize: size, fontWeight: 600, ...style }}
+    >
+      {name}
+    </button>
+  );
+}
 
 // ── Local icons ──────────────────────────────────────────────────
 
@@ -279,7 +306,7 @@ export const btnGreen = (h = 30): React.CSSProperties => ({
   height: h,
   padding: "0 14px",
   borderRadius: 7,
-  background: "#567A67",
+  background: "#0E7490",
   color: "white",
   fontSize: 12,
   fontWeight: 600,

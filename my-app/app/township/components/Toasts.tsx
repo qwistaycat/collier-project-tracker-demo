@@ -44,7 +44,7 @@ export default function Toasts() {
             maxWidth: 380,
           }}
         >
-          <span style={{ color: "#567A67", display: "flex", flexShrink: 0 }}>
+          <span style={{ color: "#0E7490", display: "flex", flexShrink: 0 }}>
             <CheckIcon size={14} />
           </span>
           {t.msg}

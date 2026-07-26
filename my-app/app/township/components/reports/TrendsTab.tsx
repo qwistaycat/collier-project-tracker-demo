@@ -42,9 +42,9 @@ const NB_ROWS = [
 
 const CAT_SERIES = [
   { name: "Roads", color: "#B45309" },
-  { name: "Parks", color: "#567A67" },
+  { name: "Parks", color: "#0E7490" },
   { name: "Infrastructure", color: "#2563EB" },
-  { name: "Plan/Dev", color: "#0891B2" },
+  { name: "Plan/Dev", color: "#0d2240" },
   { name: "Public Safety", color: "#CD481B" },
 ];
 const CAT_ROWS = [
@@ -310,7 +310,7 @@ export default function TrendsTab() {
           <span style={{ flex: 1 }} />
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             {[
-              { name: "Response rate (%)", color: "#567A67" },
+              { name: "Response rate (%)", color: "#0E7490" },
               { name: "Avg response time (days)", color: "#2563EB" },
             ].map((it) => (
               <span
@@ -325,7 +325,7 @@ export default function TrendsTab() {
         </div>
         <MultiLineChart
           series={[
-            { color: "#567A67", pts: cut([...RESP_RATE]) },
+            { color: "#0E7490", pts: cut([...RESP_RATE]) },
             { color: "#2563EB", pts: cut([...RESP_TIME]).map((v) => v * 14) },
           ]}
           height={170}
@@ -383,7 +383,7 @@ export default function TrendsTab() {
             <span style={{ flex: 1 }} />
             <SquareLegend
               items={[
-                { name: "Supportive", color: "#567A67" },
+                { name: "Supportive", color: "#0E7490" },
                 { name: "Mixed", color: "#FFAA55" },
                 { name: "Concerns", color: "#CD481B" },
               ]}

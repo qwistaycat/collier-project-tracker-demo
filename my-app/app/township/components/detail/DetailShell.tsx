@@ -826,7 +826,7 @@ export default function DetailShell() {
               </button>
               <button
                 onClick={reviewApprove}
-                style={{ ...ghostBtn(36), background: "#567A67", border: "1px solid #567A67", color: "#fff" }}
+                style={{ ...ghostBtn(36), background: "#0E7490", border: "1px solid #0E7490", color: "#fff" }}
               >
                 Approve &amp; Publish
               </button>

@@ -3,7 +3,7 @@
 // ================================================================
 //  PollsTab — "Poll Results" tab body of the staff project detail
 //  page. Each project has a single resident poll: results donut,
-//  support/oppose/neutral stats with verified-voter split, vote
+//  support/oppose/neutral stats, vote
 //  trend line, poll lifecycle actions, and the create/edit modal.
 //  Rendered by the detail shell (which owns the header + tab bar).
 // ================================================================
