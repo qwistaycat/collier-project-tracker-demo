@@ -9,7 +9,7 @@ import type { StaffComment } from "@/app/township/data";
 import {
   btnDanger,
   btnNavy,
-  btnNeutral,
+  KebabMenu,
   NameLink,
   OfficialReplyBubble,
   ResidentAvatar,
@@ -65,19 +65,14 @@ export default function FeedbackCommentCard({
             <OfficialReplyBubble
               key={i}
               r={r}
-              actions={
-                <div style={{ display: "flex", gap: 8, marginTop: 9 }}>
-                  <button type="button" style={btnNeutral(27)} onClick={() => onEditReply(i)}>
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    style={{ ...btnNeutral(27), border: "1px solid #F2C6B3", color: "#CD481B" }}
-                    onClick={() => onDeleteReply(i)}
-                  >
-                    Delete
-                  </button>
-                </div>
+              menu={
+                <KebabMenu
+                  label="Reply actions"
+                  items={[
+                    { label: "Edit", onClick: () => onEditReply(i) },
+                    { label: "Delete", danger: true, onClick: () => onDeleteReply(i) },
+                  ]}
+                />
               }
             />
           ))}

@@ -6,8 +6,8 @@
 //  lacks are defined here to avoid cross-screen merge conflicts.
 // ================================================================
 
-import React from "react";
-import { ChevronDownIcon } from "@/app/components/icons";
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronDownIcon, MoreIcon } from "@/app/components/icons";
 import {
   avatarColor,
   initialsOf,
@@ -208,12 +208,101 @@ export function replyDisplay(r: StaffReply): ReplyDisplay {
 }
 
 /** Official staff reply bubble — used in threads and the reply-modal preview. */
+/** Corner kebab (3-dot) menu — Edit/Delete actions for own replies. */
+export function KebabMenu({
+  label,
+  items,
+}: {
+  label: string;
+  items: { label: string; danger?: boolean; onClick: () => void }[];
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={wrapRef} style={{ position: "relative", flexShrink: 0 }}>
+      <button
+        type="button"
+        aria-label={label}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          width: 26,
+          height: 26,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: open ? "#E0F2F7" : "none",
+          border: "none",
+          borderRadius: 7,
+          color: "#64748B",
+          cursor: "pointer",
+          padding: 0,
+          transition: "background 0.15s ease",
+        }}
+      >
+        <MoreIcon size={14} />
+      </button>
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: 30,
+            right: 0,
+            zIndex: 30,
+            width: 132,
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 10,
+            boxShadow: "0 12px 32px rgba(2, 12, 27, 0.14)",
+            padding: 4,
+          }}
+        >
+          {items.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              className="township-menu-item"
+              style={item.danger ? { color: "#CD481B" } : undefined}
+              onClick={() => {
+                setOpen(false);
+                item.onClick();
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function OfficialReplyBubble({
   r,
   actions,
+  menu,
 }: {
   r: StaffReply;
   actions?: React.ReactNode;
+  /** Rendered in the header's top-right corner, after the timestamp. */
+  menu?: React.ReactNode;
 }) {
   const d = replyDisplay(r);
   return (
@@ -241,6 +330,7 @@ export function OfficialReplyBubble({
           {d.sub && <div style={{ fontSize: 11, color: "#64748B" }}>{d.sub}</div>}
         </div>
         <span style={{ fontSize: 11, color: "#94A3B8", flexShrink: 0 }}>{r.time}</span>
+        {menu}
       </div>
       <div
         style={{
